@@ -1,0 +1,51 @@
+{
+  "quiz": {
+    "name": "French Basics",
+    "subject": "French",
+    "created_at": "2025-09-17",
+    "description": "Basic French vocabulary for beginners"
+  },
+  "flashcards": [
+    {
+      "question": {
+        "title": "dog",
+        "text": "dog",
+        "lang": "en",
+        "difficulty": 1,
+        "emoji": "🐶",
+        "image": "dog.png"
+      },
+      "answer": {
+        "text": "chien",
+        "lang": "fr"
+      }
+    },
+    {
+      "question": {
+        "title": "cat",
+        "text": "cat",
+        "lang": "en",
+        "difficulty": 1,
+        "emoji": "🐱",
+        "image": "cat.png"
+      },
+      "answer": {
+        "text": "chat",
+        "lang": "fr"
+      }
+    },
+    {
+      "question": {
+        "title": "house",
+        "text": "house",
+        "lang": "en",
+        "difficulty": 2,
+        "emoji": "🏠"
+      },
+      "answer": {
+        "text": "maison",
+        "lang": "fr"
+      }
+    }
+  ]
+}
