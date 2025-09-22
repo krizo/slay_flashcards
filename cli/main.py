@@ -1,10 +1,10 @@
 import typer
 from sqlalchemy.orm import Session
 
+from cli.cli_application import CLIApplication
 from db import database
 from db.crud import quizzes
 from db.crud import importers
-from db.database import reset_database
 
 app = typer.Typer()
 
@@ -34,6 +34,11 @@ def list_quizzes():
         typer.echo(f"[{q.id}] {q.name} ({q.subject or 'no subject'})")
 
 
+def main():
+    """Entry point for the CLI application."""
+    app = CLIApplication()
+    app.run()
+
+
 if __name__ == "__main__":
-    reset_database()
-    app()
+    main()
