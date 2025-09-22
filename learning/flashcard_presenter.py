@@ -40,7 +40,7 @@ class CLIFlashcardPresenter:
     @staticmethod
     def show_answer(card: models.Flashcard) -> None:
         """Display answer in CLI format."""
-        print(f"\n✅ Answer: {card.answer_text}")
+        print(f"\n✅  Answer: {card.answer_text}")
 
     @staticmethod
     def wait_for_reveal() -> None:
