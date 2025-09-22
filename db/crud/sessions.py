@@ -15,6 +15,7 @@ def create_session(db: Session, user_id: int, quiz_id: int, mode: str, score: Op
         started_at=datetime.utcnow()
     )
     db.add(session)
+    db.commit()
     db.refresh(session)
     return session
 

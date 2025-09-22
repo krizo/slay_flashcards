@@ -14,6 +14,11 @@ class AudioServiceInterface(ABC):
         """Play text as speech. Returns True if successful."""
         pass
 
+    @abstractmethod
+    def is_available(self) -> bool:
+        """Check if audio service is available."""
+        pass
+
 
 class GTTSAudioService(AudioServiceInterface):
     """Google Text-to-Speech audio service implementation."""
@@ -26,6 +31,15 @@ class GTTSAudioService(AudioServiceInterface):
         if not self._pygame_initialized:
             pygame.mixer.init()
             self._pygame_initialized = True
+
+    def is_available(self) -> bool:
+        """Check if GTTS and pygame are available."""
+        try:
+            # Test if we can create a TTS object
+            test_tts = gTTS(text="test", lang="en", slow=False)
+            return True
+        except Exception:
+            return False
 
     def play_text(self, text: str, lang: str = "en") -> bool:
         """Play text using Google TTS and pygame."""
@@ -67,6 +81,10 @@ class GTTSAudioService(AudioServiceInterface):
 
 class SilentAudioService(AudioServiceInterface):
     """Silent audio service for when audio is disabled."""
+
+    def is_available(self) -> bool:
+        """Silent service is always available."""
+        return True
 
     def play_text(self, text: str, lang: str = "en") -> bool:
         """No-op implementation."""
