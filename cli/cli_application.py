@@ -26,7 +26,8 @@ class CLIApplication:
         self.app.command()(self.progress)
         self.app.command()(self.reset_db)
 
-    def _get_db(self) -> Session:
+    @staticmethod
+    def _get_db() -> Session:
         """Get database session."""
         return database.SessionLocal()
 
@@ -173,3 +174,12 @@ class CLIApplication:
         # Create tables if they don't exist
         database.Base.metadata.create_all(bind=database.engine)
         self.app()
+
+
+def main():
+    """Entry point for the CLI application."""
+    app = CLIApplication()
+    app.run()
+
+if __name__ == "__main__":
+    main()
