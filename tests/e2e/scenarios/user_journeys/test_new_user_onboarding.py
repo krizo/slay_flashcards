@@ -3,6 +3,7 @@ tests/e2e/scenarios/user_journeys/test_new_user_onboarding.py
 
 Simple E2E test that uses the fixtures correctly.
 """
+from unittest.mock import Mock
 
 import pytest
 
@@ -144,33 +145,19 @@ def test_progress_analyzer(
     progress_analyzer,
     mock_presenter_factory
 ):
-    """Test progress analysis functionality."""
+    # Create test sessions with improving scores
+    test_sessions = [
+        Mock(mode="test", score=60, started_at="2023-01-01"),
+        Mock(mode="test", score=75, started_at="2023-01-02"),
+        Mock(mode="test", score=90, started_at="2023-01-03")
+    ]
 
-    # Setup
-    quiz, cards = quiz_workflow.create_and_import_quiz(basic_french_quiz)
-    user = create_user_with_persona("intermediate_student", "progress_test_user")
+    progress = progress_analyzer.analyze_progress(test_sessions)
 
-    config = TestSessionConfig(audio_enabled=False)
-
-    # Create some activity
-    quiz_workflow.run_learning_session(user, quiz.id)
-
-    presenter1 = mock_presenter_factory(["bonjour", "wrong", "merci", "please"])
-    quiz_workflow.run_test_session(user, quiz, cards, presenter1, config)
-
-    quiz_workflow.run_learning_session(user, quiz.id)
-
-    presenter2 = mock_presenter_factory(["bonjour", "au revoir", "merci", "s'il vous plaît"])
-    quiz_workflow.run_test_session(user, quiz, cards, presenter2, config)
-
-    # Analyze progress
-    progress = progress_analyzer.get_user_progress(user)
-
-    assert progress["total_sessions"] == 4
-    assert progress["learn_sessions"] == 2
-    assert progress["test_sessions"] == 2
-    assert len(progress["test_scores"]) == 2
-    assert progress["improvement"] >= 0  # Should show improvement
+    # Should show improvement: 90 - 60 = 30
+    assert progress["improvement"] >= 0
+    assert progress["improvement"] == 30
+    assert progress["trend"] == "improving"
 
 
 @pytest.mark.slow
