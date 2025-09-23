@@ -63,29 +63,22 @@ class AnswerEvaluator:
         self.config = config
 
     def evaluate_answer(self, user_answer: str, correct_answer: str) -> tuple[AnswerEvaluation, float]:
-        """
-        Evaluate user answer against correct answer.
-        Returns (evaluation, score) where score is 0.0-1.0.
-        """
         if not user_answer.strip():
             return AnswerEvaluation.INCORRECT, 0.0
 
-        # Normalize answers
         user_norm = self._normalize_answer(user_answer)
         correct_norm = self._normalize_answer(correct_answer)
 
-        # Exact match
         if user_norm == correct_norm:
             return AnswerEvaluation.CORRECT, 1.0
 
-        # Strict matching mode
         if self.config.strict_matching:
             return AnswerEvaluation.INCORRECT, 0.0
 
-        # Fuzzy matching
         similarity = self._calculate_similarity(user_norm, correct_norm)
 
-        if similarity >= 0.95:  # Very close match
+        # FIXED: Raise threshold for CORRECT from 0.95 to 0.98
+        if similarity >= 0.98:  # Must be nearly perfect for CORRECT
             return AnswerEvaluation.CORRECT, 1.0
         elif similarity >= self.config.similarity_threshold and self.config.allow_partial_credit:
             return AnswerEvaluation.PARTIAL, similarity

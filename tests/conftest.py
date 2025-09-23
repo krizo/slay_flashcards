@@ -24,10 +24,6 @@ from services.user_service import UserService
 from services.audio_service import SilentAudioService
 
 
-# =============================================================================
-# EXISTING FIXTURES (keep your current fixtures here)
-# =============================================================================
-
 @pytest.fixture(scope="function")
 def test_db():
     """Create a test database for each test function."""
@@ -487,7 +483,8 @@ def progress_analyzer(e2e_services):
                 "recent_activity": sessions[:5]  # Most recent 5
             }
             
-        def _calculate_improvement(self, test_sessions):
+        @staticmethod
+        def _calculate_improvement(test_sessions):
             """Calculate improvement between first and last test."""
             if len(test_sessions) < 2:
                 return 0
@@ -526,7 +523,49 @@ def progress_analyzer(e2e_services):
                 "students_tested": len(user_reports),
                 "user_reports": user_reports
             }
-    
+
+        def analyze_progress(self, user_sessions: List) -> dict:
+            """Analyze user progress over time."""
+            if len(user_sessions) < 2:
+                return {
+                    "improvement": 0,
+                    "trend": "insufficient_data",
+                    "sessions_analyzed": len(user_sessions)
+                }
+
+            # Get test sessions with scores
+            test_sessions = [s for s in user_sessions if s.mode == "test" and s.score is not None]
+
+            if len(test_sessions) < 2:
+                return {
+                    "improvement": 0,
+                    "trend": "insufficient_data",
+                    "sessions_analyzed": len(test_sessions)
+                }
+
+            # Sort by time (oldest first)
+            sorted_sessions = sorted(test_sessions, key=lambda x: x.started_at)
+
+            # Calculate improvement: latest score - first score
+            first_score = sorted_sessions[0].score
+            latest_score = sorted_sessions[-1].score
+            improvement = latest_score - first_score
+
+            # Determine trend
+            if improvement > 10:
+                trend = "improving"
+            elif improvement < -10:
+                trend = "declining"
+            else:
+                trend = "stable"
+
+            return {
+                "improvement": improvement,
+                "trend": trend,
+                "sessions_analyzed": len(sorted_sessions),
+                "first_score": first_score,
+                "latest_score": latest_score
+            }
     return ProgressAnalyzer(e2e_services)
 
 

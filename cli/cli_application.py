@@ -255,9 +255,10 @@ class CLIApplication:
 
 
 # Helper command for testing specific features
-@typer.command()
 def test_answer_evaluation():
     """Test the answer evaluation system with sample data."""
+    from learning.sessions.test_session import TestSessionConfig, AnswerEvaluator
+
     config = TestSessionConfig(
         strict_matching=False,
         case_sensitive=False,

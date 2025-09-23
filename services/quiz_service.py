@@ -21,7 +21,9 @@ class QuizService:
         return quizzes.get_quiz(self.db, quiz_id)
 
     def get_quiz_flashcards(self, quiz_id: int) -> List[models.Flashcard]:
-        """Get all flashcards for a quiz."""
+        quiz = self.get_quiz_by_id(quiz_id)
+        if quiz is None:
+            raise ValueError(f"Quiz with id {quiz_id} not found")
         return flashcards.get_flashcards_for_quiz(self.db, quiz_id)
 
     def import_quiz_from_file(self, file_path: str) -> models.Quiz:
