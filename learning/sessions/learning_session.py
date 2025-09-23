@@ -1,9 +1,9 @@
-from typing import List, Optional
+from typing import List
 from enum import Enum
 
 from db import models
 from services.audio_service import AudioServiceInterface
-from learning.flashcard_presenter import FlashcardPresenterInterface
+from learning.presenters.flashcard_presenter import FlashcardPresenterInterface
 
 
 class LearningResult(Enum):
@@ -21,12 +21,14 @@ class LearningSessionConfig:
         audio_enabled: bool = True,
         question_lang: str = "pl",
         answer_lang: str = "fr",
-        allow_repeat: bool = True
+        allow_repeat: bool = True,
+        override_card_languages: bool = True  # NEW: Control language priority
     ):
         self.audio_enabled = audio_enabled
         self.question_lang = question_lang
         self.answer_lang = answer_lang
         self.allow_repeat = allow_repeat
+        self.override_card_languages = override_card_languages
 
 
 class LearningSession:
@@ -61,9 +63,9 @@ class LearningSession:
             # Show question
             self.presenter.show_question(card, i + 1, len(self.flashcards))
 
-            # Play question audio
+            # Play question audio with fixed language priority
             if self.config.audio_enabled and self.audio_service.is_available():
-                question_lang = card.question_lang or self.config.question_lang
+                question_lang = self._get_question_language(card)
                 self.audio_service.play_text(card.question_text, question_lang)
 
             # Wait for reveal
@@ -72,9 +74,9 @@ class LearningSession:
             # Show answer
             self.presenter.show_answer(card)
 
-            # Play answer audio
+            # Play answer audio with fixed language priority
             if self.config.audio_enabled and self.audio_service.is_available():
-                answer_lang = card.answer_lang or self.config.answer_lang
+                answer_lang = self._get_answer_language(card)
                 self.audio_service.play_text(card.answer_text, answer_lang)
 
             # Get user choice for next action
@@ -91,3 +93,21 @@ class LearningSession:
             self.cards_reviewed = i
 
         return LearningResult.COMPLETED
+
+    def _get_question_language(self, card: models.Flashcard) -> str:
+        """Get the language to use for question audio, respecting configuration."""
+        if self.config.override_card_languages:
+            # Command-line argument takes precedence
+            return self.config.question_lang
+        else:
+            # Fallback to card language if no override
+            return card.question_lang or self.config.question_lang
+
+    def _get_answer_language(self, card: models.Flashcard) -> str:
+        """Get the language to use for answer audio, respecting configuration."""
+        if self.config.override_card_languages:
+            # Command-line argument takes precedence
+            return self.config.answer_lang
+        else:
+            # Fallback to card language if no override
+            return card.answer_lang or self.config.answer_lang
