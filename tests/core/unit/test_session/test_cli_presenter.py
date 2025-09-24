@@ -1,7 +1,7 @@
 from unittest.mock import Mock
 
 from core.db import models
-from core.learning.presenters.test_presenter import CLITestPresenter
+from core.learning.presenters.quiz_presenter import CLITestPresenter
 from core.learning.sessions.quiz_session import CardResult, AnswerEvaluation
 
 

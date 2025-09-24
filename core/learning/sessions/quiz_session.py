@@ -2,7 +2,7 @@ from typing import List, Dict, Any
 from enum import Enum
 
 from core.db import models
-from core.learning.presenters.test_presenter import TypedPresenterInterface
+from core.learning.presenters.quiz_presenter import TypedPresenterInterface
 from core.learning.sessions.answer_evaluator import TypedAnswerEvaluator
 from core.services.audio_service import AudioServiceInterface
 
@@ -104,7 +104,7 @@ class TestSession:
                 return TestResult.QUIT_EARLY
 
             # Evaluate answer
-            evaluation, score = self.evaluator.evaluate_answer(user_answer, card.answer_text)
+            evaluation, score = self.evaluator.evaluate_answer(user_answer, card)
             result = CardResult(card, user_answer, evaluation, score)
             self.results.append(result)
 

@@ -13,7 +13,7 @@ import json
 
 # Import core services
 from core.db.database import SessionLocal, Base, engine
-from core.learning.presenters.test_presenter import AnswerTypeUtils
+from core.learning.presenters.quiz_presenter import AnswerTypeUtils
 from core.services.quiz_service import QuizService
 from core.services.user_service import UserService
 from core.services.audio_service import GTTSAudioService
@@ -636,7 +636,7 @@ def show_quiz_mode():
                     st.warning(f"Audio error: {str(e)}")
 
             # Render typed answer input
-            from core.learning.presenters.test_presenter import StreamlitTypedPresenter
+            from core.learning.presenters.quiz_presenter import StreamlitTypedPresenter
             presenter = StreamlitTypedPresenter()
             user_answer = presenter.render_answer_input(current_card, f"q{question_num}")
 
