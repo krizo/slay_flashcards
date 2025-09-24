@@ -12,12 +12,12 @@ from datetime import datetime
 import json
 
 # Import core services
-from db.database import SessionLocal, Base, engine
-from learning.presenters.test_presenter import AnswerTypeUtils
-from services.quiz_service import QuizService
-from services.user_service import UserService
-from services.audio_service import GTTSAudioService
-from learning.sessions.quiz_session import TypedAnswerEvaluator
+from core.db.database import SessionLocal, Base, engine
+from core.learning.presenters.test_presenter import AnswerTypeUtils
+from core.services.quiz_service import QuizService
+from core.services.user_service import UserService
+from core.services.audio_service import GTTSAudioService
+from core.learning.sessions.quiz_session import TypedAnswerEvaluator
 
 # Configure Streamlit page
 st.set_page_config(
@@ -636,7 +636,7 @@ def show_quiz_mode():
                     st.warning(f"Audio error: {str(e)}")
 
             # Render typed answer input
-            from learning.presenters.test_presenter import StreamlitTypedPresenter
+            from core.learning.presenters.test_presenter import StreamlitTypedPresenter
             presenter = StreamlitTypedPresenter()
             user_answer = presenter.render_answer_input(current_card, f"q{question_num}")
 
@@ -678,7 +678,7 @@ def show_quiz_mode():
             st.success("🎯 Test Completed!")
 
             # Calculate results using typed evaluator
-            from learning.sessions.quiz_session import TestSessionConfig
+            from core.learning.sessions.quiz_session import TestSessionConfig
 
             config = TestSessionConfig(
                 strict_matching=strict_mode,
@@ -1483,7 +1483,7 @@ def show_settings():
                 if confirm_text == "DELETE ALL DATA":
                     if st.button("🗑️ RESET DATABASE", type="secondary"):
                         try:
-                            from db.database import reset_database
+                            from core.db.database import reset_database
                             reset_database()
                             st.success("✅ Database reset successfully!")
                             st.cache_data.clear()

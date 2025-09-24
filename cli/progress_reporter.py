@@ -1,7 +1,6 @@
 from typing import List
-from datetime import datetime
 
-from db import models
+from core.db import models
 
 
 class ProgressReporter:
