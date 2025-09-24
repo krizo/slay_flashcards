@@ -17,7 +17,12 @@
       },
       "answer": {
         "text": "chien",
-        "lang": "fr"
+        "type": "short_text",
+        "lang": "fr",
+        "metadata": {
+          "case_sensitive": false,
+          "max_length": 20
+        }
       }
     },
     {
@@ -31,7 +36,12 @@
       },
       "answer": {
         "text": "chat",
-        "lang": "fr"
+        "type": "short_text",
+        "lang": "fr",
+        "metadata": {
+          "case_sensitive": false,
+          "max_length": 20
+        }
       }
     },
     {
@@ -44,7 +54,12 @@
       },
       "answer": {
         "text": "maison",
-        "lang": "fr"
+        "type": "short_text",
+        "lang": "fr",
+        "metadata": {
+          "case_sensitive": false,
+          "max_length": 20
+        }
       }
     }
   ]

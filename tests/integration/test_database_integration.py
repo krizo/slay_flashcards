@@ -1,6 +1,6 @@
 from unittest.mock import Mock
 
-from learning.sessions.test_session import TestSessionConfig, TestSession
+from learning.sessions.quiz_session import TestSessionConfig, TestSession
 from services.audio_service import SilentAudioService
 from services.quiz_service import QuizService
 from services.user_service import UserService

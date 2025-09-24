@@ -1,4 +1,5 @@
-from learning.sessions.test_session import TestSessionConfig, AnswerEvaluator
+from learning.sessions.answer_evaluator import TypedAnswerEvaluator
+from learning.sessions.quiz_session import TestSessionConfig
 
 
 def test_test_session_config_integration():
@@ -41,11 +42,11 @@ def test_language_configuration_integration():
 
     # Case-sensitive configuration
     case_sensitive_config = TestSessionConfig(case_sensitive=True)
-    case_sensitive_evaluator = AnswerEvaluator(case_sensitive_config)
+    case_sensitive_evaluator = TypedAnswerEvaluator(case_sensitive_config)
 
     # Case-insensitive configuration
     case_insensitive_config = TestSessionConfig(case_sensitive=False)
-    case_insensitive_evaluator = AnswerEvaluator(case_insensitive_config)
+    case_insensitive_evaluator = TypedAnswerEvaluator(case_insensitive_config)
 
     # Test same input with different configurations
     user_answer = "Hello"

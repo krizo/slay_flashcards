@@ -13,10 +13,11 @@ import json
 
 # Import core services
 from db.database import SessionLocal, Base, engine
+from learning.presenters.test_presenter import AnswerTypeUtils
 from services.quiz_service import QuizService
 from services.user_service import UserService
 from services.audio_service import GTTSAudioService
-from learning.sessions.test_session import AnswerEvaluator, TestSessionConfig
+from learning.sessions.quiz_session import TypedAnswerEvaluator
 
 # Configure Streamlit page
 st.set_page_config(
@@ -161,9 +162,9 @@ def main():
 
         # Page navigation
         pages = {
-            "📚 Quiz Library": "library",
             "🎯 Learning Mode": "learning",
-            "🧪 Test Mode": "testing",
+            "🧪 Quiz Mode": "testing",
+            "📚 Quiz Library": "library",
             "📊 Progress Dashboard": "progress",
             "🎨 Quiz Creator": "creator",
             "⚙️ Settings": "settings"
@@ -194,7 +195,7 @@ def main():
         elif st.session_state.current_page == "learning":
             show_learning_mode()
         elif st.session_state.current_page == "testing":
-            show_test_mode()
+            show_quiz_mode()
         elif st.session_state.current_page == "progress":
             show_progress_dashboard()
         elif st.session_state.current_page == "creator":
@@ -524,9 +525,9 @@ def show_learning_mode():
         db.close()
 
 
-def show_test_mode():
-    """Display test mode page."""
-    st.title("🧪 Test Mode")
+def show_quiz_mode():
+    """Test mode with support for different answer types."""
+    st.title("🧪 Quiz Mode")
 
     # Get quiz selection
     quizzes = load_quiz_library()
@@ -564,8 +565,14 @@ def show_test_mode():
             st.error("This quiz has no flashcards!")
             return
 
+        # Show quiz statistics
+        answer_type_stats = {}
+        for card in cards:
+            answer_type = card.answer_type or "text"
+            answer_type_stats[answer_type] = answer_type_stats.get(answer_type, 0) + 1
+
         # Test configuration
-        with st.expander("⚙️ Test Settings"):
+        with st.expander("⚙️ Quiz Settings"):
             col1, col2 = st.columns(2)
             with col1:
                 strict_mode = st.checkbox("Strict matching", value=False)
@@ -574,8 +581,17 @@ def show_test_mode():
                 similarity_threshold = st.slider("Similarity threshold", 0.0, 1.0, 0.8, 0.1)
                 allow_partial = st.checkbox("Allow partial credit", value=True)
 
-        # Quiz info banner
-        st.info(f"📝 **{current_quiz.name}** - {len(cards)} questions")
+        # Quiz info banner with answer type breakdown
+        st.info(f"🔬 **{current_quiz.name}** - {len(cards)} questions")
+
+        # if len(answer_type_stats) > 1:
+        #     st.write("**Answer Types:**")
+        #     type_cols = st.columns(len(answer_type_stats))
+        #     for i, (answer_type, count) in enumerate(answer_type_stats.items()):
+        #         with type_cols[i]:
+        #             from learning.presenters.test_presenter import AnswerTypeUtils
+        #             display_name = AnswerTypeUtils.get_answer_type_display_name(answer_type)
+        #             st.metric(display_name, count)
 
         # Initialize/reset test state if needed
         if st.session_state.test_quiz_id != current_quiz.id:
@@ -584,7 +600,7 @@ def show_test_mode():
             st.session_state.test_quiz_id = current_quiz.id
             st.session_state.test_completed = False
 
-        # Test interface
+        # Quit interface
         if not st.session_state.test_completed and st.session_state.test_cards_index < len(cards):
             current_card = cards[st.session_state.test_cards_index]
             question_num = st.session_state.test_cards_index + 1
@@ -602,32 +618,47 @@ def show_test_mode():
             if current_card.question_text != current_card.question_title:
                 st.markdown(f"*{current_card.question_text}*")
 
+            # Show answer type indicator
+            answer_type = current_card.answer_type or "text"
+            display_name = AnswerTypeUtils.get_answer_type_display_name(answer_type)
+            # st.caption(f"📝 Answer Type: {display_name}")
+
             # Audio button for question
             if st.button("🔊 Play Question", key=f"test_audio_q_{question_num}"):
                 try:
                     audio_service = GTTSAudioService()
                     if audio_service.is_available():
-                        q_lang = current_card.question_lang
+                        q_lang = current_card.question_lang or "en"
                         success = audio_service.play_text(current_card.question_text, q_lang)
                         if not success:
                             st.warning("Audio playback failed.")
                 except Exception as e:
                     st.warning(f"Audio error: {str(e)}")
 
-            # Answer input
-            user_answer = st.text_input(
-                "Your answer:",
-                key=f"test_input_{question_num}",
-                placeholder="Type your answer here..."
-            )
+            # Render typed answer input
+            from learning.presenters.test_presenter import StreamlitTypedPresenter
+            presenter = StreamlitTypedPresenter()
+            user_answer = presenter.render_answer_input(current_card, f"q{question_num}")
+
+
+            # Validation feedback
+            if user_answer:
+                validation = AnswerTypeUtils.validate_answer_format(user_answer, answer_type)
+                if not validation["is_valid"]:
+                    st.error(f"⚠️ {validation['error_message']}")
 
             # Submit button
-            if st.button("Submit Answer", type="primary", disabled=not user_answer.strip(),
+            submit_enabled = bool(user_answer and (
+                    answer_type not in ["integer", "float", "boolean"] or
+                    AnswerTypeUtils.validate_answer_format(user_answer, answer_type)["is_valid"]
+            ))
+
+            if st.button("Submit Answer", type="primary", disabled=not submit_enabled,
                          key=f"submit_{question_num}"):
                 # Store answer
                 st.session_state.test_answers.append({
                     "card": current_card,
-                    "user_answer": user_answer.strip(),
+                    "user_answer": str(user_answer).strip(),
                     "correct_answer": current_card.answer_text
                 })
 
@@ -639,31 +670,36 @@ def show_test_mode():
 
                 st.rerun()
 
+            # Show answer format explanation
+            presenter.show_answer_explanation(current_card)
+
         elif st.session_state.test_completed or st.session_state.test_cards_index >= len(cards):
             # Test completed - show results
             st.success("🎯 Test Completed!")
 
-            # Calculate results using test session logic
+            # Calculate results using typed evaluator
+            from learning.sessions.quiz_session import TestSessionConfig
+
             config = TestSessionConfig(
                 strict_matching=strict_mode,
                 case_sensitive=case_sensitive,
                 similarity_threshold=similarity_threshold,
                 allow_partial_credit=allow_partial
             )
-            evaluator = AnswerEvaluator(config)
+            evaluator = TypedAnswerEvaluator(config)
 
             results = []
             total_score = 0
 
             for answer_data in st.session_state.test_answers:
-                evaluation, score = evaluator.evaluate_answer(
-                    answer_data["user_answer"],
-                    answer_data["correct_answer"]
-                )
+                card = answer_data["card"]
+                evaluation, score = evaluator.evaluate_answer(answer_data["user_answer"], card)
+
                 results.append({
-                    "question": answer_data["card"].question_title,
+                    "question": card.question_title,
+                    "answer_type": card.answer_type or "text",
                     "user_answer": answer_data["user_answer"],
-                    "correct_answer": answer_data["correct_answer"],
+                    "correct_answer": card.answer_text,
                     "evaluation": evaluation.value,
                     "score": score
                 })
@@ -686,12 +722,38 @@ def show_test_mode():
             with col4:
                 st.metric("Incorrect", incorrect)
 
+            # Performance by answer type
+            if len(answer_type_stats) > 1:
+                st.subheader("📊 Performance by Answer Type")
+
+                type_performance = {}
+                for result in results:
+                    answer_type = result["answer_type"]
+                    if answer_type not in type_performance:
+                        type_performance[answer_type] = {"correct": 0, "total": 0, "score_sum": 0}
+
+                    type_performance[answer_type]["total"] += 1
+                    type_performance[answer_type]["score_sum"] += result["score"]
+                    if result["evaluation"] == "correct":
+                        type_performance[answer_type]["correct"] += 1
+
+                perf_cols = st.columns(len(type_performance))
+                for i, (answer_type, perf) in enumerate(type_performance.items()):
+                    with perf_cols[i]:
+                        display_name = AnswerTypeUtils.get_answer_type_display_name(answer_type)
+                        avg_score = (perf["score_sum"] / perf["total"] * 100) if perf["total"] > 0 else 0
+                        st.metric(
+                            display_name,
+                            f"{avg_score:.0f}%",
+                            f"{perf['correct']}/{perf['total']}"
+                        )
+
             # Performance feedback
             if final_score >= 90:
                 st.success("🌟 Excellent work!")
                 st.balloons()
             elif final_score >= 80:
-                st.success("👍 Great job!")
+                st.success("👏 Great job!")
             elif final_score >= 70:
                 st.info("👌 Good effort!")
             elif final_score >= 60:
@@ -699,10 +761,22 @@ def show_test_mode():
             else:
                 st.error("💪 Don't give up! Review and try again!")
 
-            # Detailed results table
+            # Detailed results table with answer types
             if st.checkbox("Show detailed results"):
+                import pandas as pd
                 results_df = pd.DataFrame(results)
-                st.dataframe(results_df, use_container_width=True)
+
+                # Format the dataframe for better display
+                results_df["Answer Type"] = results_df["answer_type"].apply(
+                    lambda x: AnswerTypeUtils.get_answer_type_display_name(x)
+                )
+                results_df["Score %"] = (results_df["score"] * 100).round(0).astype(int)
+
+                display_df = results_df[
+                    ["question", "Answer Type", "user_answer", "correct_answer", "evaluation", "Score %"]]
+                display_df.columns = ["Question", "Type", "Your Answer", "Correct Answer", "Result", "Score %"]
+
+                st.dataframe(display_df, use_container_width=True)
 
             # Save session to database
             current_user, _, _ = load_user_data(st.session_state.current_user)
@@ -732,6 +806,7 @@ def show_test_mode():
 
     except Exception as e:
         st.error(f"Error in test mode: {str(e)}")
+        st.exception(e)  # Show full traceback for debugging
     finally:
         db.close()
 
@@ -928,12 +1003,12 @@ def show_progress_dashboard():
 
 
 def show_quiz_creator():
-    """Display quiz creator page."""
+    """ Quiz creator with support for different answer types."""
     st.title("🎨 Quiz Creator")
 
     st.markdown("""
-    Create custom quizzes directly in your browser. Add questions, answers, and rich metadata 
-    to build engaging learning experiences.
+    Create custom quizzes with different answer types including multiple choice, 
+    number inputs, ranges, and more for engaging learning experiences.
     """)
 
     with st.form("quiz_creator_form", clear_on_submit=False):
@@ -941,21 +1016,29 @@ def show_quiz_creator():
 
         col1, col2 = st.columns(2)
         with col1:
-            quiz_name = st.text_input("Quiz Name *", placeholder="e.g., Spanish Basics")
-            quiz_subject = st.text_input("Subject", placeholder="e.g., Spanish")
+            quiz_name = st.text_input("Quiz Name *", placeholder="e.g., Advanced Mathematics")
+            quiz_subject = st.text_input("Subject", placeholder="e.g., Mathematics")
 
         with col2:
             quiz_description = st.text_area("Description", placeholder="Brief description of the quiz...")
 
         st.subheader("🃏 Flashcards")
 
-        # Display flashcard builder
-        for i, card in enumerate(st.session_state.new_flashcards):
-            with st.expander(f"Card {i + 1}", expanded=True):
-                col_q, col_a = st.columns(2)
+        # Initialize flashcards if not present
+        if "flashcards" not in st.session_state:
+            st.session_state.flashcards = [{
+                "question": {},
+                "answer": {"type": "text", "options": [], "metadata": {}}
+            }]
 
-                with col_q:
-                    st.markdown("**Question**")
+        # Display flashcard builder
+        for i, card in enumerate(st.session_state.flashcards):
+            with st.expander(f"Card {i + 1}", expanded=True):
+                # Question section
+                st.markdown("### 📋 Question")
+                col_q1, col_q2 = st.columns(2)
+
+                with col_q1:
                     q_title = st.text_input("Title", key=f"q_title_{i}",
                                             value=card["question"].get("title", ""),
                                             placeholder="Short question title")
@@ -963,9 +1046,11 @@ def show_quiz_creator():
                                           value=card["question"].get("text", ""),
                                           placeholder="Full question text")
 
+                with col_q2:
                     col_lang, col_diff = st.columns(2)
                     with col_lang:
-                        q_lang = st.selectbox("Language", ["en", "fr", "es", "de", "it", "pl", "ru"],
+                        q_lang = st.selectbox("Language",
+                                              ["en", "fr", "es", "de", "it", "pl", "ru"],
                                               key=f"q_lang_{i}", index=0)
                     with col_diff:
                         q_difficulty = st.select_slider("Difficulty", [1, 2, 3, 4, 5],
@@ -976,48 +1061,206 @@ def show_quiz_creator():
                                             value=card["question"].get("emoji", ""),
                                             placeholder="🎯")
 
-                with col_a:
-                    st.markdown("**Answer**")
-                    a_text = st.text_area("Text", key=f"a_text_{i}",
-                                          value=card["answer"].get("text", ""),
-                                          placeholder="Correct answer")
-                    a_lang = st.selectbox("Language", ["fr", "en", "es", "de", "it", "pl", "ru"],
+                # Answer section
+                st.markdown("### ✅ Answer")
+
+                # Answer type selection
+                answer_types = {
+                    "Free Text": "text",
+                    "Short Text": "short_text",
+                    "Whole Number": "integer",
+                    "Decimal Number": "float",
+                    "Number Range": "range",
+                    "True/False": "boolean",
+                    "Single Choice": "choice",
+                    "Multiple Choice": "multiple_choice"
+                }
+
+                current_type = card["answer"].get("type", "text")
+                current_type_display = next((k for k, v in answer_types.items() if v == current_type), "Free Text")
+
+                selected_type_display = st.selectbox(
+                    "Answer Type",
+                    list(answer_types.keys()),
+                    key=f"a_type_{i}",
+                    index=list(answer_types.keys()).index(current_type_display)
+                )
+
+                selected_type = answer_types[selected_type_display]
+
+                # Answer content based on type
+                col_a1, col_a2 = st.columns(2)
+
+                with col_a1:
+                    if selected_type in ["text", "short_text"]:
+                        a_text = st.text_area("Answer Text", key=f"a_text_{i}",
+                                              value=card["answer"].get("text", ""),
+                                              placeholder="Correct answer")
+                        a_options = []
+                        a_metadata = {}
+
+                    elif selected_type in ["integer", "float"]:
+                        if selected_type == "integer":
+                            a_number = st.number_input("Correct Answer", key=f"a_number_{i}",
+                                                       step=1, format="%d",
+                                                       value=int(card["answer"].get("text", "0")) if card["answer"].get("text", "").isdigit() else 0)
+                            a_text = str(int(a_number))
+                        else:  # float
+                            a_number = st.number_input("Correct Answer", key=f"a_number_{i}",
+                                                       step=0.01, format="%.2f",
+                                                       value=float(card["answer"].get("text", "0.0")) if card["answer"].get("text", "").replace(".", "").isdigit() else 0.0)
+                            a_text = str(float(a_number))
+
+                        tolerance = st.number_input("Tolerance (±)", key=f"a_tolerance_{i}",
+                                                    min_value=0.0, step=0.01 if selected_type == "float" else 1,
+                                                    value=card["answer"].get("metadata", {}).get("tolerance", 0.01 if selected_type == "float" else 0))
+                        a_options = []
+                        a_metadata = {"tolerance": tolerance}
+
+                    elif selected_type == "range":
+                        a_text = st.text_input("Range (e.g., 5-10)", key=f"a_range_{i}",
+                                               value=card["answer"].get("text", ""),
+                                               placeholder="5-10 or 3 to 7")
+                        overlap_threshold = st.slider("Overlap Threshold", 0.0, 1.0,
+                                                     card["answer"].get("metadata", {}).get("overlap_threshold", 0.5),
+                                                     key=f"a_overlap_{i}")
+                        a_options = []
+                        a_metadata = {"overlap_threshold": overlap_threshold}
+
+                    elif selected_type == "boolean":
+                        bool_answer = st.radio("Correct Answer", ["True", "False"],
+                                               key=f"a_bool_{i}",
+                                               index=0 if card["answer"].get("text", "True") == "True" else 1)
+                        a_text = bool_answer
+                        a_options = []
+                        a_metadata = {}
+
+                    elif selected_type in ["choice", "multiple_choice"]:
+                        a_text = st.text_input("Correct Answer(s)", key=f"a_choice_{i}",
+                                               value=card["answer"].get("text", ""),
+                                               placeholder="Paris" if selected_type == "choice" else "Red, Blue, Yellow")
+
+                        # Options management
+                        st.write("**Answer Options:**")
+                        current_options = card["answer"].get("options", [{"text": ""}])
+
+                        # Ensure we have at least one option
+                        if not current_options:
+                            current_options = [{"text": ""}]
+
+                        new_options = []
+                        for opt_idx, option in enumerate(current_options):
+                            opt_text = st.text_input(f"Option {opt_idx + 1}",
+                                                     key=f"a_opt_{i}_{opt_idx}",
+                                                     value=option.get("text", ""),
+                                                     placeholder=f"Option {opt_idx + 1}")
+                            if opt_text.strip():
+                                new_options.append({"text": opt_text.strip()})
+
+                        # Add option button
+                        if st.form_submit_button(f"➕ Add Option to Card {i + 1}", key=f"add_opt_{i}"):
+                            current_options.append({"text": ""})
+                            st.session_state.flashcards[i]["answer"]["options"] = current_options
+                            st.rerun()
+
+                        a_options = new_options
+                        order_matters = st.checkbox("Order matters (multiple choice)",
+                                                   key=f"a_order_{i}",
+                                                   value=card["answer"].get("metadata", {}).get("order_matters", False))
+                        a_metadata = {"order_matters": order_matters}
+
+                with col_a2:
+                    a_lang = st.selectbox("Answer Language",
+                                          ["en", "fr", "es", "de", "it", "pl", "ru"],
                                           key=f"a_lang_{i}", index=0)
 
+                    # Show type-specific help
+                    if selected_type == "integer":
+                        st.info("🔢 Enter a whole number. Tolerance allows for nearby answers.")
+                    elif selected_type == "float":
+                        st.info("🔢 Enter a decimal number with tolerance for precision.")
+                    elif selected_type == "range":
+                        st.info("📏 Enter ranges like '5-10', '3 to 7', or '1..5'.")
+                    elif selected_type == "boolean":
+                        st.info("❓ Simple True/False questions.")
+                    elif selected_type == "choice":
+                        st.info("🎯 Single correct answer from multiple options.")
+                    elif selected_type == "multiple_choice":
+                        st.info("☑️ Multiple correct answers possible.")
+                    elif selected_type == "short_text":
+                        st.info("📝 Brief text answers with stricter matching.")
+                    else:
+                        st.info("📄 Free-form text answers with fuzzy matching.")
+
                 # Update card data in session state
-                st.session_state.new_flashcards[i] = {
+                st.session_state.flashcards[i] = {
                     "question": {
                         "title": q_title,
-                        "text": q_text or q_title,  # Use title as text if text is empty
+                        "text": q_text or q_title,
                         "lang": q_lang,
                         "difficulty": q_difficulty,
                         "emoji": q_emoji if q_emoji else None
                     },
                     "answer": {
                         "text": a_text,
-                        "lang": a_lang
+                        "type": selected_type,
+                        "lang": a_lang,
+                        "options": a_options if a_options else None,
+                        "metadata": a_metadata if a_metadata else None
                     }
                 }
 
                 # Delete card button (only if more than one card)
-                if len(st.session_state.new_flashcards) > 1:
-                    if st.form_submit_button(f"🗑️ Delete Card {i + 1}"):
-                        st.session_state.new_flashcards.pop(i)
+                if len(st.session_state.flashcards) > 1:
+                    if st.form_submit_button(f"🗑️ Delete Card {i + 1}", key=f"del_card_{i}"):
+                        st.session_state.flashcards.pop(i)
                         st.rerun()
 
         # Form buttons
-        col_add, col_create = st.columns([1, 2])
+        col_add, col_preview, col_create = st.columns([1, 1, 2])
 
         with col_add:
             add_card = st.form_submit_button("➕ Add Card")
+
+        with col_preview:
+            preview_quiz = st.form_submit_button("👀 Preview")
 
         with col_create:
             create_quiz = st.form_submit_button("💾 Create Quiz", type="primary")
 
         # Handle form submissions
         if add_card:
-            st.session_state.new_flashcards.append({"question": {}, "answer": {}})
+            st.session_state.flashcards.append({
+                "question": {},
+                "answer": {"type": "text", "options": [], "metadata": {}}
+            })
             st.rerun()
+
+        if preview_quiz:
+            st.subheader("👀 Quiz Preview")
+
+            # Count answer types
+            type_counts = {}
+            for card in st.session_state.flashcards:
+                answer_type = card["answer"].get("type", "text")
+                type_counts[answer_type] = type_counts.get(answer_type, 0) + 1
+
+            st.write(f"**Total Cards:** {len(st.session_state.flashcards)}")
+            # st.write("**Answer Types:**")
+            # for answer_type, count in type_counts.items():
+            #     display_name = AnswerTypeUtils.get_answer_type_display_name(answer_type)
+            #     st.write(f"• {display_name}: {count}")
+
+            # Show first few cards as preview
+            st.write("**Sample Cards:**")
+            for i, card in enumerate(st.session_state.flashcards[:3]):
+                q_title = card["question"].get("title", "").strip()
+                a_text = card["answer"].get("text", "").strip()
+                a_type = card["answer"].get("type", "text")
+
+                if q_title and a_text:
+                    type_display = AnswerTypeUtils.get_answer_type_display_name(a_type)
+                    st.write(f"{i+1}. **{q_title}** → {a_text} *({type_display})*")
 
         if create_quiz:
             # Validation
@@ -1026,11 +1269,19 @@ def show_quiz_creator():
             else:
                 # Filter out incomplete cards
                 complete_cards = []
-                for card in st.session_state.new_flashcards:
+                for card in st.session_state.flashcards:
                     q_title = card["question"].get("title", "").strip()
                     a_text = card["answer"].get("text", "").strip()
 
                     if q_title and a_text:
+                        # Validate choice questions have options
+                        answer_type = card["answer"].get("type", "text")
+                        if answer_type in ["choice", "multiple_choice"]:
+                            options = card["answer"].get("options", [])
+                            if not options or not any(opt.get("text", "").strip() for opt in options):
+                                st.warning(f"Card '{q_title}' is missing answer options for {answer_type} type.")
+                                continue
+
                         complete_cards.append(card)
 
                 if not complete_cards:
@@ -1051,28 +1302,139 @@ def show_quiz_creator():
                     db = get_database_session()
                     try:
                         quiz_service = QuizService(db)
+
+                        # Validate quiz data
+                        if not quiz_service.validate_quiz_data(quiz_data):
+                            st.error("Invalid quiz data structure!")
+                            return
+
                         quiz = quiz_service.import_quiz_from_dict(quiz_data)
 
-                        st.success(f"✅ Quiz '{quiz.name}' created successfully with {len(complete_cards)} cards!")
+                        # Show success message with statistics
+                        type_counts = {}
+                        for card in complete_cards:
+                            answer_type = card["answer"].get("type", "text")
+                            type_counts[answer_type] = type_counts.get(answer_type, 0) + 1
+
+                        success_msg = f"✅ Quiz '{quiz.name}' created successfully with {len(complete_cards)} cards!"
+                        st.success(success_msg)
                         st.balloons()
 
+                        # Show breakdown
+                        st.write("**Answer Type Breakdown:**")
+                        for answer_type, count in type_counts.items():
+                            display_name = AnswerTypeUtils.get_answer_type_display_name(answer_type)
+                            st.write(f"• {display_name}: {count} card{'s' if count != 1 else ''}")
+
                         # Clear form and cache
-                        st.session_state.new_flashcards = [{"question": {}, "answer": {}}]
+                        st.session_state.flashcards = [{
+                            "question": {},
+                            "answer": {"type": "text", "options": [], "metadata": {}}
+                        }]
                         st.cache_data.clear()
 
                         # Option to download as JSON
+                        import json
                         json_str = json.dumps(quiz_data, indent=2, ensure_ascii=False)
                         st.download_button(
                             label="📥 Download as JSON",
                             data=json_str,
-                            file_name=f"{quiz.name.lower().replace(' ', '_').replace('/', '_')}.json",
+                            file_name=f"{quiz.name.lower().replace(' ', '_').replace('/', '_')}_typed.json",
                             mime="application/json"
                         )
 
+                        # Option to test the quiz immediately
+                        col_test, col_lib = st.columns(2)
+                        with col_test:
+                            if st.button("🧪 Test This Quiz"):
+                                st.session_state.selected_quiz = quiz.id
+                                st.session_state.current_page = "testing"
+                                st.session_state.test_cards_index = 0
+                                st.session_state.test_answers = []
+                                st.session_state.test_quiz_id = quiz.id
+                                st.session_state.test_completed = False
+                                st.rerun()
+
+                        with col_lib:
+                            if st.button("📚 Go to Library"):
+                                st.session_state.current_page = "library"
+                                st.rerun()
+
                     except Exception as e:
                         st.error(f"Error creating quiz: {str(e)}")
+                        st.exception(e)
                     finally:
                         db.close()
+
+    # Show examples section
+    with st.expander("📖 Answer Type Examples", expanded=False):
+        st.markdown("""
+        ### Answer Type Examples
+        
+        **Free Text**: "Describe the process of photosynthesis"
+        - Best for: Essay questions, explanations, open-ended responses
+        
+        **Short Text**: "What is the capital of France?" → "Paris"  
+        - Best for: Single word or brief phrase answers
+        
+        **Whole Number**: "How many sides does a triangle have?" → 3
+        - Best for: Counting, ages, quantities
+        
+        **Decimal Number**: "What is the value of π to 2 decimal places?" → 3.14
+        - Best for: Measurements, calculations, percentages
+        
+        **Number Range**: "What is the typical human body temperature range?" → "97-99"
+        - Best for: Acceptable ranges, estimates, approximate values
+        
+        **True/False**: "The Earth is flat." → False
+        - Best for: Facts, yes/no questions, binary choices
+        
+        **Single Choice**: "What is the largest planet?" 
+        - Options: Jupiter, Saturn, Earth, Mars → Jupiter
+        - Best for: Multiple choice with one correct answer
+        
+        **Multiple Choice**: "Which are primary colors?"
+        - Options: Red, Blue, Yellow, Green, Purple → Red, Blue, Yellow
+        - Best for: Questions with multiple correct answers
+        """)
+
+    # Import existing quiz section
+    st.divider()
+    st.subheader("📤 Import Existing Quiz")
+
+    uploaded_file = st.file_uploader(
+        "Upload JSON quiz file",
+        type="json",
+        help="Upload a quiz JSON file to edit or extend"
+    )
+
+    if uploaded_file is not None:
+        try:
+            import json
+            quiz_data = json.load(uploaded_file)
+
+            if st.button("📥 Load Quiz for Editing"):
+                # Convert quiz data to enhanced format
+                cards = []
+                for card_data in quiz_data.get("flashcards", []):
+                    card = {
+                        "question": card_data.get("question", {}),
+                        "answer": {
+                            "text": card_data.get("answer", {}).get("text", ""),
+                            "type": card_data.get("answer", {}).get("type", "text"),
+                            "lang": card_data.get("answer", {}).get("lang", "en"),
+                            "options": card_data.get("answer", {}).get("options", []),
+                            "metadata": card_data.get("answer", {}).get("metadata", {})
+                        }
+                    }
+                    cards.append(card)
+
+                st.session_state.flashcards = cards
+                st.success(f"Loaded {len(cards)} cards for editing!")
+                st.rerun()
+
+        except Exception as e:
+            st.error(f"Error loading quiz file: {str(e)}")
 
 
 def show_settings():

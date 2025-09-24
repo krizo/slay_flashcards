@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, Text, ForeignKey
+from sqlalchemy import Column, Integer, String, DateTime, Text, ForeignKey, JSON
 from sqlalchemy.orm import relationship
 import datetime
 
@@ -33,6 +33,7 @@ class Flashcard(Base):
     id = Column(Integer, primary_key=True, index=True)
     quiz_id = Column(Integer, ForeignKey("quizzes.id"))
 
+    # Question fields
     question_title = Column(String, nullable=False)
     question_text = Column(Text, nullable=False)
     question_lang = Column(String)
@@ -40,8 +41,12 @@ class Flashcard(Base):
     question_emoji = Column(String, nullable=True)
     question_image = Column(String, nullable=True)
 
+    # Answer fields with new type support
     answer_text = Column(Text, nullable=False)
     answer_lang = Column(String)
+    answer_type = Column(String, default="text", nullable=False)  # NEW: Answer type
+    answer_options = Column(JSON, nullable=True)  # NEW: For choice/multiple_choice types
+    answer_metadata = Column(JSON, nullable=True)  # NEW: Additional answer configuration
 
     quiz = relationship("Quiz", back_populates="flashcards")
 

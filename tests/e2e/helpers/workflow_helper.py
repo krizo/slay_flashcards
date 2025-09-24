@@ -2,7 +2,7 @@ from typing import Dict, Any
 
 import pytest
 
-from learning.sessions.test_session import TestSession
+from learning.sessions.quiz_session import TestSession
 
 
 @pytest.fixture
