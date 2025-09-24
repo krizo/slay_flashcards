@@ -1,0 +1,39 @@
+# Streamlit Configuration for SlayFlashcards
+
+[global]
+developmentMode = false
+
+[server]
+headless = true
+port = 8501
+address = "0.0.0.0"
+
+[browser]
+gatherUsageStats = false
+serverAddress = "localhost"
+serverPort = 8501
+
+[theme]
+# Primary colors
+primaryColor = "#1f77b4"
+backgroundColor = "#ffffff"
+secondaryBackgroundColor = "#f0f2f6"
+textColor = "#262730"
+
+# Font
+font = "sans serif"
+
+[client]
+caching = true
+
+[runner]
+magicEnabled = true
+installTracer = false
+fixMatplotlib = true
+
+[logger]
+level = "error"
+
+[deprecation]
+showfileUploaderEncoding = false
+showPyplotGlobalUse = false

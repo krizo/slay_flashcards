@@ -2,3 +2,4 @@
 /.idea
 /slayflashcards.egg-info/
 *.db
+/data/*.json
