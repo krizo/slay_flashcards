@@ -32,7 +32,7 @@ SlayFlashcards is a flashcard application designed to enhance learning efficienc
 
 ### Step 1: Clone or Download
 ```bash
-git clone https://github.com/yourusername/slayflashcards.git
+git clone https://github.com/krizo/slayflashcards.git
 cd slayflashcards
 ```
 

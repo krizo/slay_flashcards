@@ -16,8 +16,7 @@ def test_gtts_audio_service_creation():
     assert not service._pygame_initialized
 
 
-def test_gtts_audio_service_with_empty_text():
-    """Test GTTS audio service handles empty text gracefully."""
+def test_gtts_audio_service_with_text():
     service = GTTSAudioService()
     # Should not crash with empty text
     result = service.play_text("chien", 'fr')
