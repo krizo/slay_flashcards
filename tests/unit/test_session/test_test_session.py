@@ -1,6 +1,6 @@
 from unittest.mock import Mock, patch
 
-from learning.sessions.test_session import TestSession, TestResult, AnswerEvaluation, TestSessionConfig
+from learning.sessions.quiz_session import TestSession, TestResult, AnswerEvaluation, TestSessionConfig
 
 
 def test_test_session_empty_flashcards(mock_test_presenter, silent_audio_service, default_test_config):

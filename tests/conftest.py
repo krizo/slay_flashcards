@@ -18,7 +18,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 
 from db.database import Base, SessionLocal
-from learning.sessions.test_session import TestSession, TestSessionConfig
+from learning.sessions.quiz_session import TestSession, TestSessionConfig
 from services.quiz_service import QuizService
 from services.user_service import UserService
 from services.audio_service import SilentAudioService

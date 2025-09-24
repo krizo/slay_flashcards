@@ -1,9 +1,10 @@
-from learning.sessions.test_session import TestSessionConfig, AnswerEvaluation, AnswerEvaluator
+from learning.sessions.answer_evaluator import TypedAnswerEvaluator
+from learning.sessions.quiz_session import TestSessionConfig, AnswerEvaluation
 
 
 def test_answer_evaluator_exact_match(default_test_config):
     """Test exact answer matching."""
-    evaluator = AnswerEvaluator(default_test_config)
+    evaluator = TypedAnswerEvaluator(default_test_config)
 
     evaluation, score = evaluator.evaluate_answer("chien", "chien")
 
@@ -13,7 +14,7 @@ def test_answer_evaluator_exact_match(default_test_config):
 
 def test_answer_evaluator_case_insensitive_match(default_test_config):
     """Test case-insensitive matching."""
-    evaluator = AnswerEvaluator(default_test_config)
+    evaluator = TypedAnswerEvaluator(default_test_config)
 
     evaluation, score = evaluator.evaluate_answer("CHIEN", "chien")
 
@@ -23,7 +24,7 @@ def test_answer_evaluator_case_insensitive_match(default_test_config):
 
 def test_answer_evaluator_case_sensitive_mismatch(strict_test_config):
     """Test case-sensitive matching fails with different case."""
-    evaluator = AnswerEvaluator(strict_test_config)
+    evaluator = TypedAnswerEvaluator(strict_test_config)
 
     evaluation, score = evaluator.evaluate_answer("CHIEN", "chien")
 
@@ -33,7 +34,7 @@ def test_answer_evaluator_case_sensitive_mismatch(strict_test_config):
 
 def test_answer_evaluator_punctuation_normalization(default_test_config):
     """Test punctuation is properly normalized."""
-    evaluator = AnswerEvaluator(default_test_config)
+    evaluator = TypedAnswerEvaluator(default_test_config)
 
     test_cases = [
         ("chien.", "chien"),
@@ -51,7 +52,7 @@ def test_answer_evaluator_punctuation_normalization(default_test_config):
 
 def test_answer_evaluator_whitespace_normalization(default_test_config):
     """Test whitespace is properly normalized."""
-    evaluator = AnswerEvaluator(default_test_config)
+    evaluator = TypedAnswerEvaluator(default_test_config)
 
     test_cases = [
         ("  chien  ", "chien"),
@@ -68,7 +69,7 @@ def test_answer_evaluator_whitespace_normalization(default_test_config):
 def test_answer_evaluator_strict_matching_rejects_typos():
     """Test strict matching mode rejects typos."""
     config = TestSessionConfig(strict_matching=True, case_sensitive=False)
-    evaluator = AnswerEvaluator(config)
+    evaluator = TypedAnswerEvaluator(config)
 
     evaluation, score = evaluator.evaluate_answer("chein", "chien")
 
@@ -78,7 +79,7 @@ def test_answer_evaluator_strict_matching_rejects_typos():
 
 def test_answer_evaluator_fuzzy_matching_typos(default_test_config):
     """Test fuzzy matching gives partial credit for typos."""
-    evaluator = AnswerEvaluator(default_test_config)
+    evaluator = TypedAnswerEvaluator(default_test_config)
 
     evaluation, score = evaluator.evaluate_answer("chein", "chien")
 
@@ -88,7 +89,7 @@ def test_answer_evaluator_fuzzy_matching_typos(default_test_config):
 
 def test_answer_evaluator_completely_wrong_answer(default_test_config):
     """Test completely wrong answers get zero score."""
-    evaluator = AnswerEvaluator(default_test_config)
+    evaluator = TypedAnswerEvaluator(default_test_config)
 
     evaluation, score = evaluator.evaluate_answer("cat", "chien")
 
@@ -98,7 +99,7 @@ def test_answer_evaluator_completely_wrong_answer(default_test_config):
 
 def test_answer_evaluator_empty_answer(default_test_config):
     """Test empty answers are handled correctly."""
-    evaluator = AnswerEvaluator(default_test_config)
+    evaluator = TypedAnswerEvaluator(default_test_config)
 
     test_cases = ["", "   ", "\t", "\n"]
 
@@ -116,7 +117,7 @@ def test_answer_evaluator_similarity_threshold():
         similarity_threshold=0.6,
         allow_partial_credit=True
     )
-    lenient_evaluator = AnswerEvaluator(lenient_config)
+    lenient_evaluator = TypedAnswerEvaluator(lenient_config)
 
     # Strict threshold
     strict_config = TestSessionConfig(
@@ -124,7 +125,7 @@ def test_answer_evaluator_similarity_threshold():
         similarity_threshold=0.9,
         allow_partial_credit=True
     )
-    strict_evaluator = AnswerEvaluator(strict_config)
+    strict_evaluator = TypedAnswerEvaluator(strict_config)
 
     # Test with a moderately similar answer
     user_answer = "chein"
@@ -148,7 +149,7 @@ def test_answer_evaluator_partial_credit_disabled():
         allow_partial_credit=False,
         similarity_threshold=0.8
     )
-    evaluator = AnswerEvaluator(config)
+    evaluator = TypedAnswerEvaluator(config)
 
     evaluation, score = evaluator.evaluate_answer("chein", "chien")
 

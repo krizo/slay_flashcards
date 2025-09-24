@@ -7,7 +7,7 @@ from unittest.mock import Mock
 
 import pytest
 
-from learning.sessions.test_session import TestSessionConfig
+from learning.sessions.quiz_session import TestSessionConfig
 
 
 def test_basic_user_workflow(

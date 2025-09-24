@@ -1,4 +1,4 @@
-from learning.sessions.test_session import CardResult, AnswerEvaluation
+from learning.sessions.quiz_session import CardResult, AnswerEvaluation
 
 
 def test_card_result_creation(mock_flashcard):

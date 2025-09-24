@@ -3,7 +3,7 @@ from unittest.mock import Mock, patch
 import pytest
 
 from learning.presenters.test_presenter import CLITestPresenter
-from learning.sessions.test_session import TestSessionConfig, TestSession, CardResult, AnswerEvaluation
+from learning.sessions.quiz_session import TestSessionConfig, TestSession, CardResult, AnswerEvaluation
 from services.audio_service import SilentAudioService, GTTSAudioService
 from services.quiz_service import QuizService
 from services.user_service import UserService

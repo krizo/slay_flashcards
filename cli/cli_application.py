@@ -5,7 +5,7 @@ from db import database
 from learning.presenters.flashcard_presenter import CLIFlashcardPresenter
 from learning.presenters.test_presenter import CLITestPresenter
 from learning.sessions.learning_session import LearningSessionConfig, LearningSession
-from learning.sessions.test_session import TestSessionConfig, TestSession, AnswerEvaluator
+from learning.sessions.quiz_session import TestSessionConfig, TestSession
 from services.quiz_service import QuizService
 from services.user_service import UserService
 from services.audio_service import GTTSAudioService, SilentAudioService
@@ -257,14 +257,14 @@ class CLIApplication:
 # Helper command for testing specific features
 def test_answer_evaluation():
     """Test the answer evaluation system with sample data."""
-    from learning.sessions.test_session import TestSessionConfig, AnswerEvaluator
+    from learning.sessions.quiz_session import TestSessionConfig, TypedAnswerEvaluator
 
     config = TestSessionConfig(
         strict_matching=False,
         case_sensitive=False,
         similarity_threshold=0.8
     )
-    evaluator = AnswerEvaluator(config)
+    evaluator = TypedAnswerEvaluator(config)
 
     test_cases = [
         ("chien", "chien"),      # Exact match

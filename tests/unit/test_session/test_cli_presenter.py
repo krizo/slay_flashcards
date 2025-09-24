@@ -2,7 +2,7 @@ from unittest.mock import Mock
 
 from db import models
 from learning.presenters.test_presenter import CLITestPresenter
-from learning.sessions.test_session import CardResult, AnswerEvaluation
+from learning.sessions.quiz_session import CardResult, AnswerEvaluation
 
 
 def test_cli_presenter_show_test_header(capsys):

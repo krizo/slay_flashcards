@@ -1,9 +1,9 @@
 from typing import List, Dict, Any
 from enum import Enum
-import difflib
-import re
 
 from db import models
+from learning.presenters.test_presenter import TypedPresenterInterface
+from learning.sessions.answer_evaluator import TypedAnswerEvaluator
 from services.audio_service import AudioServiceInterface
 
 
@@ -36,15 +36,15 @@ class TestSessionConfig:
     """Configuration for test sessions."""
 
     def __init__(
-        self,
-        audio_enabled: bool = True,
-        question_lang: str = "en",
-        answer_lang: str = "fr",
-        strict_matching: bool = False,
-        case_sensitive: bool = False,
-        similarity_threshold: float = 0.8,
-        allow_partial_credit: bool = True,
-        override_card_languages: bool = True
+            self,
+            audio_enabled: bool = True,
+            question_lang: str = "en",
+            answer_lang: str = "fr",
+            strict_matching: bool = False,
+            case_sensitive: bool = False,
+            similarity_threshold: float = 0.8,
+            allow_partial_credit: bool = True,
+            override_card_languages: bool = True
     ):
         self.audio_enabled = audio_enabled
         self.question_lang = question_lang
@@ -56,71 +56,21 @@ class TestSessionConfig:
         self.override_card_languages = override_card_languages
 
 
-class AnswerEvaluator:
-    """Evaluates user answers against correct answers."""
-
-    def __init__(self, config: TestSessionConfig):
-        self.config = config
-
-    def evaluate_answer(self, user_answer: str, correct_answer: str) -> tuple[AnswerEvaluation, float]:
-        if not user_answer.strip():
-            return AnswerEvaluation.INCORRECT, 0.0
-
-        user_norm = self._normalize_answer(user_answer)
-        correct_norm = self._normalize_answer(correct_answer)
-
-        if user_norm == correct_norm:
-            return AnswerEvaluation.CORRECT, 1.0
-
-        if self.config.strict_matching:
-            return AnswerEvaluation.INCORRECT, 0.0
-
-        similarity = self._calculate_similarity(user_norm, correct_norm)
-
-        # FIXED: Raise threshold for CORRECT from 0.95 to 0.98
-        if similarity >= 0.98:  # Must be nearly perfect for CORRECT
-            return AnswerEvaluation.CORRECT, 1.0
-        elif similarity >= self.config.similarity_threshold and self.config.allow_partial_credit:
-            return AnswerEvaluation.PARTIAL, similarity
-        else:
-            return AnswerEvaluation.INCORRECT, 0.0
-
-    def _normalize_answer(self, answer: str) -> str:
-        """Normalize answer for comparison."""
-        normalized = answer.strip()
-
-        if not self.config.case_sensitive:
-            normalized = normalized.lower()
-
-        # Remove extra whitespace
-        normalized = re.sub(r'\s+', ' ', normalized)
-
-        # Remove common punctuation
-        normalized = re.sub(r'[.,!?;:]$', '', normalized)
-
-        return normalized
-
-    @staticmethod
-    def _calculate_similarity(answer1: str, answer2: str) -> float:
-        """Calculate similarity between two answers using difflib."""
-        return difflib.SequenceMatcher(None, answer1, answer2).ratio()
-
-
 class TestSession:
     """Manages a flashcard test session."""
 
     def __init__(
-        self,
-        flashcards: List[models.Flashcard],
-        presenter: 'TestPresenterInterface',
-        audio_service: AudioServiceInterface,
-        config: TestSessionConfig
+            self,
+            flashcards: List[models.Flashcard],
+            presenter: TypedPresenterInterface,
+            audio_service: AudioServiceInterface,
+            config: TestSessionConfig
     ):
         self.flashcards = flashcards
         self.presenter = presenter
         self.audio_service = audio_service
         self.config = config
-        self.evaluator = AnswerEvaluator(config)
+        self.evaluator = TypedAnswerEvaluator(config)
 
         self.results: List[CardResult] = []
         self.current_card_index = 0
