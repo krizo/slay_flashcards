@@ -1,14 +1,14 @@
 import typer
 from sqlalchemy.orm import Session
 
-from db import database
-from learning.presenters.flashcard_presenter import CLIFlashcardPresenter
-from learning.presenters.test_presenter import CLITestPresenter
-from learning.sessions.learning_session import LearningSessionConfig, LearningSession
-from learning.sessions.quiz_session import TestSessionConfig, TestSession
-from services.quiz_service import QuizService
-from services.user_service import UserService
-from services.audio_service import GTTSAudioService, SilentAudioService
+from core.db import database
+from core.learning.presenters.flashcard_presenter import CLIFlashcardPresenter
+from core.learning.presenters.test_presenter import CLITestPresenter
+from core.learning.sessions.learning_session import LearningSessionConfig, LearningSession
+from core.learning.sessions.quiz_session import TestSessionConfig, TestSession
+from core.services.quiz_service import QuizService
+from core.services.user_service import UserService
+from core.services import GTTSAudioService, SilentAudioService
 from cli.progress_reporter import ProgressReporter
 
 
@@ -241,7 +241,7 @@ class CLIApplication:
         """Reset the database (WARNING: This will delete all data!)."""
         confirm = typer.confirm("Are you sure you want to reset the database? This will delete all data!")
         if confirm:
-            from db.database import reset_database
+            from core.db import reset_database
             reset_database()
             typer.echo("🗑️  Database reset completed!")
         else:
@@ -257,7 +257,7 @@ class CLIApplication:
 # Helper command for testing specific features
 def test_answer_evaluation():
     """Test the answer evaluation system with sample data."""
-    from learning.sessions.quiz_session import TestSessionConfig, TypedAnswerEvaluator
+    from core.learning.sessions.quiz_session import TestSessionConfig, TypedAnswerEvaluator
 
     config = TestSessionConfig(
         strict_matching=False,

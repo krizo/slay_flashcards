@@ -2,9 +2,9 @@ import typer
 from sqlalchemy.orm import Session
 
 from cli.cli_application import CLIApplication
-from db import database
-from db.crud import quizzes
-from db.crud import importers
+from core.db import database
+from core.db.crud import quizzes
+from core.db.crud import importers
 
 app = typer.Typer()
 

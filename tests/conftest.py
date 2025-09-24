@@ -15,13 +15,13 @@ from unittest.mock import Mock
 
 import pytest
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, declarative_base
+from sqlalchemy.orm import sessionmaker
 
-from db.database import Base, SessionLocal
-from learning.sessions.quiz_session import TestSession, TestSessionConfig
-from services.quiz_service import QuizService
-from services.user_service import UserService
-from services.audio_service import SilentAudioService
+from core.db import Base, models
+from core.learning.sessions.quiz_session import TestSession, TestSessionConfig
+from core.services.quiz_service import QuizService
+from core.services.user_service import UserService
+from core.services import SilentAudioService
 
 
 @pytest.fixture(scope="function")
@@ -657,8 +657,7 @@ def silent_audio_service():
 def mock_flashcard():
     """Create a mock flashcard for testing."""
     from unittest.mock import Mock
-    from db import models
-    
+
     card = Mock(spec=models.Flashcard)
     card.id = 1
     card.quiz_id = 1
@@ -675,7 +674,7 @@ def mock_flashcard():
 def mock_flashcards():
     """Create multiple mock flashcards for testing."""
     from unittest.mock import Mock
-    from db import models
+    from core.db import models
     
     cards = []
     
