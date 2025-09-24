@@ -2,9 +2,9 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from core.learning.presenters.test_presenter import CLITestPresenter
+from core.learning.presenters.quiz_presenter import CLITestPresenter
 from core.learning.sessions.quiz_session import TestSessionConfig, TestSession, CardResult, AnswerEvaluation
-from core.services import SilentAudioService, GTTSAudioService
+from core.services.audio_service import SilentAudioService, GTTSAudioService
 from core.services.quiz_service import QuizService
 from core.services.user_service import UserService
 

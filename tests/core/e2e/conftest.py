@@ -13,10 +13,10 @@ from pathlib import Path
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from core.db import Base
+from core.db.database import Base
+from core.services.audio_service import SilentAudioService
 from core.services.quiz_service import QuizService
 from core.services.user_service import UserService
-from core.services import SilentAudioService
 
 
 # =============================================================================

@@ -3,12 +3,12 @@ from sqlalchemy.orm import Session
 
 from core.db import database
 from core.learning.presenters.flashcard_presenter import CLIFlashcardPresenter
-from core.learning.presenters.test_presenter import CLITestPresenter
+from core.learning.presenters.quiz_presenter import CLITestPresenter
 from core.learning.sessions.learning_session import LearningSessionConfig, LearningSession
 from core.learning.sessions.quiz_session import TestSessionConfig, TestSession
+from core.services.audio_service import GTTSAudioService, SilentAudioService
 from core.services.quiz_service import QuizService
 from core.services.user_service import UserService
-from core.services import GTTSAudioService, SilentAudioService
 from cli.progress_reporter import ProgressReporter
 
 

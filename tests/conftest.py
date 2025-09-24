@@ -17,11 +17,12 @@ import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from core.db import Base, models
+from core.db import models
+from core.db.database import Base
 from core.learning.sessions.quiz_session import TestSession, TestSessionConfig
+from core.services.audio_service import SilentAudioService
 from core.services.quiz_service import QuizService
 from core.services.user_service import UserService
-from core.services import SilentAudioService
 
 
 @pytest.fixture(scope="function")

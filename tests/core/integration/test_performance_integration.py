@@ -1,7 +1,7 @@
 from unittest.mock import Mock
 
 from core.learning.sessions.quiz_session import TestSessionConfig, TestSession
-from core.services import SilentAudioService
+from core.services.audio_service import SilentAudioService
 from core.services.quiz_service import QuizService
 from core.services.user_service import UserService
 
