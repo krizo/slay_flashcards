@@ -80,6 +80,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+
 def initialize_session_state():
     """Initialize Streamlit session state variables."""
     defaults = {
@@ -103,6 +104,7 @@ def initialize_session_state():
         if key not in st.session_state:
             st.session_state[key] = value
 
+
 def get_database_session():
     """Get database session with error handling."""
     try:
@@ -110,6 +112,7 @@ def get_database_session():
     except Exception as e:
         st.error(f"Database connection error: {str(e)}")
         st.stop()
+
 
 @st.cache_data(ttl=300)  # Cache for 5 minutes
 def load_quiz_library():
@@ -120,6 +123,7 @@ def load_quiz_library():
         return quiz_service.get_all_quizzes()
     finally:
         db.close()
+
 
 @st.cache_data(ttl=60)  # Cache for 1 minute
 def load_user_data(username: str):
@@ -133,6 +137,7 @@ def load_user_data(username: str):
         return user, sessions, stats
     finally:
         db.close()
+
 
 def main():
     """Main Streamlit application."""
@@ -169,18 +174,6 @@ def main():
 
         st.divider()
 
-        # Audio settings
-        st.subheader("🔊 Audio Settings")
-        audio_enabled = st.checkbox("Enable Text-to-Speech", value=True)
-
-        col1, col2 = st.columns(2)
-        with col1:
-            question_lang = st.selectbox("Question Lang", ["en", "fr", "es", "de", "it", "pl"])
-        with col2:
-            answer_lang = st.selectbox("Answer Lang", ["fr", "en", "es", "de", "it", "pl"])
-
-        st.divider()
-
         # Quick user stats
         try:
             current_user, user_sessions, user_stats = load_user_data(st.session_state.current_user)
@@ -199,9 +192,9 @@ def main():
         if st.session_state.current_page == "library":
             show_quiz_library()
         elif st.session_state.current_page == "learning":
-            show_learning_mode(audio_enabled, question_lang, answer_lang)
+            show_learning_mode()
         elif st.session_state.current_page == "testing":
-            show_test_mode(audio_enabled, question_lang, answer_lang)
+            show_test_mode()
         elif st.session_state.current_page == "progress":
             show_progress_dashboard()
         elif st.session_state.current_page == "creator":
@@ -214,6 +207,7 @@ def main():
     except Exception as e:
         st.error(f"An error occurred: {str(e)}")
         st.write("Please try refreshing the page or contact support if the issue persists.")
+
 
 def show_quiz_library():
     """Display quiz library page."""
@@ -363,7 +357,8 @@ def show_quiz_library():
         finally:
             db.close()
 
-def show_learning_mode(audio_enabled: bool, question_lang: str, answer_lang: str):
+
+def show_learning_mode():
     """Display learning mode page."""
     st.title("🎯 Learning Mode")
 
@@ -431,17 +426,16 @@ def show_learning_mode(audio_enabled: bool, question_lang: str, answer_lang: str
                 st.markdown(f"*{current_card.question_text}*")
 
             # Audio button for question
-            if audio_enabled:
-                if st.button("🔊 Play Question", key="play_q"):
-                    try:
-                        audio_service = GTTSAudioService()
-                        if audio_service.is_available():
-                            q_lang = current_card.question_lang or question_lang
-                            success = audio_service.play_text(current_card.question_text, q_lang)
-                            if not success:
-                                st.warning("Audio playback failed.")
-                    except Exception as e:
-                        st.warning(f"Audio error: {str(e)}")
+            if st.button("🔊 Play Question", key="play_q"):
+                try:
+                    audio_service = GTTSAudioService()
+                    if audio_service.is_available():
+                        q_lang = current_card.question_lang
+                        success = audio_service.play_text(current_card.question_text, q_lang)
+                        if not success:
+                            st.warning("Audio playback failed.")
+                except Exception as e:
+                    st.warning(f"Audio error: {str(e)}")
 
             # Answer reveal logic
             if not st.session_state.show_answer:
@@ -453,17 +447,16 @@ def show_learning_mode(audio_enabled: bool, question_lang: str, answer_lang: str
                 st.success(f"✅ **Answer:** {current_card.answer_text}")
 
                 # Audio button for answer
-                if audio_enabled:
-                    if st.button("🔊 Play Answer", key="play_a"):
-                        try:
-                            audio_service = GTTSAudioService()
-                            if audio_service.is_available():
-                                a_lang = current_card.answer_lang or answer_lang
-                                success = audio_service.play_text(current_card.answer_text, a_lang)
-                                if not success:
-                                    st.warning("Audio playback failed.")
-                        except Exception as e:
-                            st.warning(f"Audio error: {str(e)}")
+                if st.button("🔊 Play Answer", key="play_a"):
+                    try:
+                        audio_service = GTTSAudioService()
+                        if audio_service.is_available():
+                            a_lang = current_card.answer_lang
+                            success = audio_service.play_text(current_card.answer_text, a_lang)
+                            if not success:
+                                st.warning("Audio playback failed.")
+                    except Exception as e:
+                        st.warning(f"Audio error: {str(e)}")
 
                 # Navigation buttons
                 col1, col2, col3 = st.columns(3)
@@ -530,7 +523,8 @@ def show_learning_mode(audio_enabled: bool, question_lang: str, answer_lang: str
     finally:
         db.close()
 
-def show_test_mode(audio_enabled: bool, question_lang: str, answer_lang: str):
+
+def show_test_mode():
     """Display test mode page."""
     st.title("🧪 Test Mode")
 
@@ -609,17 +603,16 @@ def show_test_mode(audio_enabled: bool, question_lang: str, answer_lang: str):
                 st.markdown(f"*{current_card.question_text}*")
 
             # Audio button for question
-            if audio_enabled:
-                if st.button("🔊 Play Question", key=f"test_audio_q_{question_num}"):
-                    try:
-                        audio_service = GTTSAudioService()
-                        if audio_service.is_available():
-                            q_lang = current_card.question_lang or question_lang
-                            success = audio_service.play_text(current_card.question_text, q_lang)
-                            if not success:
-                                st.warning("Audio playback failed.")
-                    except Exception as e:
-                        st.warning(f"Audio error: {str(e)}")
+            if st.button("🔊 Play Question", key=f"test_audio_q_{question_num}"):
+                try:
+                    audio_service = GTTSAudioService()
+                    if audio_service.is_available():
+                        q_lang = current_card.question_lang
+                        success = audio_service.play_text(current_card.question_text, q_lang)
+                        if not success:
+                            st.warning("Audio playback failed.")
+                except Exception as e:
+                    st.warning(f"Audio error: {str(e)}")
 
             # Answer input
             user_answer = st.text_input(
@@ -629,7 +622,8 @@ def show_test_mode(audio_enabled: bool, question_lang: str, answer_lang: str):
             )
 
             # Submit button
-            if st.button("Submit Answer", type="primary", disabled=not user_answer.strip(), key=f"submit_{question_num}"):
+            if st.button("Submit Answer", type="primary", disabled=not user_answer.strip(),
+                         key=f"submit_{question_num}"):
                 # Store answer
                 st.session_state.test_answers.append({
                     "card": current_card,
@@ -740,6 +734,7 @@ def show_test_mode(audio_enabled: bool, question_lang: str, answer_lang: str):
         st.error(f"Error in test mode: {str(e)}")
     finally:
         db.close()
+
 
 def show_progress_dashboard():
     """Display progress dashboard."""
@@ -931,6 +926,7 @@ def show_progress_dashboard():
     except Exception as e:
         st.error(f"Error loading progress dashboard: {str(e)}")
 
+
 def show_quiz_creator():
     """Display quiz creator page."""
     st.title("🎨 Quiz Creator")
@@ -955,38 +951,38 @@ def show_quiz_creator():
 
         # Display flashcard builder
         for i, card in enumerate(st.session_state.new_flashcards):
-            with st.expander(f"Card {i+1}", expanded=True):
+            with st.expander(f"Card {i + 1}", expanded=True):
                 col_q, col_a = st.columns(2)
 
                 with col_q:
                     st.markdown("**Question**")
                     q_title = st.text_input("Title", key=f"q_title_{i}",
-                                           value=card["question"].get("title", ""),
-                                           placeholder="Short question title")
+                                            value=card["question"].get("title", ""),
+                                            placeholder="Short question title")
                     q_text = st.text_area("Text", key=f"q_text_{i}",
-                                         value=card["question"].get("text", ""),
-                                         placeholder="Full question text")
+                                          value=card["question"].get("text", ""),
+                                          placeholder="Full question text")
 
                     col_lang, col_diff = st.columns(2)
                     with col_lang:
                         q_lang = st.selectbox("Language", ["en", "fr", "es", "de", "it", "pl", "ru"],
-                                            key=f"q_lang_{i}", index=0)
+                                              key=f"q_lang_{i}", index=0)
                     with col_diff:
                         q_difficulty = st.select_slider("Difficulty", [1, 2, 3, 4, 5],
-                                                       value=card["question"].get("difficulty", 1),
-                                                       key=f"q_diff_{i}")
+                                                        value=card["question"].get("difficulty", 1),
+                                                        key=f"q_diff_{i}")
 
                     q_emoji = st.text_input("Emoji (optional)", key=f"q_emoji_{i}",
-                                          value=card["question"].get("emoji", ""),
-                                          placeholder="🎯")
+                                            value=card["question"].get("emoji", ""),
+                                            placeholder="🎯")
 
                 with col_a:
                     st.markdown("**Answer**")
                     a_text = st.text_area("Text", key=f"a_text_{i}",
-                                         value=card["answer"].get("text", ""),
-                                         placeholder="Correct answer")
+                                          value=card["answer"].get("text", ""),
+                                          placeholder="Correct answer")
                     a_lang = st.selectbox("Language", ["fr", "en", "es", "de", "it", "pl", "ru"],
-                                        key=f"a_lang_{i}", index=0)
+                                          key=f"a_lang_{i}", index=0)
 
                 # Update card data in session state
                 st.session_state.new_flashcards[i] = {
@@ -1005,7 +1001,7 @@ def show_quiz_creator():
 
                 # Delete card button (only if more than one card)
                 if len(st.session_state.new_flashcards) > 1:
-                    if st.form_submit_button(f"🗑️ Delete Card {i+1}"):
+                    if st.form_submit_button(f"🗑️ Delete Card {i + 1}"):
                         st.session_state.new_flashcards.pop(i)
                         st.rerun()
 
@@ -1077,6 +1073,7 @@ def show_quiz_creator():
                         st.error(f"Error creating quiz: {str(e)}")
                     finally:
                         db.close()
+
 
 def show_settings():
     """Display settings page."""
@@ -1158,7 +1155,7 @@ def show_settings():
                 if "quiz" in quiz_data:
                     quiz_info = quiz_data["quiz"]
                     st.info(f"**Preview:** {quiz_info.get('name', 'Unnamed Quiz')} - "
-                           f"{len(quiz_data.get('flashcards', []))} cards")
+                            f"{len(quiz_data.get('flashcards', []))} cards")
 
                     # Validate quiz data
                     db = get_database_session()
@@ -1302,6 +1299,7 @@ def show_settings():
 
         finally:
             db.close()
+
 
 if __name__ == "__main__":
     main()
