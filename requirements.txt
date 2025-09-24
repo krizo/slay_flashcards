@@ -22,3 +22,6 @@ typing_extensions==4.15.0
 urllib3==2.5.0
 psutil==7.1.0
 setuptools~=80.9.0
+streamlit~=1.49.1
+pandas~=2.3.2
+plotly~=6.3.0
