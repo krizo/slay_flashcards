@@ -1,0 +1,3008 @@
+openapi: 3.0.0
+info:
+  title: SlayFlashcards API
+  description: REST API for SlayFlashcards - An interactive flashcard learning platform
+  version: 1.0.0
+servers:
+  - url: /api/v1
+tags:
+  - name: authentication
+    description: User authentication and token management
+  - name: users
+    description: User-related operations
+  - name: quizzes
+    description: Quiz management
+  - name: flashcards
+    description: Flashcard management
+  - name: sessions
+    description: Learning and test sessions
+security:
+  - bearerAuth: []
+paths:
+  /auth/login:
+    post:
+      summary: Authenticate a user
+      tags:
+        - authentication
+      description: Authenticates a user with a username and returns a JWT access token.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: Authentication failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /auth/register:
+    post:
+      summary: Register a new user
+      tags:
+        - authentication
+      description: Registers a new user and returns a JWT access token.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: Registration successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '409':
+          description: Username already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /auth/me:
+    get:
+      summary: Get current user information
+      tags:
+        - authentication
+      description: Retrieves information about the currently authenticated user.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: User information retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /auth/refresh:
+    post:
+      summary: Refresh access token
+      tags:
+        - authentication
+      description: Refreshes a user's access token.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Token refreshed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /auth/logout:
+    post:
+      summary: Logout a user
+      tags:
+        - authentication
+      description: Provides a success message for client-side token removal.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Logout successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /auth/verify:
+    get:
+      summary: Verify if the current token is valid
+      tags:
+        - authentication
+      description: Verifies if the current access token is valid.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Token is valid
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      username:
+                        type: string
+                      user_id:
+                        type: integer
+        '401':
+          description: Invalid authentication credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /users:
+    get:
+      summary: Get all users
+      tags:
+        - users
+      description: Get all users with optional filtering and pagination.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          description: Page number
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+        - name: limit
+          in: query
+          description: Items per page
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 100
+        - name: name_contains
+          in: query
+          description: Filter users by name pattern
+          schema:
+            type: string
+        - name: has_sessions
+          in: query
+          description: Filter users who have sessions
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Retrieved list of users
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UsersResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      summary: Create a new user
+      tags:
+        - users
+      description: Create a new user.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreate'
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '409':
+          description: User with the given name already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /users/{user_id}:
+    get:
+      summary: Get a specific user by ID
+      tags:
+        - users
+      description: Get a specific user by ID.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: The ID of the user to retrieve.
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: User retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      summary: Update an existing user
+      tags:
+        - users
+      description: Update an existing user.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: The ID of the user to update.
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdate'
+      responses:
+        '200':
+          description: User updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: User with the new name already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      summary: Delete a user
+      tags:
+        - users
+      description: Delete a user and optionally their sessions.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: The ID of the user to delete.
+          schema:
+            type: integer
+        - name: delete_sessions
+          in: query
+          description: Also delete all user sessions
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '204':
+          description: User deleted successfully
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /users/name/{username}:
+    get:
+      summary: Get a user by username
+      tags:
+        - users
+      description: Get a user by username.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: username
+          in: path
+          required: true
+          description: The username of the user to retrieve.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: User with the given name not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /users/ensure:
+    post:
+      summary: Get user if exists, create if not
+      tags:
+        - users
+      description: Get user if exists, create if not.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreate'
+      responses:
+        '200':
+          description: User retrieved or created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /users/{user_id}/statistics:
+    get:
+      summary: Get comprehensive statistics for a user
+      tags:
+        - users
+      description: Get comprehensive statistics for a user.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: The ID of the user to get statistics for.
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: User statistics retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserStatsResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /users/{user_id}/progress:
+    get:
+      summary: Get user learning progress over time
+      tags:
+        - users
+      description: Get user learning progress over time.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: The ID of the user to get progress for.
+          schema:
+            type: integer
+        - name: quiz_id
+          in: query
+          description: Filter by specific quiz
+          schema:
+            type: integer
+        - name: days
+          in: query
+          description: Number of days to analyze
+          schema:
+            type: integer
+            default: 30
+            minimum: 1
+            maximum: 365
+      responses:
+        '200':
+          description: Retrieved progress data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      total_sessions:
+                        type: integer
+                      learn_sessions:
+                        type: integer
+                      test_sessions:
+                        type: integer
+                      days_analyzed:
+                        type: integer
+                      quiz_filter:
+                        type: integer
+                        nullable: true
+                      daily_activity:
+                        type: object
+                        additionalProperties:
+                          type: object
+                          properties:
+                            learn_sessions:
+                              type: integer
+                            test_sessions:
+                              type: integer
+                            average_score:
+                              type: number
+                              nullable: true
+                  message:
+                    type: string
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /users/leaderboard:
+    get:
+      summary: Get user leaderboard
+      tags:
+        - users
+      description: Get user leaderboard based on performance.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: quiz_id
+          in: query
+          description: Filter by specific quiz
+          schema:
+            type: integer
+        - name: mode
+          in: query
+          description: Filter by session mode
+          schema:
+            type: string
+            enum:
+              - test
+              - learn
+            default: test
+        - name: limit
+          in: query
+          description: Number of top users
+          schema:
+            type: integer
+            default: 10
+            minimum: 1
+            maximum: 100
+      responses:
+        '200':
+          description: Retrieved leaderboard data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      most_active:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            user_id:
+                              type: integer
+                            username:
+                              type: string
+                            session_count:
+                              type: integer
+                      best_performers:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            user_id:
+                              type: integer
+                            username:
+                              type: string
+                            average_score:
+                              type: number
+                            test_count:
+                              type: integer
+                      criteria:
+                        type: object
+                        properties:
+                          quiz_id:
+                            type: integer
+                            nullable: true
+                          mode:
+                            type: string
+                            enum:
+                              - test
+                              - learn
+                          limit:
+                            type: integer
+                  message:
+                    type: string
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /users/search:
+    get:
+      summary: Search users by name
+      tags:
+        - users
+      description: Search users by name.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: q
+          in: query
+          required: true
+          description: Search query
+          schema:
+            type: string
+            minLength: 1
+        - name: limit
+          in: query
+          description: Maximum results
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 100
+      responses:
+        '200':
+          description: Retrieved list of users
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UsersResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /quizzes:
+    get:
+      summary: Get all quizzes
+      tags:
+        - quizzes
+      description: Get all quizzes with optional filtering and pagination.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          description: Page number
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+        - name: limit
+          in: query
+          description: Items per page
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 100
+        - name: subject
+          in: query
+          description: Filter by subject
+          schema:
+            type: string
+        - name: name_contains
+          in: query
+          description: Filter by name pattern
+          schema:
+            type: string
+        - name: created_after
+          in: query
+          description: Filter by creation date after (ISO 8601 format)
+          schema:
+            type: string
+            format: date-time
+        - name: created_before
+          in: query
+          description: Filter by creation date before (ISO 8601 format)
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: Retrieved list of quizzes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuizzesResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      summary: Create a new quiz
+      tags:
+        - quizzes
+      description: Create a new quiz.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QuizCreate'
+      responses:
+        '201':
+          description: Quiz created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuizResponse'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /quizzes/{quiz_id}:
+    get:
+      summary: Get a specific quiz by ID
+      tags:
+        - quizzes
+      description: Get a specific quiz by ID.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: quiz_id
+          in: path
+          required: true
+          description: The ID of the quiz to retrieve.
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Quiz retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuizResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Quiz not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      summary: Update an existing quiz
+      tags:
+        - quizzes
+      description: Update an existing quiz.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: quiz_id
+          in: path
+          required: true
+          description: The ID of the quiz to update.
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QuizUpdate'
+      responses:
+        '200':
+          description: Quiz updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuizResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Quiz not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      summary: Delete a quiz
+      tags:
+        - quizzes
+      description: Delete a quiz and all its flashcards.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: quiz_id
+          in: path
+          required: true
+          description: The ID of the quiz to delete.
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Quiz deleted successfully
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Quiz not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /quizzes/subjects:
+    get:
+      summary: Get all unique subjects with quiz counts
+      tags:
+        - quizzes
+      description: Get all unique subjects with quiz counts.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Retrieved list of subjects
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    additionalProperties:
+                      type: integer
+                  message:
+                    type: string
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /quizzes/{quiz_id}/statistics:
+    get:
+      summary: Get detailed statistics for a quiz
+      tags:
+        - quizzes
+      description: Get detailed statistics for a quiz.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: quiz_id
+          in: path
+          required: true
+          description: The ID of the quiz to get statistics for.
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Quiz statistics retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuizStatsResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Quiz not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /quizzes/import:
+    post:
+      summary: Import a quiz from JSON data
+      tags:
+        - quizzes
+      description: Import a quiz from JSON data.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QuizImportData'
+      responses:
+        '201':
+          description: Quiz imported successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuizResponse'
+        '400':
+          description: Invalid quiz data format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /quizzes/import-file:
+    post:
+      summary: Import a quiz from an uploaded JSON file
+      tags:
+        - quizzes
+      description: Import a quiz from an uploaded JSON file.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: JSON file to import
+      responses:
+        '201':
+          description: Quiz imported successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuizResponse'
+        '400':
+          description: Invalid file type or JSON format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /quizzes/{quiz_id}/export:
+    get:
+      summary: Export a quiz as JSON data
+      tags:
+        - quizzes
+      description: Export a quiz as JSON data.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: quiz_id
+          in: path
+          required: true
+          description: The ID of the quiz to export.
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Quiz exported successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuizImportData'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Quiz not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /quizzes/{quiz_id}/duplicate:
+    post:
+      summary: Duplicate an existing quiz
+      tags:
+        - quizzes
+      description: Duplicate an existing quiz with all its flashcards.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: quiz_id
+          in: path
+          required: true
+          description: The ID of the quiz to duplicate.
+          schema:
+            type: integer
+        - name: new_name
+          in: query
+          description: New name for duplicated quiz
+          schema:
+            type: string
+      responses:
+        '201':
+          description: Quiz duplicated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuizResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Quiz not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /quizzes/search:
+    get:
+      summary: Search quizzes
+      tags:
+        - quizzes
+      description: Search quizzes by name, subject, or description.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: q
+          in: query
+          required: true
+          description: Search query
+          schema:
+            type: string
+            minLength: 1
+        - name: subject
+          in: query
+          description: Filter by subject
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: Maximum results
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 100
+      responses:
+        '200':
+          description: Retrieved list of quizzes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuizzesResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /flashcards:
+    get:
+      summary: Get flashcards
+      tags:
+        - flashcards
+      description: Get flashcards with optional filtering and pagination.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: quiz_id
+          in: query
+          description: Filter by quiz ID
+          schema:
+            type: integer
+        - name: page
+          in: query
+          description: Page number
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+        - name: limit
+          in: query
+          description: Items per page
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 100
+        - name: difficulty
+          in: query
+          description: Filter by difficulty
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 5
+        - name: question_lang
+          in: query
+          description: Filter by question language
+          schema:
+            type: string
+        - name: answer_lang
+          in: query
+          description: Filter by answer language
+          schema:
+            type: string
+        - name: answer_type
+          in: query
+          description: Filter by answer type
+          schema:
+            $ref: '#/components/schemas/AnswerType'
+        - name: search_text
+          in: query
+          description: Search by question or answer text
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Retrieved list of flashcards
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlashcardsResponse'
+        '400':
+          description: Invalid or missing parameter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Quiz not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      summary: Create a new flashcard
+      tags:
+        - flashcards
+      description: Create a new flashcard.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FlashcardCreate'
+      responses:
+        '201':
+          description: Flashcard created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlashcardResponse'
+        '404':
+          description: Quiz not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /flashcards/{flashcard_id}:
+    get:
+      summary: Get a specific flashcard by ID
+      tags:
+        - flashcards
+      description: Get a specific flashcard by ID.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: flashcard_id
+          in: path
+          required: true
+          description: The ID of the flashcard to retrieve.
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Flashcard retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlashcardResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Flashcard not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      summary: Update an existing flashcard
+      tags:
+        - flashcards
+      description: Update an existing flashcard.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: flashcard_id
+          in: path
+          required: true
+          description: The ID of the flashcard to update.
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FlashcardUpdate'
+      responses:
+        '200':
+          description: Flashcard updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlashcardResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Flashcard not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      summary: Delete a flashcard
+      tags:
+        - flashcards
+      description: Delete a flashcard.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: flashcard_id
+          in: path
+          required: true
+          description: The ID of the flashcard to delete.
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Flashcard deleted successfully
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Flashcard not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /flashcards/bulk:
+    post:
+      summary: Create multiple flashcards at once
+      tags:
+        - flashcards
+      description: Create multiple flashcards at once.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BulkFlashcardCreate'
+      responses:
+        '201':
+          description: Bulk operation completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BulkOperationResponse'
+        '404':
+          description: Quiz not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /flashcards/quiz/{quiz_id}/random:
+    get:
+      summary: Get random flashcards from a quiz
+      tags:
+        - flashcards
+      description: Get random flashcards from a quiz.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: quiz_id
+          in: path
+          required: true
+          description: The ID of the quiz to get flashcards from.
+          schema:
+            type: integer
+        - name: count
+          in: query
+          description: Number of random flashcards
+          schema:
+            type: integer
+            default: 5
+            minimum: 1
+            maximum: 50
+        - name: difficulty
+          in: query
+          description: Filter by difficulty
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 5
+      responses:
+        '200':
+          description: Retrieved list of random flashcards
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlashcardsResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Quiz not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /flashcards/quiz/{quiz_id}/types:
+    get:
+      summary: Get answer type statistics for flashcards in a quiz
+      tags:
+        - flashcards
+      description: Get answer type statistics for flashcards in a quiz.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: quiz_id
+          in: path
+          required: true
+          description: The ID of the quiz to get statistics for.
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Retrieved answer type statistics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      total_flashcards:
+                        type: integer
+                      answer_types:
+                        type: object
+                        additionalProperties:
+                          type: integer
+                      available_types:
+                        type: array
+                        items:
+                          type: string
+                  message:
+                    type: string
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Quiz not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /sessions:
+    get:
+      summary: Get sessions
+      tags:
+        - sessions
+      description: Get sessions with optional filtering and pagination. Either user_id or quiz_id filter is required.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          description: Page number
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+        - name: limit
+          in: query
+          description: Items per page
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 100
+        - name: user_id
+          in: query
+          description: Filter by user ID
+          schema:
+            type: integer
+        - name: quiz_id
+          in: query
+          description: Filter by quiz ID
+          schema:
+            type: integer
+        - name: mode
+          in: query
+          description: Filter by session mode
+          schema:
+            $ref: '#/components/schemas/SessionMode'
+        - name: score_min
+          in: query
+          description: Filter by minimum score
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 100
+        - name: score_max
+          in: query
+          description: Filter by maximum score
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 100
+        - name: started_after
+          in: query
+          description: Filter by start date after (ISO 8601 format)
+          schema:
+            type: string
+            format: date-time
+        - name: started_before
+          in: query
+          description: Filter by start date before (ISO 8601 format)
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: Retrieved list of sessions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionsResponse'
+        '400':
+          description: Invalid or missing parameter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      summary: Create a new learning or test session
+      tags:
+        - sessions
+      description: Create a new learning or test session.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SessionCreate'
+      responses:
+        '201':
+          description: Session created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionResponse'
+        '404':
+          description: User or Quiz not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /sessions/{session_id}:
+    get:
+      summary: Get a specific session by ID
+      tags:
+        - sessions
+      description: Get a specific session by ID.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          description: The ID of the session to retrieve.
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Session retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Session not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      summary: Update an existing session
+      tags:
+        - sessions
+      description: Update an existing session.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          description: The ID of the session to update.
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SessionUpdate'
+      responses:
+        '200':
+          description: Session updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Session not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      summary: Delete a session
+      tags:
+        - sessions
+      description: Delete a session.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          description: The ID of the session to delete.
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Session deleted successfully
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Session not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /sessions/test/submit:
+    post:
+      summary: Submit test answers and get results
+      tags:
+        - sessions
+      description: Submit test answers and get results.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestSubmission'
+      responses:
+        '200':
+          description: Test completed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestResultsResponse'
+        '400':
+          description: Session is not a test session
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Session not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /sessions/learning/{session_id}/progress:
+    put:
+      summary: Update progress for a learning session
+      tags:
+        - sessions
+      description: Update progress for a learning session.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          description: The ID of the session to update.
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LearningSessionUpdate'
+      responses:
+        '200':
+          description: Learning progress updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionResponse'
+        '400':
+          description: Session is not a learning session
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Session not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /sessions/statistics:
+    get:
+      summary: Get session statistics
+      tags:
+        - sessions
+      description: Get session statistics. user_id parameter is required.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: user_id
+          in: query
+          required: true
+          description: Filter by user ID
+          schema:
+            type: integer
+        - name: quiz_id
+          in: query
+          description: Filter by quiz ID
+          schema:
+            type: integer
+        - name: days
+          in: query
+          description: Number of days to analyze
+          schema:
+            type: integer
+            default: 30
+            minimum: 1
+            maximum: 365
+      responses:
+        '200':
+          description: Statistics calculated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionStatsResponse'
+        '400':
+          description: Invalid or missing parameter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /sessions/user/{user_id}/recent:
+    get:
+      summary: Get recent sessions for a user
+      tags:
+        - sessions
+      description: Get recent sessions for a user.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: The ID of the user to get sessions for.
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          description: Number of recent sessions
+          schema:
+            type: integer
+            default: 10
+            minimum: 1
+            maximum: 50
+        - name: mode
+          in: query
+          description: Filter by session mode
+          schema:
+            $ref: '#/components/schemas/SessionMode'
+      responses:
+        '200':
+          description: Retrieved list of recent sessions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionsResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /sessions/quiz/{quiz_id}/performance:
+    get:
+      summary: Get performance statistics for a specific quiz
+      tags:
+        - sessions
+      description: Get performance statistics for a specific quiz.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: quiz_id
+          in: path
+          required: true
+          description: The ID of the quiz to get performance for.
+          schema:
+            type: integer
+        - name: days
+          in: query
+          description: Number of days to analyze
+          schema:
+            type: integer
+            default: 30
+            minimum: 1
+            maximum: 365
+      responses:
+        '200':
+          description: Performance statistics retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      quiz_id:
+                        type: integer
+                      quiz_name:
+                        type: string
+                      total_sessions:
+                        type: integer
+                      test_sessions:
+                        type: integer
+                      learn_sessions:
+                        type: integer
+                      unique_users:
+                        type: integer
+                      days_analyzed:
+                        type: integer
+                      scores:
+                        type: object
+                        properties:
+                          average:
+                            type: number
+                            nullable: true
+                          highest:
+                            type: integer
+                            nullable: true
+                          lowest:
+                            type: integer
+                            nullable: true
+                          distribution:
+                            type: object
+                            additionalProperties:
+                              type: integer
+                      activity_trend:
+                        type: object
+                        additionalProperties:
+                          type: object
+                          properties:
+                            sessions:
+                              type: integer
+                            average_score:
+                              type: number
+                              nullable: true
+                  message:
+                    type: string
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Quiz not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    SessionMode:
+      type: string
+      enum:
+        - learn
+        - test
+    AnswerType:
+      type: string
+      enum:
+        - text
+        - integer
+        - float
+        - range
+        - boolean
+        - choice
+        - multiple_choice
+        - short_text
+    AnswerEvaluation:
+      type: string
+      enum:
+        - correct
+        - incorrect
+        - partial
+    BaseResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          default: true
+        message:
+          type: string
+          nullable: true
+        timestamp:
+          type: string
+          format: date-time
+    PaginationParams:
+      type: object
+      properties:
+        page:
+          type: integer
+          default: 1
+          minimum: 1
+          description: Page number
+        limit:
+          type: integer
+          default: 20
+          minimum: 1
+          maximum: 100
+          description: Items per page
+    UserBase:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+          description: User name
+    UserCreate:
+      allOf:
+        - $ref: '#/components/schemas/UserBase'
+    UserUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+    User:
+      allOf:
+        - $ref: '#/components/schemas/UserBase'
+        - type: object
+          properties:
+            id:
+              type: integer
+            created_at:
+              type: string
+              format: date-time
+              nullable: true
+    UserStats:
+      type: object
+      properties:
+        total_sessions:
+          type: integer
+        learn_sessions:
+          type: integer
+        test_sessions:
+          type: integer
+        average_score:
+          type: number
+          nullable: true
+        best_score:
+          type: integer
+          nullable: true
+        study_streak:
+          type: integer
+        favorite_subjects:
+          type: array
+          items:
+            type: object
+        sessions_this_week:
+          type: integer
+        sessions_this_month:
+          type: integer
+        unique_quizzes:
+          type: integer
+    UserResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseResponse'
+        - type: object
+          properties:
+            data:
+              $ref: '#/components/schemas/User'
+    UsersResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseResponse'
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                $ref: '#/components/schemas/User'
+    UserStatsResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseResponse'
+        - type: object
+          properties:
+            data:
+              $ref: '#/components/schemas/UserStats'
+    QuizBase:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+          description: Quiz name
+        subject:
+          type: string
+          maxLength: 100
+          description: Quiz subject
+          nullable: true
+        description:
+          type: string
+          maxLength: 1000
+          description: Quiz description
+          nullable: true
+    QuizCreate:
+      allOf:
+        - $ref: '#/components/schemas/QuizBase'
+    QuizUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        subject:
+          type: string
+          maxLength: 100
+        description:
+          type: string
+          maxLength: 1000
+    Quiz:
+      allOf:
+        - $ref: '#/components/schemas/QuizBase'
+        - type: object
+          properties:
+            id:
+              type: integer
+            created_at:
+              type: string
+              format: date-time
+            flashcard_count:
+              type: integer
+              nullable: true
+    QuizStats:
+      type: object
+      properties:
+        total_cards:
+          type: integer
+        difficulty_distribution:
+          type: object
+          additionalProperties:
+            type: integer
+        question_languages:
+          type: object
+          additionalProperties:
+            type: integer
+        answer_languages:
+          type: object
+          additionalProperties:
+            type: integer
+        answer_types:
+          type: object
+          additionalProperties:
+            type: integer
+        subject:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        description:
+          type: string
+          nullable: true
+    QuizImportData:
+      type: object
+      required:
+        - quiz
+        - flashcards
+      properties:
+        quiz:
+          type: object
+          description: Quiz metadata
+          additionalProperties: true
+        flashcards:
+          type: array
+          description: Flashcard data
+          items:
+            type: object
+            properties:
+              question:
+                type: object
+                properties:
+                  title:
+                    type: string
+                  text:
+                    type: string
+                  lang:
+                    type: string
+                  difficulty:
+                    type: integer
+                  emoji:
+                    type: string
+                  image:
+                    type: string
+              answer:
+                type: object
+                properties:
+                  text:
+                    type: string
+                  lang:
+                    type: string
+                  type:
+                    $ref: '#/components/schemas/AnswerType'
+                  options:
+                    type: array
+                    items:
+                      type: object
+                  metadata:
+                    type: object
+    QuizResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseResponse'
+        - type: object
+          properties:
+            data:
+              $ref: '#/components/schemas/Quiz'
+    QuizzesResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseResponse'
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                $ref: '#/components/schemas/Quiz'
+    QuizStatsResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseResponse'
+        - type: object
+          properties:
+            data:
+              $ref: '#/components/schemas/QuizStats'
+    FlashcardQuestionBase:
+      type: object
+      required:
+        - title
+        - text
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 500
+        text:
+          type: string
+          minLength: 1
+          maxLength: 2000
+        lang:
+          type: string
+          maxLength: 10
+          nullable: true
+        difficulty:
+          type: integer
+          minimum: 1
+          maximum: 5
+          nullable: true
+        emoji:
+          type: string
+          maxLength: 10
+          nullable: true
+        image:
+          type: string
+          maxLength: 500
+          nullable: true
+    FlashcardAnswerBase:
+      type: object
+      required:
+        - text
+      properties:
+        text:
+          type: string
+          minLength: 1
+          maxLength: 2000
+        lang:
+          type: string
+          maxLength: 10
+          nullable: true
+        type:
+          $ref: '#/components/schemas/AnswerType'
+          default: text
+        options:
+          type: array
+          items:
+            type: object
+          nullable: true
+        metadata:
+          type: object
+          nullable: true
+    FlashcardBase:
+      type: object
+      required:
+        - quiz_id
+        - question
+        - answer
+      properties:
+        quiz_id:
+          type: integer
+        question:
+          $ref: '#/components/schemas/FlashcardQuestionBase'
+        answer:
+          $ref: '#/components/schemas/FlashcardAnswerBase'
+    FlashcardCreate:
+      allOf:
+        - $ref: '#/components/schemas/FlashcardBase'
+    FlashcardUpdate:
+      type: object
+      properties:
+        question:
+          $ref: '#/components/schemas/FlashcardQuestionBase'
+        answer:
+          $ref: '#/components/schemas/FlashcardAnswerBase'
+    Flashcard:
+      type: object
+      properties:
+        id:
+          type: integer
+        quiz_id:
+          type: integer
+        question_title:
+          type: string
+        question_text:
+          type: string
+        question_lang:
+          type: string
+          nullable: true
+        question_difficulty:
+          type: integer
+          nullable: true
+        question_emoji:
+          type: string
+          nullable: true
+        question_image:
+          type: string
+          nullable: true
+        answer_text:
+          type: string
+        answer_lang:
+          type: string
+          nullable: true
+        answer_type:
+          type: string
+        answer_options:
+          type: array
+          items:
+            type: object
+          nullable: true
+        answer_metadata:
+          type: object
+          nullable: true
+    FlashcardResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseResponse'
+        - type: object
+          properties:
+            data:
+              $ref: '#/components/schemas/Flashcard'
+    FlashcardsResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseResponse'
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                $ref: '#/components/schemas/Flashcard'
+    SessionBase:
+      type: object
+      required:
+        - user_id
+        - quiz_id
+        - mode
+      properties:
+        user_id:
+          type: integer
+        quiz_id:
+          type: integer
+        mode:
+          $ref: '#/components/schemas/SessionMode'
+    SessionCreate:
+      allOf:
+        - $ref: '#/components/schemas/SessionBase'
+        - type: object
+          properties:
+            score:
+              type: integer
+              minimum: 0
+              maximum: 100
+              nullable: true
+    SessionUpdate:
+      type: object
+      properties:
+        score:
+          type: integer
+          minimum: 0
+          maximum: 100
+          nullable: true
+        completed_at:
+          type: string
+          format: date-time
+          nullable: true
+    Session:
+      allOf:
+        - $ref: '#/components/schemas/SessionBase'
+        - type: object
+          properties:
+            id:
+              type: integer
+            started_at:
+              type: string
+              format: date-time
+            score:
+              type: integer
+              nullable: true
+            completed_at:
+              type: string
+              format: date-time
+              nullable: true
+    SessionStats:
+      type: object
+      properties:
+        total_sessions:
+          type: integer
+        learn_sessions:
+          type: integer
+        test_sessions:
+          type: integer
+        average_score:
+          type: number
+          nullable: true
+        best_score:
+          type: integer
+          nullable: true
+        unique_quizzes:
+          type: integer
+        sessions_this_week:
+          type: integer
+        sessions_this_month:
+          type: integer
+    SessionResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseResponse'
+        - type: object
+          properties:
+            data:
+              $ref: '#/components/schemas/Session'
+    SessionsResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseResponse'
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                $ref: '#/components/schemas/Session'
+    SessionStatsResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseResponse'
+        - type: object
+          properties:
+            data:
+              $ref: '#/components/schemas/SessionStats'
+    TestAnswer:
+      type: object
+      required:
+        - flashcard_id
+        - user_answer
+      properties:
+        flashcard_id:
+          type: integer
+        user_answer:
+          type: string
+        time_taken:
+          type: number
+          nullable: true
+    TestSubmission:
+      type: object
+      required:
+        - session_id
+        - answers
+      properties:
+        session_id:
+          type: integer
+        answers:
+          type: array
+          items:
+            $ref: '#/components/schemas/TestAnswer'
+    CardResult:
+      type: object
+      required:
+        - flashcard_id
+        - question
+        - user_answer
+        - correct_answer
+        - evaluation
+        - score
+      properties:
+        flashcard_id:
+          type: integer
+        question:
+          type: string
+        user_answer:
+          type: string
+        correct_answer:
+          type: string
+        evaluation:
+          $ref: '#/components/schemas/AnswerEvaluation'
+        score:
+          type: number
+        time_taken:
+          type: number
+          nullable: true
+    TestResults:
+      type: object
+      required:
+        - session_id
+        - total_questions
+        - correct
+        - partial
+        - incorrect
+        - final_score
+        - breakdown
+      properties:
+        session_id:
+          type: integer
+        total_questions:
+          type: integer
+        correct:
+          type: integer
+        partial:
+          type: integer
+        incorrect:
+          type: integer
+        final_score:
+          type: integer
+        time_taken:
+          type: number
+          nullable: true
+        breakdown:
+          type: array
+          items:
+            $ref: '#/components/schemas/CardResult'
+    TestResultsResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseResponse'
+        - type: object
+          properties:
+            data:
+              $ref: '#/components/schemas/TestResults'
+    LearningProgress:
+      type: object
+      required:
+        - flashcard_id
+        - reviewed
+      properties:
+        flashcard_id:
+          type: integer
+        reviewed:
+          type: boolean
+        confidence:
+          type: integer
+          minimum: 1
+          maximum: 5
+          nullable: true
+        time_spent:
+          type: number
+          nullable: true
+    LearningSessionUpdate:
+      type: object
+      required:
+        - progress
+      properties:
+        progress:
+          type: array
+          items:
+            $ref: '#/components/schemas/LearningProgress'
+    LoginRequest:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+          minLength: 1
+        password:
+          type: string
+          minLength: 1
+    RegisterRequest:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+          minLength: 1
+          maxLength: 100
+        password:
+          type: string
+          minLength: 8
+          maxLength: 128
+        email:
+          type: string
+          maxLength: 255
+          nullable: true
+    Token:
+      type: object
+      required:
+        - access_token
+        - token_type
+        - expires_in
+      properties:
+        access_token:
+          type: string
+        token_type:
+          type: string
+        expires_in:
+          type: integer
+    AuthResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseResponse'
+        - type: object
+          properties:
+            data:
+              $ref: '#/components/schemas/Token'
+    ErrorDetail:
+      type: object
+      properties:
+        field:
+          type: string
+          nullable: true
+        message:
+          type: string
+        code:
+          type: string
+          nullable: true
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          default: false
+        error:
+          type: string
+        message:
+          type: string
+        details:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorDetail'
+          nullable: true
+        request_id:
+          type: string
+          nullable: true
+        timestamp:
+          type: string
+          format: date-time
+    BulkFlashcardCreate:
+      type: object
+      required:
+        - quiz_id
+        - flashcards
+      properties:
+        quiz_id:
+          type: integer
+        flashcards:
+          type: array
+          minItems: 1
+          maxItems: 100
+          items:
+            type: object
+            properties:
+              question:
+                type: object
+                properties:
+                  title:
+                    type: string
+                  text:
+                    type: string
+                  lang:
+                    type: string
+                  difficulty:
+                    type: integer
+                  emoji:
+                    type: string
+                  image:
+                    type: string
+              answer:
+                type: object
+                properties:
+                  text:
+                    type: string
+                  lang:
+                    type: string
+                  type:
+                    $ref: '#/components/schemas/AnswerType'
+                  options:
+                    type: array
+                    items:
+                      type: object
+                  metadata:
+                    type: object
+    BulkOperationResult:
+      type: object
+      required:
+        - total
+        - successful
+        - failed
+      properties:
+        total:
+          type: integer
+        successful:
+          type: integer
+        failed:
+          type: integer
+        errors:
+          type: array
+          items:
+            type: string
+    BulkOperationResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseResponse'
+        - type: object
+          properties:
+            data:
+              $ref: '#/components/schemas/BulkOperationResult'

@@ -50,6 +50,15 @@ class QuizService:
         return [card for card in cards
                 if text.lower() in card.question_text.lower()]
 
+    def delete_quiz(self, quiz_id: int) -> bool:
+        """Delete a quiz by its ID."""
+        quiz = self.get_quiz_by_id(quiz_id)
+        if not quiz:
+            return False
+        self.db.delete(quiz)
+        self.db.commit()
+        return True
+
     def get_quiz_statistics(self, quiz_id: int) -> Dict[str, Any]:
         """Get comprehensive statistics for a quiz."""
         quiz = self.get_quiz_by_id(quiz_id)
