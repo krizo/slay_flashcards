@@ -20,9 +20,8 @@ def create_flashcard(
     # Extract answer type and related fields
     answer_type = answer.get("type", "text")
     answer_options = answer.get("options")
-    answer_metadata = answer.get("metadata", {})
+    answer_metadata = answer.get("metadata", {}) or {}
 
-    # FIXED: Ensure metadata includes defaults for numeric types
     if answer_type == "integer" and "tolerance" not in answer_metadata:
         answer_metadata["tolerance"] = 0
     elif answer_type == "float" and "tolerance" not in answer_metadata:

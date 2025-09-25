@@ -1,0 +1,624 @@
+"""
+Quiz API routes
+"""
+from typing import Optional
+from fastapi import APIRouter, Depends, HTTPException, status, Query, File, UploadFile
+from sqlalchemy.orm import Session
+import json
+
+from api.dependencies.auth import get_current_user
+from core.db.database import get_db
+from core.services.quiz_service import QuizService
+from api.api_schemas import (
+    Quiz, QuizCreate, QuizUpdate, QuizResponse, QuizzesResponse,
+    QuizStats, QuizStatsResponse, QuizImportData, QuizFilters,
+    PaginationParams
+)
+from api.utils.responses import create_response
+
+router = APIRouter()
+
+
+@router.get("/", response_model=QuizzesResponse)
+async def get_quizzes(
+    db: Session = Depends(get_db),
+    pagination: PaginationParams = Depends(),
+    filters: QuizFilters = Depends(),
+    current_user = Depends(get_current_user)
+):
+    """Get all quizzes with optional filtering and pagination."""
+    try:
+        quiz_service = QuizService(db)
+
+        # Get base query
+        quizzes_query = quiz_service.get_all_quizzes()
+
+        # Apply filters
+        if filters.subject:
+            quizzes_query = [q for q in quizzes_query if q.subject == filters.subject]
+
+        if filters.name_contains:
+            quizzes_query = [q for q in quizzes_query
+                           if filters.name_contains.lower() in q.name.lower()]
+
+        if filters.created_after:
+            quizzes_query = [q for q in quizzes_query if q.created_at >= filters.created_after]
+
+        if filters.created_before:
+            quizzes_query = [q for q in quizzes_query if q.created_at <= filters.created_before]
+
+        # Convert to quiz objects with flashcard count
+        quiz_data = []
+        for quiz in quizzes_query:
+            flashcards = quiz_service.get_quiz_flashcards(quiz.id)
+            quiz_dict = {
+                "id": quiz.id,
+                "name": quiz.name,
+                "subject": quiz.subject,
+                "description": quiz.description,
+                "created_at": quiz.created_at,
+                "flashcard_count": len(flashcards)
+            }
+            quiz_data.append(Quiz(**quiz_dict))
+
+        # Apply pagination
+        start = (pagination.page - 1) * pagination.limit
+        end = start + pagination.limit
+        paginated_data = quiz_data[start:end]
+
+        return create_response(
+            data=paginated_data,
+            message=f"Retrieved {len(paginated_data)} quizzes"
+        )
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to retrieve quizzes: {str(e)}"
+        )
+
+
+@router.get("/{quiz_id}", response_model=QuizResponse)
+async def get_quiz(
+    quiz_id: int,
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    """Get a specific quiz by ID."""
+    try:
+        quiz_service = QuizService(db)
+        quiz = quiz_service.get_quiz_by_id(quiz_id)
+
+        if not quiz:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Quiz with ID {quiz_id} not found"
+            )
+
+        # Get flashcard count
+        flashcards = quiz_service.get_quiz_flashcards(quiz.id)
+        quiz_dict = {
+            "id": quiz.id,
+            "name": quiz.name,
+            "subject": quiz.subject,
+            "description": quiz.description,
+            "created_at": quiz.created_at,
+            "flashcard_count": len(flashcards)
+        }
+
+        return create_response(
+            data=Quiz(**quiz_dict),
+            message="Quiz retrieved successfully"
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to retrieve quiz: {str(e)}"
+        )
+
+
+@router.post("/", response_model=QuizResponse, status_code=status.HTTP_201_CREATED)
+async def create_quiz(
+    quiz_data: QuizCreate,
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    """Create a new quiz."""
+    try:
+        quiz_service = QuizService(db)
+        quiz = quiz_service.create_quiz(
+            name=quiz_data.name,
+            subject=quiz_data.subject,
+            description=quiz_data.description
+        )
+
+        quiz_dict = {
+            "id": quiz.id,
+            "name": quiz.name,
+            "subject": quiz.subject,
+            "description": quiz.description,
+            "created_at": quiz.created_at,
+            "flashcard_count": 0
+        }
+
+        return create_response(
+            data=Quiz(**quiz_dict),
+            message="Quiz created successfully",
+            status_code=status.HTTP_201_CREATED
+        )
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to create quiz: {str(e)}"
+        )
+
+
+@router.put("/{quiz_id}", response_model=QuizResponse)
+async def update_quiz(
+    quiz_id: int,
+    quiz_data: QuizUpdate,
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    """Update an existing quiz."""
+    try:
+        quiz_service = QuizService(db)
+        quiz = quiz_service.get_quiz_by_id(quiz_id)
+
+        if not quiz:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Quiz with ID {quiz_id} not found"
+            )
+
+        # Update quiz fields
+        update_data = quiz_data.model_dump(exclude_unset=True)
+        for field, value in update_data.items():
+            setattr(quiz, field, value)
+
+        # Save changes (this would need to be implemented in your service)
+        # For now, we'll assume the quiz service handles this
+
+        flashcards = quiz_service.get_quiz_flashcards(quiz.id)
+        quiz_dict = {
+            "id": quiz.id,
+            "name": quiz.name,
+            "subject": quiz.subject,
+            "description": quiz.description,
+            "created_at": quiz.created_at,
+            "flashcard_count": len(flashcards)
+        }
+
+        return create_response(
+            data=Quiz(**quiz_dict),
+            message="Quiz updated successfully"
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to update quiz: {str(e)}"
+        )
+
+
+@router.delete("/{quiz_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_quiz(
+    quiz_id: int,
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    """Delete a quiz and all its flashcards."""
+    try:
+        quiz_service = QuizService(db)
+        quiz = quiz_service.get_quiz_by_id(quiz_id)
+
+        if not quiz:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Quiz with ID {quiz_id} not found"
+            )
+
+        try:
+            success = quiz_service.delete_quiz(quiz_id)
+            if not success:
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail="Failed to delete quiz"
+                )
+        except HTTPException:
+            raise
+        return None
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to delete quiz: {str(e)}"
+        )
+
+
+@router.get("/{quiz_id}/statistics", response_model=QuizStatsResponse)
+async def get_quiz_statistics(
+    quiz_id: int,
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    """Get detailed statistics for a quiz."""
+    try:
+        quiz_service = QuizService(db)
+        quiz = quiz_service.get_quiz_by_id(quiz_id)
+
+        if not quiz:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Quiz with ID {quiz_id} not found"
+            )
+
+        stats = quiz_service.get_quiz_statistics(quiz_id)
+
+        # Add answer types to statistics
+        flashcards = quiz_service.get_quiz_flashcards(quiz_id)
+        answer_types = {}
+        for card in flashcards:
+            answer_type = getattr(card, 'answer_type', 'text')
+            answer_types[answer_type] = answer_types.get(answer_type, 0) + 1
+
+        stats['answer_types'] = answer_types
+
+        return create_response(
+            data=QuizStats(**stats),
+            message="Quiz statistics retrieved successfully"
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to retrieve quiz statistics: {str(e)}"
+        )
+
+
+@router.post("/import", response_model=QuizResponse, status_code=status.HTTP_201_CREATED)
+async def import_quiz(
+    quiz_data: QuizImportData,
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    """Import a quiz from JSON data."""
+    try:
+        quiz_service = QuizService(db)
+
+        # Validate quiz data
+        if not quiz_service.validate_quiz_data(quiz_data.model_dump()):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid quiz data format"
+            )
+
+        quiz = quiz_service.import_quiz_from_dict(quiz_data.model_dump())
+
+        flashcards = quiz_service.get_quiz_flashcards(quiz.id)
+        quiz_dict = {
+            "id": quiz.id,
+            "name": quiz.name,
+            "subject": quiz.subject,
+            "description": quiz.description,
+            "created_at": quiz.created_at,
+            "flashcard_count": len(flashcards)
+        }
+
+        return create_response(
+            data=Quiz(**quiz_dict),
+            message=f"Quiz imported successfully with {len(flashcards)} flashcards",
+            status_code=status.HTTP_201_CREATED
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to import quiz: {str(e)}"
+        )
+
+
+@router.post("/import-file", response_model=QuizResponse, status_code=status.HTTP_201_CREATED)
+async def import_quiz_file(
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    """Import a quiz from uploaded JSON file."""
+    try:
+        # Validate file type
+        if not file.filename.endswith('.json'):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Only JSON files are supported"
+            )
+
+        # Read and parse file
+        content = await file.read()
+        try:
+            quiz_data = json.loads(content.decode('utf-8'))
+        except json.JSONDecodeError:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid JSON format"
+            )
+
+        quiz_service = QuizService(db)
+
+        # Validate quiz data
+        if not quiz_service.validate_quiz_data(quiz_data):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid quiz data structure"
+            )
+
+        quiz = quiz_service.import_quiz_from_dict(quiz_data)
+
+        flashcards = quiz_service.get_quiz_flashcards(quiz.id)
+        quiz_dict = {
+            "id": quiz.id,
+            "name": quiz.name,
+            "subject": quiz.subject,
+            "description": quiz.description,
+            "created_at": quiz.created_at,
+            "flashcard_count": len(flashcards)
+        }
+
+        return create_response(
+            data=Quiz(**quiz_dict),
+            message=f"Quiz imported from file successfully with {len(flashcards)} flashcards",
+            status_code=status.HTTP_201_CREATED
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to import quiz file: {str(e)}"
+        )
+
+
+@router.get("/{quiz_id}/export")
+async def export_quiz(
+    quiz_id: int,
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    """Export a quiz as JSON data."""
+    try:
+        quiz_service = QuizService(db)
+        quiz = quiz_service.get_quiz_by_id(quiz_id)
+
+        if not quiz:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Quiz with ID {quiz_id} not found"
+            )
+
+        flashcards = quiz_service.get_quiz_flashcards(quiz_id)
+
+        # Build export data structure
+        export_data = {
+            "quiz": {
+                "name": quiz.name,
+                "subject": quiz.subject,
+                "description": quiz.description,
+                "created_at": quiz.created_at.isoformat() if quiz.created_at else None
+            },
+            "flashcards": []
+        }
+
+        for card in flashcards:
+            card_data = {
+                "question": {
+                    "title": card.question_title,
+                    "text": card.question_text,
+                    "lang": card.question_lang,
+                    "difficulty": card.question_difficulty,
+                    "emoji": card.question_emoji,
+                    "image": card.question_image
+                },
+                "answer": {
+                    "text": card.answer_text,
+                    "lang": card.answer_lang,
+                    "type": getattr(card, 'answer_type', 'text'),
+                    "options": getattr(card, 'answer_options', None),
+                    "metadata": getattr(card, 'answer_metadata', None)
+                }
+            }
+            # Remove None values
+            card_data["question"] = {k: v for k, v in card_data["question"].items() if v is not None}
+            card_data["answer"] = {k: v for k, v in card_data["answer"].items() if v is not None}
+            export_data["flashcards"].append(card_data)
+
+        from fastapi.responses import JSONResponse
+        return JSONResponse(
+            content=export_data,
+            headers={
+                "Content-Disposition": f"attachment; filename={quiz.name.replace(' ', '_')}_export.json"
+            }
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to export quiz: {str(e)}"
+        )
+
+
+@router.post("/{quiz_id}/duplicate", response_model=QuizResponse, status_code=status.HTTP_201_CREATED)
+async def duplicate_quiz(
+    quiz_id: int,
+    new_name: Optional[str] = Query(None, description="New name for duplicated quiz"),
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    """Duplicate an existing quiz with all its flashcards."""
+    try:
+        quiz_service = QuizService(db)
+        original_quiz = quiz_service.get_quiz_by_id(quiz_id)
+
+        if not original_quiz:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Quiz with ID {quiz_id} not found"
+            )
+
+        # Create new quiz
+        duplicate_name = new_name or f"{original_quiz.name} (Copy)"
+        new_quiz = quiz_service.create_quiz(
+            name=duplicate_name,
+            subject=original_quiz.subject,
+            description=original_quiz.description
+        )
+
+        # Copy all flashcards
+        original_flashcards = quiz_service.get_quiz_flashcards(quiz_id)
+
+        # Build flashcard data for bulk import
+        flashcard_data = []
+        for card in original_flashcards:
+            card_dict = {
+                "question": {
+                    "title": card.question_title,
+                    "text": card.question_text,
+                    "lang": card.question_lang,
+                    "difficulty": card.question_difficulty,
+                    "emoji": card.question_emoji,
+                    "image": card.question_image
+                },
+                "answer": {
+                    "text": card.answer_text,
+                    "lang": card.answer_lang,
+                    "type": getattr(card, 'answer_type', 'text'),
+                    "options": getattr(card, 'answer_options', None),
+                    "metadata": getattr(card, 'answer_metadata', None)
+                }
+            }
+            flashcard_data.append(card_dict)
+
+        # Import flashcards to new quiz
+        from core.db.crud import flashcards as flashcard_crud
+        flashcard_crud.bulk_create_flashcards(db, new_quiz.id, flashcard_data)
+
+        quiz_dict = {
+            "id": new_quiz.id,
+            "name": new_quiz.name,
+            "subject": new_quiz.subject,
+            "description": new_quiz.description,
+            "created_at": new_quiz.created_at,
+            "flashcard_count": len(flashcard_data)
+        }
+
+        return create_response(
+            data=Quiz(**quiz_dict),
+            message=f"Quiz duplicated successfully with {len(flashcard_data)} flashcards",
+            status_code=status.HTTP_201_CREATED
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to duplicate quiz: {str(e)}"
+        )
+
+
+@router.get("/search", response_model=QuizzesResponse)
+async def search_quizzes(
+    q: str = Query(..., min_length=1, description="Search query"),
+    subject: Optional[str] = Query(None, description="Filter by subject"),
+    limit: int = Query(20, ge=1, le=100, description="Maximum results"),
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    """Search quizzes by name, subject, or description."""
+    try:
+        quiz_service = QuizService(db)
+        all_quizzes = quiz_service.get_all_quizzes()
+
+        # Filter by search query
+        search_results = []
+        q_lower = q.lower()
+
+        for quiz in all_quizzes:
+            # Check if query matches name, subject, or description
+            matches = (
+                q_lower in quiz.name.lower() or
+                (quiz.subject and q_lower in quiz.subject.lower()) or
+                (quiz.description and q_lower in quiz.description.lower())
+            )
+
+            # Apply subject filter if specified
+            if subject and quiz.subject != subject:
+                matches = False
+
+            if matches:
+                flashcards = quiz_service.get_quiz_flashcards(quiz.id)
+                quiz_dict = {
+                    "id": quiz.id,
+                    "name": quiz.name,
+                    "subject": quiz.subject,
+                    "description": quiz.description,
+                    "created_at": quiz.created_at,
+                    "flashcard_count": len(flashcards)
+                }
+                search_results.append(Quiz(**quiz_dict))
+
+        # Limit results
+        search_results = search_results[:limit]
+
+        return create_response(
+            data=search_results,
+            message=f"Found {len(search_results)} quizzes matching '{q}'"
+        )
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to search quizzes: {str(e)}"
+        )
+
+
+@router.get("/subjects", response_model=dict)
+async def get_subjects(
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    """Get all unique subjects with quiz counts."""
+    try:
+        quiz_service = QuizService(db)
+        all_quizzes = quiz_service.get_all_quizzes()
+
+        subjects = {}
+        for quiz in all_quizzes:
+            if quiz.subject:
+                subjects[quiz.subject] = subjects.get(quiz.subject, 0) + 1
+
+        return {
+            "success": True,
+            "data": subjects,
+            "message": f"Found {len(subjects)} unique subjects"
+        }
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to retrieve subjects: {str(e)}"
+        )
