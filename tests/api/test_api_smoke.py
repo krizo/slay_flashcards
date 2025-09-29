@@ -1,29 +1,56 @@
 """
-Simple API test example to verify everything works
+API smoke tests with proper fixtures and email validation
 """
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import sessionmaker
 
-# This assumes your main FastAPI app is in api/main_api.py
 from api.main_api import app
 from core.db.database import Base, engine
 
 client = TestClient(app)
 
-
-SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"  # or sqlite:///:memory:
+SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
 
 @pytest.fixture(scope="function", autouse=True)
 def setup_database():
-    """ Setup and teardown the database for each test."""
-    # Drop and recreate schema
+    """Setup and teardown the database for each test."""
     Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
     yield
-    # Optional teardown if needed
     Base.metadata.drop_all(bind=engine)
+
+
+@pytest.fixture(scope="function")
+def registered_user():
+    """Fixture that registers a user and returns credentials."""
+    register_data = {
+        "username": "testuser",
+        "password": "TestPass123",
+        "email": "testuser@example.com"
+    }
+    response = client.post("/api/v1/auth/register", json=register_data)
+    assert response.status_code == 201
+
+    token = response.json()["data"]["access_token"]
+
+    return {
+        "username": register_data["username"],
+        "email": register_data["email"],
+        "token": token,
+        "headers": {"Authorization": f"Bearer {token}"}
+    }
+
+
+@pytest.fixture(scope="function")
+def authenticated_client(registered_user):
+    """Fixture that returns an authenticated TestClient."""
+    test_client = TestClient(app)
+    test_client.headers.update(registered_user["headers"])
+    return test_client
+
 
 def test_health_check():
     """Test the health check endpoint."""
@@ -38,9 +65,9 @@ def test_auth_flow():
     """Test basic authentication flow."""
     # Register a new user
     register_data = {
-        "username": "testuser",
-        "password": "testpassword123",
-        "email": "test@example.com"
+        "username": "authflowuser",
+        "password": "SecurePass123",
+        "email": "authflow@example.com"
     }
 
     response = client.post("/api/v1/auth/register", json=register_data)
@@ -60,17 +87,64 @@ def test_auth_flow():
 
     user_data = response.json()
     assert user_data["success"] is True
-    assert user_data["data"]["name"] == "testuser"
+    assert user_data["data"]["name"] == "authflowuser"
+    assert user_data["data"]["email"] == "authflow@example.com"
 
 
-def test_quiz_crud():
+def test_registration_validation():
+    """Test registration validation for password and email."""
+    # Test weak password
+    weak_pass_data = {
+        "username": "weakuser",
+        "password": "weak",  # Too short, no uppercase, no digit
+        "email": "weak@example.com"
+    }
+    response = client.post("/api/v1/auth/register", json=weak_pass_data)
+    assert response.status_code == 422
+
+    # Test invalid email
+    invalid_email_data = {
+        "username": "invaliduser",
+        "password": "ValidPass123",
+        "email": "not-an-email"
+    }
+    response = client.post("/api/v1/auth/register", json=invalid_email_data)
+    assert response.status_code == 422
+
+    # Test missing email
+    no_email_data = {
+        "username": "noemailuser",
+        "password": "ValidPass123"
+    }
+    response = client.post("/api/v1/auth/register", json=no_email_data)
+    assert response.status_code == 422
+
+
+def test_duplicate_registration(registered_user):
+    """Test that duplicate username/email is rejected."""
+    # Try to register with same username
+    duplicate_username = {
+        "username": registered_user["username"],
+        "password": "AnotherPass123",
+        "email": "different@example.com"
+    }
+    response = client.post("/api/v1/auth/register", json=duplicate_username)
+    assert response.status_code == 409
+    assert "Username already exists" in response.json()["detail"]
+
+    # Try to register with same email
+    duplicate_email = {
+        "username": "differentuser",
+        "password": "AnotherPass123",
+        "email": registered_user["email"]
+    }
+    response = client.post("/api/v1/auth/register", json=duplicate_email)
+    assert response.status_code == 409
+    assert "Email address already exists" in response.json()["detail"]
+
+
+def test_quiz_crud(authenticated_client):
     """Test basic quiz CRUD operations."""
-    # First, authenticate
-    register_data = {"username": "quizuser", "password": "password123"}
-    auth_response = client.post("/api/v1/auth/register", json=register_data)
-    token = auth_response.json()["data"]["access_token"]
-    headers = {"Authorization": f"Bearer {token}"}
-
     # Create a quiz
     quiz_data = {
         "name": "Test Quiz",
@@ -78,7 +152,7 @@ def test_quiz_crud():
         "description": "A test quiz for API testing"
     }
 
-    response = client.post("/api/v1/quizzes/", json=quiz_data, headers=headers)
+    response = authenticated_client.post("/api/v1/quizzes/", json=quiz_data)
     assert response.status_code == 201
 
     created_quiz = response.json()
@@ -86,7 +160,7 @@ def test_quiz_crud():
     quiz_id = created_quiz["data"]["id"]
 
     # Get the quiz
-    response = client.get(f"/api/v1/quizzes/{quiz_id}", headers=headers)
+    response = authenticated_client.get(f"/api/v1/quizzes/{quiz_id}")
     assert response.status_code == 200
 
     quiz = response.json()
@@ -94,23 +168,18 @@ def test_quiz_crud():
     assert quiz["data"]["subject"] == "Testing"
 
     # List quizzes
-    response = client.get("/api/v1/quizzes/", headers=headers)
+    response = authenticated_client.get("/api/v1/quizzes/")
     assert response.status_code == 200
 
     quizzes = response.json()
     assert len(quizzes["data"]) >= 1
 
 
-def test_flashcard_creation():
+def test_flashcard_creation(authenticated_client):
     """Test flashcard creation."""
-    # Setup: Create user and quiz
-    register_data = {"username": "carduser", "password": "password123"}
-    auth_response = client.post("/api/v1/auth/register", json=register_data)
-    token = auth_response.json()["data"]["access_token"]
-    headers = {"Authorization": f"Bearer {token}"}
-
+    # Create quiz first
     quiz_data = {"name": "Flashcard Test Quiz", "subject": "Testing"}
-    quiz_response = client.post("/api/v1/quizzes/", json=quiz_data, headers=headers)
+    quiz_response = authenticated_client.post("/api/v1/quizzes/", json=quiz_data)
     quiz_id = quiz_response.json()["data"]["id"]
 
     # Create a flashcard
@@ -130,8 +199,8 @@ def test_flashcard_creation():
         }
     }
 
-    response = client.post("/api/v1/flashcards/", json=flashcard_data, headers=headers)
-    assert response.status_code == 201, "Response: " + response.text
+    response = authenticated_client.post("/api/v1/flashcards/", json=flashcard_data)
+    assert response.status_code == 201
 
     flashcard = response.json()
     assert flashcard["success"] is True
@@ -140,15 +209,8 @@ def test_flashcard_creation():
     assert flashcard["data"]["answer_type"] == "integer"
 
 
-def test_quiz_import():
+def test_quiz_import(authenticated_client):
     """Test quiz import from JSON data."""
-    # Setup authentication
-    register_data = {"username": "importuser", "password": "password123"}
-    auth_response = client.post("/api/v1/auth/register", json=register_data)
-    token = auth_response.json()["data"]["access_token"]
-    headers = {"Authorization": f"Bearer {token}"}
-
-    # Import quiz data (matches your existing JSON structure)
     import_data = {
         "quiz": {
             "name": "Imported Quiz",
@@ -187,7 +249,7 @@ def test_quiz_import():
         ]
     }
 
-    response = client.post("/api/v1/quizzes/import", json=import_data, headers=headers)
+    response = authenticated_client.post("/api/v1/quizzes/import", json=import_data)
     assert response.status_code == 201
 
     result = response.json()
@@ -196,18 +258,11 @@ def test_quiz_import():
     assert result["data"]["flashcard_count"] == 2
 
 
-def test_session_and_test_submission():
+def test_session_and_test_submission(authenticated_client, registered_user):
     """Test creating a session and submitting test answers."""
-    # Setup: user, quiz, flashcards
-    register_data = {"username": "sessionuser", "password": "password123"}
-    auth_response = client.post("/api/v1/auth/register", json=register_data)
-    token = auth_response.json()["data"]["access_token"]
-    user_id = auth_response.json()["data"]["user_id"] if "user_id" in auth_response.json()["data"] else 1
-    headers = {"Authorization": f"Bearer {token}"}
-
-    # Get or create user ID (simplified for test)
-    user_response = client.get("/api/v1/auth/me", headers=headers)
-    user_id = user_response.json()["data"]["id"]
+    # Get user ID
+    me_response = authenticated_client.get("/api/v1/auth/me")
+    user_id = me_response.json()["data"]["id"]
 
     # Create quiz with flashcards
     import_data = {
@@ -220,7 +275,7 @@ def test_session_and_test_submission():
         ]
     }
 
-    quiz_response = client.post("/api/v1/quizzes/import", json=import_data, headers=headers)
+    quiz_response = authenticated_client.post("/api/v1/quizzes/import", json=import_data)
     quiz_id = quiz_response.json()["data"]["id"]
 
     # Create test session
@@ -230,12 +285,12 @@ def test_session_and_test_submission():
         "mode": "test"
     }
 
-    session_response = client.post("/api/v1/sessions/", json=session_data, headers=headers)
+    session_response = authenticated_client.post("/api/v1/sessions/", json=session_data)
     assert session_response.status_code == 201
     session_id = session_response.json()["data"]["id"]
 
     # Get flashcards to find IDs
-    flashcards_response = client.get(f"/api/v1/flashcards/?quiz_id={quiz_id}", headers=headers)
+    flashcards_response = authenticated_client.get(f"/api/v1/flashcards/?quiz_id={quiz_id}")
     flashcards = flashcards_response.json()["data"]
     flashcard_id = flashcards[0]["id"]
 
@@ -251,33 +306,38 @@ def test_session_and_test_submission():
         ]
     }
 
-    test_response = client.post("/api/v1/sessions/test/submit", json=test_submission, headers=headers)
+    test_response = authenticated_client.post("/api/v1/sessions/test/submit", json=test_submission)
     assert test_response.status_code == 200
 
     results = test_response.json()
     assert results["success"] is True
-    assert results["data"]["final_score"] == 100  # Should be correct
+    assert results["data"]["final_score"] == 100
     assert results["data"]["correct"] == 1
 
 
-if __name__ == "__main__":
-    # Run tests manually
-    test_health_check()
-    print("✅ Health check passed")
+def test_user_statistics(authenticated_client, registered_user):
+    """Test retrieving user statistics."""
+    # Get user ID
+    me_response = authenticated_client.get("/api/v1/auth/me")
+    user_id = me_response.json()["data"]["id"]
 
-    test_auth_flow()
-    print("✅ Auth flow passed")
+    # Create some activity
+    quiz_data = {"name": "Stats Quiz", "subject": "Testing"}
+    quiz_response = authenticated_client.post("/api/v1/quizzes/", json=quiz_data)
+    quiz_id = quiz_response.json()["data"]["id"]
 
-    test_quiz_crud()
-    print("✅ Quiz CRUD passed")
+    # Create a learning session
+    session_data = {
+        "user_id": user_id,
+        "quiz_id": quiz_id,
+        "mode": "learn"
+    }
+    authenticated_client.post("/api/v1/sessions/", json=session_data)
 
-    test_flashcard_creation()
-    print("✅ Flashcard creation passed")
+    # Get user statistics
+    stats_response = authenticated_client.get(f"/api/v1/users/{user_id}/statistics")
+    assert stats_response.status_code == 200, stats_response.json()
 
-    test_quiz_import()
-    print("✅ Quiz import passed")
-
-    test_session_and_test_submission()
-    print("✅ Session and test submission passed")
-
-    print("🎉 All API tests passed!")
+    stats = stats_response.json()["data"]
+    assert stats["total_sessions"] >= 1
+    assert stats["learn_sessions"] >= 1

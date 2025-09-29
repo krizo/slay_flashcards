@@ -2,8 +2,8 @@
 Pydantic schemas for API request/response models
 """
 from datetime import datetime
-from typing import Optional, List, Dict, Any, Union
-from pydantic import BaseModel, Field, ConfigDict
+from typing import Optional, List, Dict, Any
+from pydantic import BaseModel, Field, ConfigDict, field_validator
 from enum import Enum
 
 
@@ -67,17 +67,42 @@ class PaginatedResponse(BaseModel):
 
 class UserBase(BaseModel):
     """Base user schema."""
-    name: str = Field(..., min_length=1, max_length=100, description="User name")
+    name: str = Field(..., min_length=3, max_length=50, description="Username")
 
 
 class UserCreate(UserBase):
     """User creation schema."""
-    pass
+    password: str = Field(..., min_length=8, max_length=128, description="Password")
+    email: str = Field(..., description="Email address")
 
+    @classmethod
+    @field_validator('name')
+    def validate_username_format(cls, v: str) -> str:
+        """Validate username format."""
+        from api.utils.validation import validate_username
+        result = validate_username(v)
+        if not result["valid"]:
+            raise ValueError("; ".join(result["errors"]))
+        return v
 
-class UserUpdate(BaseModel):
-    """User update schema."""
-    name: Optional[str] = Field(None, min_length=1, max_length=100)
+    @classmethod
+    @field_validator('password')
+    def validate_password_strength(cls, v: str) -> str:
+        """Validate password strength."""
+        from api.utils.validation import validate_password
+        result = validate_password(v)
+        if not result["valid"]:
+            raise ValueError("; ".join(result["errors"]))
+        return v
+
+    @classmethod
+    @field_validator('email')
+    def validate_email_format(cls, v: str) -> str:
+        """Validate email format."""
+        from api.utils.validation import validate_email
+        if not validate_email(v):
+            raise ValueError("Invalid email format")
+        return v.lower().strip()
 
 
 class User(UserBase):
@@ -85,21 +110,32 @@ class User(UserBase):
     model_config = ConfigDict(from_attributes=True)
 
     id: int
+    email: Optional[str] = None  # Make email optional for backward compatibility
     created_at: Optional[datetime] = None
 
 
+class UserUpdate(BaseModel):
+    """User update schema."""
+    name: Optional[str] = Field(None, min_length=1, max_length=100)
+
+
 class UserStats(BaseModel):
-    """User statistics schema."""
+    """User statistics schema - must match UserService.get_user_statistics() return dict."""
     total_sessions: int
     learn_sessions: int
     test_sessions: int
-    average_score: Optional[float]
-    best_score: Optional[int]
-    study_streak: int
-    favorite_subjects: List[Dict[str, Any]]
-    sessions_this_week: int
-    sessions_this_month: int
-    unique_quizzes: int
+    average_score: Optional[float] = None
+    best_score: Optional[int] = None
+    study_streak: int = 0
+    favorite_subjects: List[Dict[str, Any]] = []
+    sessions_this_week: int = 0
+    sessions_this_month: int = 0
+    unique_quizzes: int = 0
+
+
+class UserStatsResponse(BaseResponse):
+    """User statistics response."""
+    data: UserStats
 
 
 class UserResponse(BaseResponse):
@@ -110,11 +146,6 @@ class UserResponse(BaseResponse):
 class UsersResponse(BaseResponse):
     """Multiple users response."""
     data: List[User]
-
-
-class UserStatsResponse(BaseResponse):
-    """User statistics response."""
-    data: UserStats
 
 
 # =============================================================================
@@ -398,9 +429,35 @@ class LoginRequest(BaseModel):
 
 class RegisterRequest(BaseModel):
     """Registration request schema."""
-    username: str = Field(..., min_length=1, max_length=100)
+    username: str = Field(..., min_length=3, max_length=50)
     password: str = Field(..., min_length=8, max_length=128)
-    email: Optional[str] = Field(None, max_length=255)
+    email: str = Field(...)
+
+    @field_validator('username')
+    @classmethod
+    def validate_username_format(cls, v: str) -> str:
+        from api.utils.validation import validate_username
+        result = validate_username(v)
+        if not result["valid"]:
+            raise ValueError("; ".join(result["errors"]))
+        return v
+
+    @field_validator('password')
+    @classmethod
+    def validate_password_strength(cls, v: str) -> str:
+        from api.utils.validation import validate_password
+        result = validate_password(v)
+        if not result["valid"]:
+            raise ValueError("; ".join(result["errors"]))
+        return v
+
+    @field_validator('email')
+    @classmethod
+    def validate_email_format(cls, v: str) -> str:
+        from api.utils.validation import validate_email
+        if not validate_email(v):
+            raise ValueError("Invalid email format")
+        return v.lower().strip()
 
 
 class AuthResponse(BaseResponse):

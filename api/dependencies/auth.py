@@ -13,7 +13,7 @@ import bcrypt
 from core.db.database import get_db
 from core.services.user_service import UserService
 from api.api_schemas import (
-    LoginRequest, RegisterRequest, Token, AuthResponse, UserResponse, User
+    LoginRequest, RegisterRequest, Token, AuthResponse, UserResponse, User, UserCreate
 )
 from api.utils.responses import create_response
 
@@ -31,9 +31,9 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     """Create JWT access token."""
     to_encode = data.copy()
     if expires_delta:
-        expire = datetime.utcnow() + expires_delta
+        expire = datetime.now() + expires_delta
     else:
-        expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        expire = datetime.now() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
 
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
@@ -77,21 +77,19 @@ def verify_password(password: str, hashed_password: str) -> bool:
 
 @router.post("/login", response_model=AuthResponse)
 async def login(
-    login_data: LoginRequest,
-    db: Session = Depends(get_db)
+        login_data: LoginRequest,
+        db: Session = Depends(get_db)
 ):
     """Authenticate user and return access token."""
     try:
         user_service = UserService(db)
 
-        # For this simple implementation, we'll just check if user exists
-        # In production, you'd verify password against stored hash
         user = user_service.get_user_by_name(login_data.username)
 
         if not user:
-            # Create user if doesn't exist (for demo purposes)
-            # In production, you'd return authentication error
-            user = user_service.create_user(login_data.username)
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid username or password")
 
         # Create access token
         access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
@@ -120,14 +118,14 @@ async def login(
 
 @router.post("/register", response_model=AuthResponse, status_code=status.HTTP_201_CREATED)
 async def register(
-    register_data: RegisterRequest,
-    db: Session = Depends(get_db)
+        register_data: RegisterRequest,
+        db: Session = Depends(get_db)
 ):
     """Register new user and return access token."""
     try:
         user_service = UserService(db)
 
-        # Check if user already exists
+        # Check if username already exists
         existing_user = user_service.get_user_by_name(register_data.username)
         if existing_user:
             raise HTTPException(
@@ -135,9 +133,23 @@ async def register(
                 detail="Username already exists"
             )
 
-        # Create new user
-        # In production, you'd hash the password and store it
-        user = user_service.create_user(register_data.username)
+        # Check if email already exists
+        existing_email = user_service.get_user_by_email(register_data.email)
+        if existing_email:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Email address already exists"
+            )
+
+        # Convert RegisterRequest to UserCreate (username -> name)
+        user_create = UserCreate(
+            name=register_data.username,
+            password=register_data.password,
+            email=register_data.email
+        )
+
+        # Create user
+        user = user_service.create_user(user_create)
 
         # Create access token
         access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
@@ -160,6 +172,11 @@ async def register(
 
     except HTTPException:
         raise
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -169,8 +186,8 @@ async def register(
 
 @router.get("/me", response_model=UserResponse)
 async def get_current_user(
-    token_data: dict = Depends(verify_token),
-    db: Session = Depends(get_db)
+        token_data: dict = Depends(verify_token),
+        db: Session = Depends(get_db)
 ):
     """Get current user information."""
     try:
@@ -183,14 +200,18 @@ async def get_current_user(
                 detail="User not found"
             )
 
+        # Safely construct user dict, handling missing email
         user_dict = {
             "id": user.id,
             "name": user.name,
+            "email": getattr(user, 'email', None),  # Handle missing email
             "created_at": getattr(user, 'created_at', None)
         }
 
         return create_response(
             data=User(**user_dict),
+            status_code=status.HTTP_200_OK,
+            success=True,
             message="User information retrieved successfully"
         )
 
@@ -205,8 +226,7 @@ async def get_current_user(
 
 @router.post("/refresh", response_model=AuthResponse)
 async def refresh_token(
-    token_data: dict = Depends(verify_token),
-    db: Session = Depends(get_db)
+        token_data: dict = Depends(verify_token),
 ):
     """Refresh access token."""
     try:
@@ -236,9 +256,7 @@ async def refresh_token(
 
 
 @router.post("/logout")
-async def logout(
-    token_data: dict = Depends(verify_token)
-):
+async def logout():
     """Logout user (client-side token removal)."""
     # In a production system, you might want to blacklist the token
     # For now, we'll just return a success message
@@ -250,7 +268,7 @@ async def logout(
 
 @router.get("/verify")
 async def verify_authentication(
-    token_data: dict = Depends(verify_token)
+        token_data: dict = Depends(verify_token)
 ):
     """Verify if the current token is valid."""
     return {

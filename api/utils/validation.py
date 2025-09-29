@@ -18,7 +18,7 @@ def validate_email(email: str) -> bool:
         True if valid, False otherwise
     """
     try:
-        validate_email_lib(email)
+        validate_email_lib(email, check_deliverability=False)
         return True
     except EmailNotValidError:
         return False

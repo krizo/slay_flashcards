@@ -161,7 +161,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
     def _should_skip_rate_limiting(self, request: Request) -> bool:
         """Check if request should skip rate limiting."""
         # Skip rate limiting for health checks
-        if request.url.path in ["/health", "/docs", "/redoc", "/openapi.json"]:
+        if request.url.path in ["/health", "/docs", "/redoc", "/openapi.yaml"]:
             return True
 
         # Skip for OPTIONS requests (CORS preflight)
