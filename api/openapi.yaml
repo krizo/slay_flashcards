@@ -1,0 +1,250 @@
+openapi: 3.0.0
+info:
+  title: SlayFlashcards API
+  description: REST API for SlayFlashcards - An interactive flashcard learning platform
+  version: 1.0.0
+servers:
+  - url: /api/v1
+tags:
+  - name: authentication
+    description: User authentication and token management
+  - name: users
+    description: User-related operations
+  - name: quizzes
+    description: Quiz management
+  - name: flashcards
+    description: Flashcard management
+  - name: sessions
+    description: Learning and test sessions
+security:
+  - bearerAuth: []
+paths:
+  /auth/login:
+    post:
+      summary: Authenticate a user
+      tags:
+        - authentication
+      description: Authenticates a user with a username and returns a JWT access token.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: Authentication failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /auth/register:
+    post:
+      summary: Register a new user
+      tags:
+        - authentication
+      description: Registers a new user with username, password, and email. All fields are validated.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+            examples:
+              valid:
+                summary: Valid registration
+                value:
+                  username: johndoe
+                  password: SecurePass123
+                  email: john@example.com
+      responses:
+        '201':
+          description: Registration successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '409':
+          description: Username or email already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                duplicate_username:
+                  summary: Duplicate username
+                  value:
+                    success: false
+                    detail: Username already exists
+                    status_code: 409
+                duplicate_email:
+                  summary: Duplicate email
+                  value:
+                    success: false
+                    detail: Email address already exists
+                    status_code: 409
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                weak_password:
+                  summary: Weak password
+                  value:
+                    detail:
+                      - type: value_error
+                        loc: ["body", "password"]
+                        msg: "Password must contain at least one lowercase letter; Password must contain at least one uppercase letter; Password must contain at least one digit"
+                invalid_email:
+                  summary: Invalid email
+                  value:
+                    detail:
+                      - type: value_error
+                        loc: ["body", "email"]
+                        msg: "Invalid email format"
+                invalid_username:
+                  summary: Invalid username
+                  value:
+                    detail:
+                      - type: value_error
+                        loc: ["body", "username"]
+                        msg: "Username must be at least 3 characters long"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /auth/me:
+    get:
+      summary: Get current user information
+      tags:
+        - authentication
+      description: Retrieves information about the currently authenticated user.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: User information retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /auth/refresh:
+    post:
+      summary: Refresh access token
+      tags:
+        - authentication
+      description: Refreshes a user's access token.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Token refreshed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /auth/logout:
+    post:
+      summary: Logout a user
+      tags:
+        - authentication
+      description: Provides a success message for client-side token removal.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Logout successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /auth/verify:
+    get:
+      summary: Verify if the current token is valid
+      tags:
+        - authentication
+      description: Verifies if the current access token is valid.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Token is valid
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      username:
+                        type: string
+                      user_id:
+                        type: integer
+        '401':
+          description: Invalid authentication credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'

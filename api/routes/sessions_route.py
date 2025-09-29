@@ -2,7 +2,7 @@
 Session API routes
 """
 from typing import Optional
-from datetime import datetime, timedelta
+import datetime
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session as DBSession
 
@@ -28,7 +28,6 @@ async def get_sessions(
     db: DBSession = Depends(get_db),
     pagination: PaginationParams = Depends(),
     filters: SessionFilters = Depends(),
-    current_user = Depends(get_current_user)
 ):
     """Get sessions with optional filtering and pagination."""
     try:
@@ -98,11 +97,80 @@ async def get_sessions(
         )
 
 
+@router.get("/statistics", response_model=SessionStatsResponse)
+async def get_session_statistics(
+    user_id: Optional[int] = Query(None, description="Filter by user ID"),
+    quiz_id: Optional[int] = Query(None, description="Filter by quiz ID"),
+    days: int = Query(30, ge=1, le=365, description="Number of days to analyze"),
+    db: DBSession = Depends(get_db),
+):
+    """Get session statistics."""
+    try:
+        from core.db.crud.repository.session_repository import SessionRepository
+        session_repo = SessionRepository(db)
+
+        # Get sessions based on filters
+        if user_id:
+            sessions = session_repo.get_by_user_id(user_id)
+        else:
+            # Get all sessions (you might want to limit this)
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="user_id parameter is required"
+            )
+
+        # Filter by date range
+        since_date = datetime.datetime.now() - datetime.timedelta(days=days)
+        recent_sessions = [s for s in sessions if s.started_at >= since_date]
+
+        # Filter by quiz if specified
+        if quiz_id:
+            recent_sessions = [s for s in recent_sessions if s.quiz_id == quiz_id]
+
+        # Calculate statistics
+        learn_sessions = [s for s in recent_sessions if s.mode == "learn"]
+        test_sessions = [s for s in recent_sessions if s.mode == "test"]
+        test_scores = [s.score for s in test_sessions if s.score is not None]
+
+        unique_quizzes = len(set(s.quiz_id for s in recent_sessions))
+
+        # Calculate time-based stats
+        now = datetime.datetime.now()
+        week_ago = now - datetime.timedelta(days=7)
+        month_ago = now - datetime.timedelta(days=30)
+
+        sessions_this_week = len([s for s in recent_sessions if s.started_at >= week_ago])
+        sessions_this_month = len([s for s in recent_sessions if s.started_at >= month_ago])
+
+        stats = SessionStats(
+            total_sessions=len(recent_sessions),
+            learn_sessions=len(learn_sessions),
+            test_sessions=len(test_sessions),
+            average_score=sum(test_scores) / len(test_scores) if test_scores else None,
+            best_score=max(test_scores) if test_scores else None,
+            unique_quizzes=unique_quizzes,
+            sessions_this_week=sessions_this_week,
+            sessions_this_month=sessions_this_month
+        )
+
+        return create_response(
+            data=stats,
+            message=f"Statistics calculated for {days} days"
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to calculate session statistics: {str(e)}"
+        )
+
+
 @router.get("/{session_id}", response_model=SessionResponse)
 async def get_session(
     session_id: int,
     db: DBSession = Depends(get_db),
-    current_user = Depends(get_current_user)
 ):
     """Get a specific session by ID."""
     try:
@@ -209,7 +277,6 @@ async def update_session(
     session_id: int,
     session_data: SessionUpdate,
     db: DBSession = Depends(get_db),
-    current_user = Depends(get_current_user)
 ):
     """Update an existing session."""
     try:
@@ -255,7 +322,6 @@ async def update_session(
 async def delete_session(
     session_id: int,
     db: DBSession = Depends(get_db),
-    current_user = Depends(get_current_user)
 ):
     """Delete a session."""
     try:
@@ -285,7 +351,6 @@ async def delete_session(
 async def submit_test(
     test_data: TestSubmission,
     db: DBSession = Depends(get_db),
-    current_user = Depends(get_current_user)
 ):
     """Submit test answers and get results."""
     try:
@@ -365,7 +430,7 @@ async def submit_test(
         final_score = int((total_score / len(test_data.answers)) * 100) if test_data.answers else 0
 
         # Update session with score
-        session_repo.update(session, score=final_score, completed_at=datetime.now())
+        session_repo.update(session, score=final_score, completed_at=datetime.datetime.now())
 
         # Calculate total time
         total_time = sum(r.time_taken for r in results if r.time_taken) if any(r.time_taken for r in results) else None
@@ -400,7 +465,6 @@ async def update_learning_progress(
     session_id: int,
     progress_data: LearningSessionUpdate,
     db: DBSession = Depends(get_db),
-    current_user = Depends(get_current_user)
 ):
     """Update progress for a learning session."""
     try:
@@ -426,7 +490,7 @@ async def update_learning_progress(
         completed_count = len([p for p in progress_data.progress if p.reviewed])
 
         # You could store more detailed progress data here
-        session_repo.update(session, completed_at=datetime.now())
+        session_repo.update(session, completed_at=datetime.datetime.now())
 
         session_dict = {
             "id": session.id,
@@ -452,76 +516,6 @@ async def update_learning_progress(
         )
 
 
-@router.get("/statistics", response_model=SessionStatsResponse)
-async def get_session_statistics(
-    user_id: Optional[int] = Query(None, description="Filter by user ID"),
-    quiz_id: Optional[int] = Query(None, description="Filter by quiz ID"),
-    days: int = Query(30, ge=1, le=365, description="Number of days to analyze"),
-    db: DBSession = Depends(get_db),
-    current_user = Depends(get_current_user)
-):
-    """Get session statistics."""
-    try:
-        from core.db.crud.repository.session_repository import SessionRepository
-        session_repo = SessionRepository(db)
-
-        # Get sessions based on filters
-        if user_id:
-            sessions = session_repo.get_by_user_id(user_id)
-        else:
-            # Get all sessions (you might want to limit this)
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="user_id parameter is required"
-            )
-
-        # Filter by date range
-        since_date = datetime.now() - timedelta(days=days)
-        recent_sessions = [s for s in sessions if s.started_at >= since_date]
-
-        # Filter by quiz if specified
-        if quiz_id:
-            recent_sessions = [s for s in recent_sessions if s.quiz_id == quiz_id]
-
-        # Calculate statistics
-        learn_sessions = [s for s in recent_sessions if s.mode == "learn"]
-        test_sessions = [s for s in recent_sessions if s.mode == "test"]
-        test_scores = [s.score for s in test_sessions if s.score is not None]
-
-        unique_quizzes = len(set(s.quiz_id for s in recent_sessions))
-
-        # Calculate time-based stats
-        now = datetime.now()
-        week_ago = now - timedelta(days=7)
-        month_ago = now - timedelta(days=30)
-
-        sessions_this_week = len([s for s in recent_sessions if s.started_at >= week_ago])
-        sessions_this_month = len([s for s in recent_sessions if s.started_at >= month_ago])
-
-        stats = SessionStats(
-            total_sessions=len(recent_sessions),
-            learn_sessions=len(learn_sessions),
-            test_sessions=len(test_sessions),
-            average_score=sum(test_scores) / len(test_scores) if test_scores else None,
-            best_score=max(test_scores) if test_scores else None,
-            unique_quizzes=unique_quizzes,
-            sessions_this_week=sessions_this_week,
-            sessions_this_month=sessions_this_month
-        )
-
-        return create_response(
-            data=stats,
-            message=f"Statistics calculated for {days} days"
-        )
-
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to calculate session statistics: {str(e)}"
-        )
-
 
 @router.get("/user/{user_id}/recent", response_model=SessionsResponse)
 async def get_user_recent_sessions(
@@ -529,7 +523,6 @@ async def get_user_recent_sessions(
     limit: int = Query(10, ge=1, le=50, description="Number of recent sessions"),
     mode: Optional[SessionMode] = Query(None, description="Filter by session mode"),
     db: DBSession = Depends(get_db),
-    current_user = Depends(get_current_user)
 ):
     """Get recent sessions for a user."""
     try:
@@ -589,7 +582,6 @@ async def get_quiz_performance_stats(
     quiz_id: int,
     days: int = Query(30, ge=1, le=365, description="Number of days to analyze"),
     db: DBSession = Depends(get_db),
-    current_user = Depends(get_current_user)
 ):
     """Get performance statistics for a specific quiz."""
     try:
@@ -607,7 +599,7 @@ async def get_quiz_performance_stats(
         from core.db.crud.repository.session_repository import SessionRepository
         session_repo = SessionRepository(db)
 
-        since_date = datetime.now() - timedelta(days=days)
+        since_date = datetime.datetime.now() - datetime.timedelta(days=days)
         all_quiz_sessions = session_repo.get_by_quiz_id(quiz_id)
         recent_sessions = [s for s in all_quiz_sessions if s.started_at >= since_date]
 

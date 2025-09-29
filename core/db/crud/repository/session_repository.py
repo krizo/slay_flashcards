@@ -1,5 +1,5 @@
 from typing import List, Optional
-from datetime import datetime
+from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
 from sqlalchemy import select, and_, desc
 
@@ -179,8 +179,8 @@ class SessionRepository(BaseRepository[models.Session]):
 
         # Recent activity counts
         now = datetime.now()
-        week_ago = now - datetime.timedelta(days=7)
-        month_ago = now - datetime.timedelta(days=30)
+        week_ago = now - timedelta(days=7)
+        month_ago = now - timedelta(days=30)
 
         sessions_this_week = len([
             s for s in all_sessions
