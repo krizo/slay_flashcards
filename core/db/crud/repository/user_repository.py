@@ -21,7 +21,7 @@ class UserRepository(BaseRepository[models.User]):
             )
         ).scalar_one_or_none()
 
-    def create_user(self, name: str) -> models.User:
+    def create_user(self, name: str, password: str, email: str) -> models.User:
         """Create a new user with validation."""
         # Check if user already exists
         existing = self.get_by_name(name)
@@ -32,13 +32,6 @@ class UserRepository(BaseRepository[models.User]):
             raise ValueError("User name cannot be empty")
 
         return self.create(name=name.strip())
-
-    def ensure_exists(self, name: str) -> models.User:
-        """Get user or create if it doesn't exist."""
-        user = self.get_by_name(name)
-        if not user:
-            user = self.create(name=name.strip())
-        return user
 
     def search_by_name_pattern(self, pattern: str) -> Sequence[User]:
         """Search users by name pattern (case-insensitive)."""
@@ -100,3 +93,10 @@ class UserRepository(BaseRepository[models.User]):
             raise ValueError("User name cannot be empty")
 
         return self.update(user, name=new_name.strip())
+
+    def get_by_email(self, param):
+        """Get user by email address."""
+        user = self.db.query(models.User).filter(
+            models.User.email == param.lower()
+        ).first()
+        return user

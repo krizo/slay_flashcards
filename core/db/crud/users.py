@@ -15,8 +15,8 @@ def get_user_by_name(db: Session, name: str) -> Optional[models.User]:
     ).scalar_one_or_none()
 
 
-def create_user(db: Session, name: str) -> models.User:
-    user = models.User(name=name)
+def create_user(db: Session, name: str, password: str, email: str) -> models.User:
+    user = models.User(name=name, password=password, email=email)
     db.add(user)
     db.commit()
     db.refresh(user)
