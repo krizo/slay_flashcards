@@ -1,88 +1,94 @@
+"""
+User service for business logic related to users and sessions.
+
+Provides high-level operations that combine repository calls.
+"""
 from sqlalchemy.orm import Session
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Dict, Any, Sequence
 from collections import Counter
 import datetime
 
 from api.api_schemas import UserCreate
 from core.db import models
-from core.db.crud import users, sessions
+from core.db.crud.repository.user_repository import UserRepository
+from core.db.crud.repository.session_repository import SessionRepository
 
 
 class UserService:
-    """Service for managing users and their sessions."""
+    """
+    Service for managing users and their sessions.
+
+    Provides high-level business logic operations using repositories.
+    """
 
     def __init__(self, db: Session):
-        self.db = db
+        """
+        Initialize user service.
 
-    def get_all_users(self) -> List[models.User]:
+        Args:
+            db: SQLAlchemy database session
+        """
+        self.db = db
+        self.user_repo = UserRepository(db)
+        self.session_repo = SessionRepository(db)
+
+    # =========================================================================
+    # USER OPERATIONS
+    # =========================================================================
+
+    def get_all_users(self) -> Sequence[models.User]:
         """Get all users."""
-        return users.get_users(self.db)
+        return self.user_repo.get_all()
 
     def get_user_by_name(self, name: str) -> Optional[models.User]:
         """Get user by name."""
-        return users.get_user_by_name(self.db, name)
+        return self.user_repo.get_by_name(name)
 
     def get_user_by_email(self, email: str) -> Optional[models.User]:
         """Get user by email address."""
-        user = self.db.query(models.User).filter(
-            models.User.email == email.lower()
-        ).first()
-        return user
+        return self.user_repo.get_by_email(email)
 
     def create_user(self, user_data: UserCreate) -> models.User:
         """Create a new user with validation."""
         from api.utils.security import hash_password
 
-        # Check for existing username
-        if self.get_user_by_name(user_data.name):
-            raise ValueError(f"Username '{user_data.name}' already exists")
-
-        # Check for existing email
-        if hasattr(user_data, 'email') and user_data.email:
-            if self.get_user_by_email(user_data.email):
-                raise ValueError(f"Email '{user_data.email}' already exists")
-
-        # Create user object
-        db_user = models.User(
-            name=user_data.name,
-            email=user_data.email.lower() if hasattr(user_data, 'email') and user_data.email else None
-        )
-
         # Hash password if provided
+        password_hash = None
         if hasattr(user_data, 'password') and user_data.password:
-            db_user.password_hash = hash_password(user_data.password)
+            password_hash = hash_password(user_data.password)
 
-        self.db.add(db_user)
-        self.db.commit()
-        self.db.refresh(db_user)
-        return db_user
+        # Use repository create_user which handles validation
+        return self.user_repo.create_user(
+            name=user_data.name,
+            email=user_data.email,
+            password_hash=password_hash
+        )
 
     def email_exists(self, email: str) -> bool:
         """Check if email already exists."""
-        return self.get_user_by_email(email) is not None
+        return self.user_repo.exists_by_email(email)
 
     def ensure_user_exists(self, name: str) -> models.User:
         """Get user or create if it doesn't exist."""
-        user = self.get_user_by_name(name)
-        if user:
-            return user
+        return self.user_repo.ensure_user_exists(name)
 
-        # Create minimal user (for backward compatibility)
-        user_data = UserCreate(
-            name=name,
-            email=f"{name}@generated.local",
-            password="GeneratedPass123"
-        )
-        return self.create_user(user_data)
+    # =========================================================================
+    # SESSION OPERATIONS
+    # =========================================================================
 
-    def create_session(self, user_id: int, quiz_id: int, mode: str, score: Optional[int] = None) -> models.Session:
+    def create_session(
+            self,
+            user_id: int,
+            quiz_id: int,
+            mode: str,
+            score: Optional[int] = None
+    ) -> models.Session:
         """Create a new learning/test session."""
-        session = sessions.create_session(self.db, user_id, quiz_id, mode, score)
-        return session
+        return self.session_repo.create_session(user_id, quiz_id, mode, score)
 
-    def get_user_sessions(self, user_id: int) -> List[models.Session]:
+    def get_user_sessions(self, user_id: int) -> Sequence[models.Session]:
         """Get all sessions for a user."""
-        return sessions.get_sessions_for_user(self.db, user_id)
+        return self.session_repo.get_by_user_id(user_id)
 
     def get_sessions_by_mode(self, user_id: int, mode: str) -> List[models.Session]:
         """Get sessions filtered by mode."""

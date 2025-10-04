@@ -513,8 +513,9 @@ async def duplicate_quiz(
             flashcard_data.append(card_dict)
 
         # Import flashcards to new quiz
-        from core.db.crud import flashcards as flashcard_crud
-        flashcard_crud.bulk_create_flashcards(db, new_quiz.id, flashcard_data)
+        from core.db.crud.repository.flashcard_repository import FlashcardRepository
+        flashcard_repo = FlashcardRepository(db)
+        flashcard_repo.bulk_create_flashcards(new_quiz.id, flashcard_data)
 
         quiz_dict = {
             "id": new_quiz.id,

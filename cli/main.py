@@ -1,15 +1,21 @@
+"""
+CLI entry point and Typer commands.
+
+Provides command-line interface for quiz management.
+"""
 import typer
 from sqlalchemy.orm import Session
 
 from cli.cli_application import CLIApplication
 from core.db import database
-from core.db.crud import quizzes
 from core.db.crud import importers
+from core.db.crud.repository.quiz_repository import QuizRepository
 
 app = typer.Typer()
 
 
 def get_db() -> Session:
+    """Get database session."""
     db = database.SessionLocal()
     try:
         yield db
@@ -29,8 +35,9 @@ def import_quiz(file: str):
 def list_quizzes():
     """List all available quizzes in the database."""
     db = next(get_db())
-    qs = quizzes.get_quizzes(db)
-    for q in qs:
+    quiz_repo = QuizRepository(db)
+    quizzes = quiz_repo.get_all()
+    for q in quizzes:
         typer.echo(f"[{q.id}] {q.name} ({q.subject or 'no subject'})")
 
 

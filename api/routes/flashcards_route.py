@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 from api.dependencies.auth import get_current_user
 from core.db.database import get_db
 from core.services.quiz_service import QuizService
-from core.db.crud import flashcards as flashcard_crud
+from core.db.crud.repository.flashcard_repository import FlashcardRepository
 from api.api_schemas import (
     Flashcard, FlashcardCreate, FlashcardUpdate, FlashcardResponse, FlashcardsResponse,
     FlashcardFilters, PaginationParams, BulkFlashcardCreate, BulkOperationResponse,
@@ -176,11 +176,11 @@ async def create_flashcard(
             )
 
         # Create flashcard
+        flashcard_repo = FlashcardRepository(db)
         question_dict = flashcard_data.question.model_dump()
         answer_dict = flashcard_data.answer.model_dump()
 
-        card = flashcard_crud.create_flashcard(
-            db,
+        card = flashcard_repo.create_flashcard(
             flashcard_data.quiz_id,
             question_dict,
             answer_dict
@@ -351,8 +351,8 @@ async def bulk_create_flashcards(
         errors = []
 
         try:
-            created_cards = flashcard_crud.bulk_create_flashcards(
-                db,
+            flashcard_repo = FlashcardRepository(db)
+            created_cards = flashcard_repo.bulk_create_flashcards(
                 bulk_data.quiz_id,
                 bulk_data.flashcards
             )

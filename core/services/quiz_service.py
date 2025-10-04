@@ -1,66 +1,186 @@
+"""
+Quiz service for business logic related to quizzes and flashcards.
+
+Provides high-level operations that combine repository calls.
+"""
 from sqlalchemy.orm import Session
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Dict, Any, Sequence
 from collections import Counter
 
 from core.db import models
-from core.db.crud import quizzes, flashcards
 from core.db.crud import importers
+from core.db.crud.repository.quiz_repository import QuizRepository
+from core.db.crud.repository.flashcard_repository import FlashcardRepository
 
 
 class QuizService:
-    """Service for managing quizzes and flashcards."""
+    """
+    Service for managing quizzes and flashcards.
+
+    Provides high-level business logic operations using repositories.
+    """
 
     def __init__(self, db: Session):
-        self.db = db
+        """
+        Initialize quiz service.
 
-    def get_all_quizzes(self) -> List[models.Quiz]:
-        """Get all available quizzes."""
-        return quizzes.get_quizzes(self.db)
+        Args:
+            db: SQLAlchemy database session
+        """
+        self.db = db
+        self.quiz_repo = QuizRepository(db)
+        self.flashcard_repo = FlashcardRepository(db)
+
+    # =========================================================================
+    # QUIZ OPERATIONS
+    # =========================================================================
+
+    def get_all_quizzes(self) -> Sequence[models.Quiz]:
+        """
+        Get all available quizzes.
+
+        Returns:
+            List of all quizzes
+        """
+        return self.quiz_repo.get_all()
 
     def get_quiz_by_id(self, quiz_id: int) -> Optional[models.Quiz]:
-        """Get a quiz by its ID."""
-        return quizzes.get_quiz(self.db, quiz_id)
+        """
+        Get a quiz by its ID.
 
-    def get_quiz_flashcards(self, quiz_id: int) -> List[models.Flashcard]:
+        Args:
+            quiz_id: Quiz ID
+
+        Returns:
+            Quiz instance or None if not found
+        """
+        return self.quiz_repo.get_by_id(quiz_id)
+
+    def create_quiz(
+            self,
+            name: str,
+            subject: Optional[str] = None,
+            description: Optional[str] = None
+    ) -> models.Quiz:
+        """
+        Create a new quiz.
+
+        Args:
+            name: Quiz name
+            subject: Optional subject/category
+            description: Optional description
+
+        Returns:
+            Created quiz instance
+        """
+        return self.quiz_repo.create_quiz(name, subject, description)
+
+    def delete_quiz(self, quiz_id: int) -> bool:
+        """
+        Delete a quiz by its ID.
+
+        Args:
+            quiz_id: Quiz ID
+
+        Returns:
+            True if deleted, False if not found
+        """
+        return self.quiz_repo.delete_by_id(quiz_id)
+
+    # =========================================================================
+    # FLASHCARD OPERATIONS
+    # =========================================================================
+
+    def get_quiz_flashcards(self, quiz_id: int) -> Sequence[models.Flashcard]:
+        """
+        Get all flashcards for a quiz.
+
+        Args:
+            quiz_id: Quiz ID
+
+        Returns:
+            List of flashcards
+
+        Raises:
+            ValueError: If quiz not found
+        """
         quiz = self.get_quiz_by_id(quiz_id)
         if quiz is None:
             raise ValueError(f"Quiz with id {quiz_id} not found")
-        return flashcards.get_flashcards_for_quiz(self.db, quiz_id)
+        return self.flashcard_repo.get_by_quiz_id(quiz_id)
+
+    def get_flashcards_by_difficulty(
+            self,
+            quiz_id: int,
+            difficulty: int
+    ) -> Sequence[models.Flashcard]:
+        """
+        Get flashcards by difficulty level.
+
+        Args:
+            quiz_id: Quiz ID
+            difficulty: Difficulty level (1-5)
+
+        Returns:
+            List of flashcards with specified difficulty
+        """
+        return self.flashcard_repo.get_by_difficulty(quiz_id, difficulty)
+
+    def search_flashcards(self, quiz_id: int, text: str) -> Sequence[models.Flashcard]:
+        """
+        Search flashcards by question text.
+
+        Args:
+            quiz_id: Quiz ID
+            text: Search text
+
+        Returns:
+            List of matching flashcards
+        """
+        return self.flashcard_repo.search_by_question_text(quiz_id, text)
+
+    # =========================================================================
+    # IMPORT OPERATIONS
+    # =========================================================================
 
     def import_quiz_from_file(self, file_path: str) -> models.Quiz:
-        """Import a quiz from a JSON file."""
+        """
+        Import a quiz from a JSON file.
+
+        Args:
+            file_path: Path to JSON file
+
+        Returns:
+            Imported quiz instance
+        """
         return importers.import_quiz_from_file(self.db, file_path)
 
     def import_quiz_from_dict(self, data: dict) -> models.Quiz:
-        """Import a quiz from a dictionary."""
+        """
+        Import a quiz from a dictionary.
+
+        Args:
+            data: Quiz data dictionary
+
+        Returns:
+            Imported quiz instance
+        """
         return importers.import_quiz_from_dict(self.db, data)
 
-    def create_quiz(self, name: str, subject: str = None, description: str = None) -> models.Quiz:
-        """Create a new quiz."""
-        return quizzes.create_quiz(self.db, name, subject, description)
-
-    def get_flashcards_by_difficulty(self, quiz_id: int, difficulty: int) -> List[models.Flashcard]:
-        """Get flashcards by difficulty level."""
-        return [card for card in self.get_quiz_flashcards(quiz_id)
-                if card.question_difficulty == difficulty]
-
-    def search_flashcards(self, quiz_id: int, text: str) -> List[models.Flashcard]:
-        """Search flashcards by question text."""
-        cards = self.get_quiz_flashcards(quiz_id)
-        return [card for card in cards
-                if text.lower() in card.question_text.lower()]
-
-    def delete_quiz(self, quiz_id: int) -> bool:
-        """Delete a quiz by its ID."""
-        quiz = self.get_quiz_by_id(quiz_id)
-        if not quiz:
-            return False
-        self.db.delete(quiz)
-        self.db.commit()
-        return True
+    # =========================================================================
+    # STATISTICS AND ANALYSIS
+    # =========================================================================
 
     def get_quiz_statistics(self, quiz_id: int) -> Dict[str, Any]:
-        """Get comprehensive statistics for a quiz."""
+        """
+        Get comprehensive statistics for a quiz.
+
+        Args:
+            quiz_id: Quiz ID
+
+        Returns:
+            Dictionary with quiz statistics
+        """
         quiz = self.get_quiz_by_id(quiz_id)
         if not quiz:
             return {}
@@ -68,25 +188,45 @@ class QuizService:
         cards = self.get_quiz_flashcards(quiz_id)
 
         # Count difficulties
-        difficulties = [card.question_difficulty for card in cards if card.question_difficulty is not None]
+        difficulties = [
+            card.question_difficulty
+            for card in cards
+            if card.question_difficulty is not None
+        ]
         difficulty_distribution = dict(Counter(difficulties))
 
         # Count languages
         question_langs = [card.question_lang for card in cards if card.question_lang]
         answer_langs = [card.answer_lang for card in cards if card.answer_lang]
 
+        # Get answer type statistics
+        answer_type_stats = self.flashcard_repo.get_answer_type_statistics(quiz_id)
+
         return {
             "total_cards": len(cards),
             "difficulty_distribution": difficulty_distribution,
             "question_languages": dict(Counter(question_langs)),
             "answer_languages": dict(Counter(answer_langs)),
+            "answer_types": answer_type_stats,
             "subject": quiz.subject,
             "created_at": quiz.created_at,
             "description": quiz.description
         }
 
+    # =========================================================================
+    # VALIDATION
+    # =========================================================================
+
     def validate_quiz_data(self, data: dict) -> bool:
-        """Validate quiz data structure."""
+        """
+        Validate quiz data structure.
+
+        Args:
+            data: Quiz data dictionary
+
+        Returns:
+            True if valid, False otherwise
+        """
         try:
             # Check if quiz section exists
             if "quiz" not in data:
