@@ -2,16 +2,17 @@
 """
 SlayFlashcards API startup script
 """
-import sys
-import uvicorn
 import argparse
+import sys
 from pathlib import Path
+
+import uvicorn  # pylint: disable=import-error
+
+from api.api_config import settings, is_development
 
 # Add the project root to the Python path
 project_root = Path(__file__).parent
 sys.path.insert(0, str(project_root))
-
-from api.api_config import settings, is_development, is_production
 
 
 def main():
@@ -29,7 +30,7 @@ def main():
     # Update settings based on arguments
     settings.environment = args.env
 
-    print(f"🚀 Starting SlayFlashcards API Server")
+    print("🚀 Starting SlayFlashcards API Server")
     print(f"📍 Environment: {settings.environment}")
     print(f"🌐 URL: http://{args.host}:{args.port}")
     print(f"📚 Docs: http://{args.host}:{args.port}/docs")
@@ -39,7 +40,7 @@ def main():
     if is_development() or args.reload:
         print("🔄 Development mode: Auto-reload enabled")
         uvicorn.run(
-            "api.main:app",
+            "api.main_api:app",
             host=args.host,
             port=args.port,
             reload=True,
@@ -49,7 +50,7 @@ def main():
     else:
         print(f"⚡ Production mode: {args.workers} workers")
         uvicorn.run(
-            "api.main:app",
+            "api.main_api:app",
             host=args.host,
             port=args.port,
             workers=args.workers,
