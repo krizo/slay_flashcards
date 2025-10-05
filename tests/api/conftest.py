@@ -1,13 +1,17 @@
 """
 Shared fixtures for API tests
 """
+# pylint: disable=redefined-outer-name,unused-argument
+# Note: redefined-outer-name is disabled because it's the standard pytest pattern
+# Note: unused-argument is disabled because pytest fixtures may not use all their dependencies
+
 import pytest
-from fastapi.testclient import TestClient
-from sqlalchemy.orm import sessionmaker
+from fastapi.testclient import TestClient  # pylint: disable=import-error
+from sqlalchemy.orm import sessionmaker  # pylint: disable=import-error
 
 from api.main_api import app
+from core.db import models  # pylint: disable=unused-import
 from core.db.database import Base, engine, get_db
-from core.db import models  # Import to register all models
 
 # Create a TestClient instance
 client = TestClient(app)
@@ -40,7 +44,7 @@ def setup_database():
 
 @pytest.fixture(scope="function")
 def test_client():
-    """Basic test client without authentication."""
+    """Fixture that provides a TestClient instance."""
     return TestClient(app)
 
 
@@ -55,7 +59,7 @@ def registered_user(test_client):
     response = test_client.post("/api/v1/auth/register", json=register_data)
 
     if response.status_code != 201:
-        raise Exception(f"Registration failed: {response.text}")
+        raise ValueError(f"Registration failed: {response.text}")
 
     token = response.json()["data"]["access_token"]
 

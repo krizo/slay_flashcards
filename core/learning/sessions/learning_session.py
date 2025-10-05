@@ -1,13 +1,15 @@
-from typing import List
+# pylint: disable=no-else-return
 from enum import Enum
+from typing import List
 
 from core.db import models
-from core.services.audio_service import AudioServiceInterface
 from core.learning.presenters.flashcard_presenter import FlashcardPresenterInterface
+from core.services.audio_service import AudioServiceInterface
 
 
 class LearningResult(Enum):
     """Results of a learning session."""
+
     COMPLETED = "completed"
     INTERRUPTED = "interrupted"
     QUIT_EARLY = "quit_early"
@@ -16,13 +18,13 @@ class LearningResult(Enum):
 class LearningSessionConfig:
     """Configuration for learning sessions."""
 
-    def __init__(
+    def __init__(  # pylint: disable=too-many-positional-arguments
         self,
         audio_enabled: bool = True,
         question_lang: str = "pl",
         answer_lang: str = "fr",
         allow_repeat: bool = True,
-        override_card_languages: bool = True  # NEW: Control language priority
+        override_card_languages: bool = True,  # NEW: Control language priority
     ):
         self.audio_enabled = audio_enabled
         self.question_lang = question_lang
@@ -39,7 +41,7 @@ class LearningSession:
         flashcards: List[models.Flashcard],
         presenter: FlashcardPresenterInterface,
         audio_service: AudioServiceInterface,
-        config: LearningSessionConfig
+        config: LearningSessionConfig,
     ):
         self.flashcards = flashcards
         self.presenter = presenter
@@ -83,10 +85,10 @@ class LearningSession:
             if i < len(self.flashcards) - 1:
                 choice = self.presenter.get_continue_choice()
 
-                if choice in ['n', 'no']:
+                if choice in ["n", "no"]:
                     self.cards_reviewed = i + 1
                     return LearningResult.QUIT_EARLY
-                elif choice in ['r', 'repeat'] and self.config.allow_repeat:
+                elif choice in ["r", "repeat"] and self.config.allow_repeat:
                     continue  # Stay on same card
 
             i += 1

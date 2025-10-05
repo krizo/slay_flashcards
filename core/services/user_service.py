@@ -1,17 +1,20 @@
+# pylint: disable=cyclic-import
 """
 User service for business logic related to users and sessions.
 
 Provides high-level operations that combine repository calls.
 """
-from sqlalchemy.orm import Session
-from typing import List, Optional, Dict, Any, Sequence
-from collections import Counter
+
 import datetime
+from collections import Counter
+from typing import Any, Dict, List, Optional, Sequence
+
+from sqlalchemy.orm import Session  # pylint: disable=import-error
 
 from api.api_schemas import UserCreate
-from core.db import models
-from core.db.crud.repository.user_repository import UserRepository
-from core.db.crud.repository.session_repository import SessionRepository
+from core.db import models  # pylint: disable=cyclic-import
+from core.db.crud.repository.session_repository import SessionRepository  # pylint: disable=cyclic-import
+from core.db.crud.repository.user_repository import UserRepository  # pylint: disable=cyclic-import
 
 
 class UserService:
@@ -50,19 +53,15 @@ class UserService:
 
     def create_user(self, user_data: UserCreate) -> models.User:
         """Create a new user with validation."""
-        from api.utils.security import hash_password
+        from api.utils.security import hash_password  # pylint: disable=import-outside-toplevel
 
         # Hash password if provided
         password_hash = None
-        if hasattr(user_data, 'password') and user_data.password:
+        if hasattr(user_data, "password") and user_data.password:
             password_hash = hash_password(user_data.password)
 
         # Use repository create_user which handles validation
-        return self.user_repo.create_user(
-            name=user_data.name,
-            email=user_data.email,
-            password_hash=password_hash
-        )
+        return self.user_repo.create_user(name=user_data.name, email=user_data.email, password_hash=password_hash)
 
     def email_exists(self, email: str) -> bool:
         """Check if email already exists."""
@@ -76,13 +75,7 @@ class UserService:
     # SESSION OPERATIONS
     # =========================================================================
 
-    def create_session(
-            self,
-            user_id: int,
-            quiz_id: int,
-            mode: str,
-            score: Optional[int] = None
-    ) -> models.Session:
+    def create_session(self, user_id: int, quiz_id: int, mode: str, score: Optional[int] = None) -> models.Session:
         """Create a new learning/test session."""
         return self.session_repo.create_session(user_id, quiz_id, mode, score)
 
@@ -95,7 +88,7 @@ class UserService:
         user_sessions = self.get_user_sessions(user_id)
         return [session for session in user_sessions if session.mode == mode]
 
-    def get_user_statistics(self, user_id: int) -> Dict[str, Any]:
+    def get_user_statistics(self, user_id: int) -> Dict[str, Any]:  # pylint: disable=too-many-locals
         """Get comprehensive statistics for a user."""
         user_sessions = self.get_user_sessions(user_id)
 
@@ -110,7 +103,7 @@ class UserService:
                 "favorite_subjects": [],
                 "sessions_this_week": 0,
                 "sessions_this_month": 0,
-                "unique_quizzes": 0
+                "unique_quizzes": 0,
             }
 
         learn_sessions = [s for s in user_sessions if s.mode == "learn"]
@@ -127,10 +120,7 @@ class UserService:
             if session.quiz and session.quiz.subject:
                 subject_counts[session.quiz.subject] += 1
 
-        favorite_subjects = [
-            {"subject": subject, "count": count}
-            for subject, count in subject_counts.most_common(5)
-        ]
+        favorite_subjects = [{"subject": subject, "count": count} for subject, count in subject_counts.most_common(5)]
 
         # Calculate study streak (consecutive days with sessions)
         study_streak = self._calculate_study_streak(user_sessions)
@@ -140,15 +130,9 @@ class UserService:
         week_ago = now - datetime.timedelta(days=7)
         month_ago = now - datetime.timedelta(days=30)
 
-        sessions_this_week = len([
-            s for s in user_sessions
-            if s.started_at >= week_ago
-        ])
+        sessions_this_week = len([s for s in user_sessions if s.started_at >= week_ago])
 
-        sessions_this_month = len([
-            s for s in user_sessions
-            if s.started_at >= month_ago
-        ])
+        sessions_this_month = len([s for s in user_sessions if s.started_at >= month_ago])
 
         # Calculate unique quizzes
         unique_quizzes = len(set(s.quiz_id for s in user_sessions))
@@ -163,7 +147,7 @@ class UserService:
             "favorite_subjects": favorite_subjects,
             "sessions_this_week": sessions_this_week,
             "sessions_this_month": sessions_this_month,
-            "unique_quizzes": unique_quizzes
+            "unique_quizzes": unique_quizzes,
         }
 
     @staticmethod
@@ -188,7 +172,7 @@ class UserService:
         current_date = datetime.datetime.now().date()
 
         for study_date in sorted_dates:
-            if study_date == current_date or study_date == current_date - datetime.timedelta(days=1):
+            if study_date == current_date or study_date == current_date - datetime.timedelta(days=1):  # pylint: disable=consider-using-in
                 streak += 1
                 current_date = study_date - datetime.timedelta(days=1)
             else:

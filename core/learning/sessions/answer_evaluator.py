@@ -1,13 +1,15 @@
-from typing import Tuple, Union
-from enum import Enum
+# pylint: disable=no-else-return
 import difflib
 import re
+from enum import Enum
+from typing import Tuple, Union
 
 from core.db import models
 
 
 class AnswerType(Enum):
     """Supported answer types."""
+
     TEXT = "text"
     INTEGER = "integer"
     FLOAT = "float"
@@ -20,6 +22,7 @@ class AnswerType(Enum):
 
 class AnswerEvaluation(Enum):
     """Answer evaluation results."""
+
     CORRECT = "correct"
     INCORRECT = "incorrect"
     PARTIAL = "partial"
@@ -106,8 +109,9 @@ class TypedAnswerEvaluator:
 
             # Partial credit for close answers
             if self.config.allow_partial_credit:
-                relative_error = abs(user_float - correct_float) / abs(correct_float) if correct_float != 0 else float(
-                    'inf')
+                relative_error = (
+                    abs(user_float - correct_float) / abs(correct_float) if correct_float != 0 else float("inf")
+                )
                 if relative_error <= 0.1:  # Within 10%
                     return AnswerEvaluation.PARTIAL, max(0.5, 1.0 - relative_error)
 
@@ -134,7 +138,7 @@ class TypedAnswerEvaluator:
 
             return AnswerEvaluation.INCORRECT, 0.0
 
-        except Exception:
+        except Exception:  # pylint: disable=broad-exception-caught
             return AnswerEvaluation.INCORRECT, 0.0
 
     def _evaluate_boolean(self, user_answer: str, card: models.Flashcard) -> Tuple[AnswerEvaluation, float]:
@@ -170,7 +174,7 @@ class TypedAnswerEvaluator:
             option_text = option.get("text", "").lower()
             option_key = option.get("key", str(i + 1)).lower()
 
-            if user_norm == option_text or user_norm == option_key:
+            if user_norm == option_text or user_norm == option_key:  # pylint: disable=consider-using-in
                 if option_text == correct_answer.lower():
                     return AnswerEvaluation.CORRECT, 1.0
                 else:
@@ -232,10 +236,10 @@ class TypedAnswerEvaluator:
             normalized = normalized.lower()
 
         # Remove extra whitespace
-        normalized = re.sub(r'\s+', ' ', normalized)
+        normalized = re.sub(r"\s+", " ", normalized)
 
         # Remove common punctuation
-        normalized = re.sub(r'[.,!?;:]$', '', normalized)
+        normalized = re.sub(r"[.,!?;:]$", "", normalized)
 
         return normalized
 
@@ -249,9 +253,9 @@ class TypedAnswerEvaluator:
         """Parse range text into (min, max) tuple."""
         # Handle different range formats: "5-10", "5 to 10", "5..10", "5 - 10"
         patterns = [
-            r'(\d+(?:\.\d+)?)\s*-\s*(\d+(?:\.\d+)?)',
-            r'(\d+(?:\.\d+)?)\s+to\s+(\d+(?:\.\d+)?)',
-            r'(\d+(?:\.\d+)?)\s*\.\.\s*(\d+(?:\.\d+)?)',
+            r"(\d+(?:\.\d+)?)\s*-\s*(\d+(?:\.\d+)?)",
+            r"(\d+(?:\.\d+)?)\s+to\s+(\d+(?:\.\d+)?)",
+            r"(\d+(?:\.\d+)?)\s*\.\.\s*(\d+(?:\.\d+)?)",
         ]
 
         for pattern in patterns:

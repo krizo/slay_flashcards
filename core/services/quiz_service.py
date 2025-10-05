@@ -3,14 +3,16 @@ Quiz service for business logic related to quizzes and flashcards.
 
 Provides high-level operations that combine repository calls.
 """
-from sqlalchemy.orm import Session
-from typing import List, Optional, Dict, Any, Sequence
+
 from collections import Counter
+from typing import Any, Dict, Optional, Sequence
+
+from sqlalchemy.orm import Session  # pylint: disable=import-error
 
 from core.db import models
 from core.db.crud import importers
-from core.db.crud.repository.quiz_repository import QuizRepository
 from core.db.crud.repository.flashcard_repository import FlashcardRepository
+from core.db.crud.repository.quiz_repository import QuizRepository
 
 
 class QuizService:
@@ -56,12 +58,7 @@ class QuizService:
         """
         return self.quiz_repo.get_by_id(quiz_id)
 
-    def create_quiz(
-            self,
-            name: str,
-            subject: Optional[str] = None,
-            description: Optional[str] = None
-    ) -> models.Quiz:
+    def create_quiz(self, name: str, subject: Optional[str] = None, description: Optional[str] = None) -> models.Quiz:
         """
         Create a new quiz.
 
@@ -109,11 +106,7 @@ class QuizService:
             raise ValueError(f"Quiz with id {quiz_id} not found")
         return self.flashcard_repo.get_by_quiz_id(quiz_id)
 
-    def get_flashcards_by_difficulty(
-            self,
-            quiz_id: int,
-            difficulty: int
-    ) -> Sequence[models.Flashcard]:
+    def get_flashcards_by_difficulty(self, quiz_id: int, difficulty: int) -> Sequence[models.Flashcard]:
         """
         Get flashcards by difficulty level.
 
@@ -188,11 +181,7 @@ class QuizService:
         cards = self.get_quiz_flashcards(quiz_id)
 
         # Count difficulties
-        difficulties = [
-            card.question_difficulty
-            for card in cards
-            if card.question_difficulty is not None
-        ]
+        difficulties = [card.question_difficulty for card in cards if card.question_difficulty is not None]
         difficulty_distribution = dict(Counter(difficulties))
 
         # Count languages
@@ -210,7 +199,7 @@ class QuizService:
             "answer_types": answer_type_stats,
             "subject": quiz.subject,
             "created_at": quiz.created_at,
-            "description": quiz.description
+            "description": quiz.description,
         }
 
     # =========================================================================

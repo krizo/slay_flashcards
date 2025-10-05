@@ -1,10 +1,11 @@
 """
 Pagination utilities
 """
-from typing import List, TypeVar
-from math import ceil
 
-T = TypeVar('T')
+from math import ceil
+from typing import List, TypeVar
+
+T = TypeVar("T")
 
 
 def paginate_query(items: List[T], page: int, limit: int) -> dict:
@@ -42,8 +43,8 @@ def paginate_query(items: List[T], page: int, limit: int) -> dict:
             "has_next": has_next,
             "has_prev": has_prev,
             "start": start + 1 if paginated_items else 0,
-            "end": start + len(paginated_items)
-        }
+            "end": start + len(paginated_items),
+        },
     }
 
 
@@ -62,11 +63,7 @@ def get_pagination_params(page: int = 1, limit: int = 20) -> dict:
     page = max(1, page)
     limit = max(1, min(100, limit))
 
-    return {
-        "page": page,
-        "limit": limit,
-        "offset": (page - 1) * limit
-    }
+    return {"page": page, "limit": limit, "offset": (page - 1) * limit}
 
 
 class PaginationHelper:
@@ -101,7 +98,7 @@ class PaginationHelper:
             "has_next": has_next,
             "has_prev": has_prev,
             "start": self.offset + 1 if total > 0 else 0,
-            "end": min(self.offset + self.limit, total)
+            "end": min(self.offset + self.limit, total),
         }
 
 
@@ -117,11 +114,7 @@ def create_page_links(base_url: str, page: int, total_pages: int) -> dict:
     Returns:
         Dictionary with navigation links
     """
-    links = {
-        "self": f"{base_url}?page={page}",
-        "first": f"{base_url}?page=1",
-        "last": f"{base_url}?page={total_pages}"
-    }
+    links = {"self": f"{base_url}?page={page}", "first": f"{base_url}?page=1", "last": f"{base_url}?page={total_pages}"}
 
     if page > 1:
         links["prev"] = f"{base_url}?page={page - 1}"

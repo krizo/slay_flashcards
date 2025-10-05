@@ -3,10 +3,12 @@ Quiz repository for managing quiz entities and related operations.
 
 Provides quiz-specific queries, validation, and statistics.
 """
-from typing import Optional, Sequence
+
 from datetime import datetime
-from sqlalchemy.orm import Session
-from sqlalchemy import select, func
+from typing import Optional, Sequence
+
+from sqlalchemy import select  # pylint: disable=import-error
+from sqlalchemy.orm import Session  # pylint: disable=import-error
 
 from core.db import models
 from core.db.crud.repository import BaseRepository
@@ -36,11 +38,11 @@ class QuizRepository(BaseRepository[models.Quiz]):
     # =========================================================================
 
     def create_quiz(
-            self,
-            name: str,
-            subject: Optional[str] = None,
-            description: Optional[str] = None,
-            created_at: Optional[datetime] = None
+        self,
+        name: str,
+        subject: Optional[str] = None,
+        description: Optional[str] = None,
+        created_at: Optional[datetime] = None,
     ) -> models.Quiz:
         """
         Create a new quiz.
@@ -55,10 +57,7 @@ class QuizRepository(BaseRepository[models.Quiz]):
             Created quiz instance
         """
         return self.create(
-            name=name,
-            subject=subject,
-            description=description,
-            created_at=created_at or datetime.utcnow()
+            name=name, subject=subject, description=description, created_at=created_at or datetime.utcnow()
         )
 
     # =========================================================================
@@ -75,9 +74,7 @@ class QuizRepository(BaseRepository[models.Quiz]):
         Returns:
             Quiz instance or None if not found
         """
-        return self._execute_single(
-            select(models.Quiz).where(models.Quiz.name == name)
-        )
+        return self._execute_single(select(models.Quiz).where(models.Quiz.name == name))
 
     def get_by_subject(self, subject: str) -> Sequence[models.Quiz]:
         """
@@ -89,11 +86,7 @@ class QuizRepository(BaseRepository[models.Quiz]):
         Returns:
             List of quizzes in that subject
         """
-        return self._execute_query(
-            select(models.Quiz)
-            .where(models.Quiz.subject == subject)
-            .order_by(models.Quiz.name)
-        )
+        return self._execute_query(select(models.Quiz).where(models.Quiz.subject == subject).order_by(models.Quiz.name))
 
     # =========================================================================
     # QUIZ SEARCH METHODS
@@ -110,9 +103,7 @@ class QuizRepository(BaseRepository[models.Quiz]):
             List of matching quizzes
         """
         return self._execute_query(
-            select(models.Quiz)
-            .where(models.Quiz.name.ilike(f"%{name_pattern}%"))
-            .order_by(models.Quiz.name)
+            select(models.Quiz).where(models.Quiz.name.ilike(f"%{name_pattern}%")).order_by(models.Quiz.name)
         )
 
     def get_all_subjects(self) -> Sequence[str]:
@@ -122,11 +113,15 @@ class QuizRepository(BaseRepository[models.Quiz]):
         Returns:
             List of subject names
         """
-        results = self.db.execute(
-            select(models.Quiz.subject)
-            .where(models.Quiz.subject.is_not(None))
-            .distinct()
-            .order_by(models.Quiz.subject)
-        ).scalars().all()
+        results = (
+            self.db.execute(
+                select(models.Quiz.subject)
+                .where(models.Quiz.subject.is_not(None))
+                .distinct()
+                .order_by(models.Quiz.subject)
+            )
+            .scalars()
+            .all()
+        )
 
         return results

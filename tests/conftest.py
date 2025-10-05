@@ -4,18 +4,21 @@ Solution: Move E2E fixtures to main conftest.py to avoid plugin conflicts
 Replace or update your main tests/conftest.py with this content.
 This avoids the plugin registration conflict by putting all fixtures in one place.
 """
+# pylint: disable=redefined-outer-name
+# Note: redefined-outer-name is disabled because it's the standard pytest pattern
+# where fixture arguments have the same name as the fixture functions
 
 import json
 import os
 import tempfile
 import shutil
 from pathlib import Path
-from typing import Dict, Any, List
+from typing import Any, Dict, List
 from unittest.mock import Mock
 
 import pytest
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy import create_engine  # pylint: disable=import-error
+from sqlalchemy.orm import sessionmaker  # pylint: disable=import-error
 
 from core.db import models
 from core.db.database import Base
@@ -156,12 +159,12 @@ def e2e_database():
     # Use in-memory SQLite for E2E tests
     engine = create_engine("sqlite:///:memory:", echo=False)
     Base.metadata.create_all(engine)
-    
+
     SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
     db = SessionLocal()
-    
+
     yield db
-    
+
     db.close()
 
 
@@ -254,10 +257,22 @@ def programming_quiz():
             "description": "Fundamental Python programming concepts"
         },
         "flashcards": [
-            {"question": {"title": "list comprehension", "text": "Syntax for list comprehension"}, "answer": {"text": "[expression for item in iterable]"}},
-            {"question": {"title": "lambda function", "text": "Syntax for lambda function"}, "answer": {"text": "lambda arguments: expression"}},
-            {"question": {"title": "exception handling", "text": "Keywords for exception handling"}, "answer": {"text": "try, except, finally"}},
-            {"question": {"title": "dictionary comprehension", "text": "Syntax for dictionary comprehension"}, "answer": {"text": "{key: value for item in iterable}"}}
+            {
+                "question": {"title": "list comprehension", "text": "Syntax for list comprehension"},
+                "answer": {"text": "[expression for item in iterable]"}
+            },
+            {
+                "question": {"title": "lambda function", "text": "Syntax for lambda function"},
+                "answer": {"text": "lambda arguments: expression"}
+            },
+            {
+                "question": {"title": "exception handling", "text": "Keywords for exception handling"},
+                "answer": {"text": "try, except, finally"}
+            },
+            {
+                "question": {"title": "dictionary comprehension", "text": "Syntax for dictionary comprehension"},
+                "answer": {"text": "{key: value for item in iterable}"}
+            }
         ]
     }
 
@@ -281,7 +296,7 @@ def user_personas():
             }
         },
         "intermediate_student": {
-            "name": "intermediate_student", 
+            "name": "intermediate_student",
             "skill_level": "intermediate",
             "learning_style": "mixed",
             "patience_level": "medium",
@@ -312,7 +327,7 @@ def user_personas():
         },
         "teacher": {
             "name": "teacher",
-            "skill_level": "expert", 
+            "skill_level": "expert",
             "learning_style": "analytical",
             "patience_level": "high",
             "role": "educator",
@@ -327,14 +342,14 @@ def create_user_with_persona(e2e_services, user_personas):
     def _create_user(persona_name: str, custom_name: str = None):
         persona = user_personas[persona_name]
         user_name = custom_name or persona["name"]
-        
+
         user_service = e2e_services["user_service"]
         user = user_service.ensure_user_exists(user_name)
-        
+
         # Attach persona data to user for test reference
         user._test_persona = persona
         return user
-    
+
     return _create_user
 
 
@@ -352,7 +367,7 @@ def mock_presenter_factory():
         presenter.show_answer_result = Mock()
         presenter.wait_for_next = Mock()
         presenter.show_final_results = Mock()
-        
+
         if answers:
             if behavior == "quit_early":
                 # Quit after some answers
@@ -366,9 +381,9 @@ def mock_presenter_factory():
                 presenter.get_user_answer = Mock(side_effect=answers)
         else:
             presenter.get_user_answer = Mock(return_value="default_answer")
-        
+
         return presenter
-    
+
     return _create_presenter
 
 
@@ -378,11 +393,11 @@ def adaptive_presenter_factory(user_personas):
     def _create_adaptive_presenter(persona_name: str, quiz_cards: List):
         persona = user_personas[persona_name]
         accuracy = persona["typical_answers"]["accuracy"]
-        
+
         # Generate answers based on persona accuracy
         answers = []
         correct_count = int(len(quiz_cards) * accuracy)
-        
+
         for i, card in enumerate(quiz_cards):
             if i < correct_count:
                 # Give correct answer
@@ -399,7 +414,7 @@ def adaptive_presenter_factory(user_personas):
                         answers.append(correct[:-1] + "x")
                     else:
                         answers.append("wrong")
-        
+
         presenter = Mock()
         presenter.show_test_header = Mock()
         presenter.show_question = Mock()
@@ -407,9 +422,9 @@ def adaptive_presenter_factory(user_personas):
         presenter.show_answer_result = Mock()
         presenter.wait_for_next = Mock()
         presenter.show_final_results = Mock()
-        
+
         return presenter
-    
+
     return _create_adaptive_presenter
 
 
@@ -423,32 +438,34 @@ def quiz_workflow(e2e_services):
     class QuizWorkflow:
         def __init__(self, services):
             self.services = services
-            
+
         def create_and_import_quiz(self, quiz_data: Dict[str, Any]):
             """Create and import a quiz, return quiz object and cards."""
             quiz_service = self.services["quiz_service"]
             quiz = quiz_service.import_quiz_from_dict(quiz_data)
             cards = quiz_service.get_quiz_flashcards(quiz.id)
             return quiz, cards
-            
+
         def run_learning_session(self, user, quiz_id: int):
             """Run a learning session for a user."""
             user_service = self.services["user_service"]
             return user_service.create_session(user.id, quiz_id, "learn")
-            
-        def run_test_session(self, user, quiz, cards, presenter, config):
+
+        def run_test_session(  # pylint: disable=too-many-positional-arguments
+            self, user, quiz, cards, presenter, config
+        ):
             """Run a complete test session and save results."""
 
             user_service = self.services["user_service"]
             audio_service = self.services["audio_service"]
-            
+
             session = TestSession(cards, presenter, audio_service, config)
             result = session.start()
             score = session.get_final_score()
-            
+
             # Save session
             db_session = user_service.create_session(user.id, quiz.id, "test", score)
-            
+
             return {
                 "result": result,
                 "score": score,
@@ -456,7 +473,7 @@ def quiz_workflow(e2e_services):
                 "db_session": db_session,
                 "detailed_results": session.get_detailed_results()
             }
-    
+
     return QuizWorkflow(e2e_services)
 
 
@@ -466,15 +483,15 @@ def progress_analyzer(e2e_services):
     class ProgressAnalyzer:
         def __init__(self, services):
             self.services = services
-            
+
         def get_user_progress(self, user):
             """Get comprehensive progress data for a user."""
             user_service = self.services["user_service"]
             sessions = user_service.get_user_sessions(user.id)
-            
+
             learn_sessions = [s for s in sessions if s.mode == "learn"]
             test_sessions = [s for s in sessions if s.mode == "test"]
-            
+
             return {
                 "total_sessions": len(sessions),
                 "learn_sessions": len(learn_sessions),
@@ -483,30 +500,30 @@ def progress_analyzer(e2e_services):
                 "improvement": self._calculate_improvement(test_sessions),
                 "recent_activity": sessions[:5]  # Most recent 5
             }
-            
+
         @staticmethod
         def _calculate_improvement(test_sessions):
             """Calculate improvement between first and last test."""
             if len(test_sessions) < 2:
                 return 0
-            
+
             # Sessions are ordered newest first
             latest_score = test_sessions[0].score
             earliest_score = test_sessions[-1].score
             return latest_score - earliest_score
-            
+
         def generate_class_report(self, users, quiz_id):
             """Generate class-wide performance report."""
             all_scores = []
             user_reports = []
-            
+
             for user in users:
                 progress = self.get_user_progress(user)
                 user_test_scores = [
-                    s.score for s in progress["recent_activity"] 
+                    s.score for s in progress["recent_activity"]
                     if s.mode == "test" and s.quiz_id == quiz_id
                 ]
-                
+
                 if user_test_scores:
                     best_score = max(user_test_scores)
                     all_scores.append(best_score)
@@ -515,7 +532,7 @@ def progress_analyzer(e2e_services):
                         "best_score": best_score,
                         "attempts": len(user_test_scores)
                     })
-            
+
             return {
                 "class_average": sum(all_scores) / len(all_scores) if all_scores else 0,
                 "highest_score": max(all_scores) if all_scores else 0,
@@ -585,7 +602,7 @@ def test_validators():
             assert hasattr(quiz, 'name')
             assert hasattr(quiz, 'subject')
             assert quiz.name is not None
-            
+
         @staticmethod
         def validate_user_session(session):
             """Validate session has correct structure."""
@@ -594,29 +611,29 @@ def test_validators():
             assert hasattr(session, 'quiz_id')
             assert hasattr(session, 'mode')
             assert session.mode in ["learn", "test"]
-            
+
         @staticmethod
         def validate_test_results(results):
             """Validate test results structure."""
             required_keys = ["total_questions", "correct", "incorrect", "final_score"]
             for key in required_keys:
                 assert key in results
-            
+
             assert 0 <= results["final_score"] <= 100
             assert results["total_questions"] > 0
-            
+
         @staticmethod
         def validate_score_progression(scores, should_improve=True):
             """Validate that scores show expected progression."""
             assert len(scores) >= 2
             if should_improve:
                 assert scores[-1] > scores[0], f"Expected improvement: {scores[0]} -> {scores[-1]}"
-    
+
     return TestValidators()
 
 
 # =============================================================================
-# CONFIGURATION FIXTURES  
+# CONFIGURATION FIXTURES
 # =============================================================================
 
 @pytest.fixture
@@ -657,8 +674,6 @@ def silent_audio_service():
 @pytest.fixture
 def mock_flashcard():
     """Create a mock flashcard for testing."""
-    from unittest.mock import Mock
-
     card = Mock(spec=models.Flashcard)
     card.id = 1
     card.quiz_id = 1
@@ -674,11 +689,8 @@ def mock_flashcard():
 @pytest.fixture
 def mock_flashcards():
     """Create multiple mock flashcards for testing."""
-    from unittest.mock import Mock
-    from core.db import models
-    
     cards = []
-    
+
     # Card 1: dog -> chien
     card1 = Mock(spec=models.Flashcard)
     card1.id = 1
@@ -689,7 +701,7 @@ def mock_flashcards():
     card1.answer_text = "chien"
     card1.answer_lang = "fr"
     cards.append(card1)
-    
+
     # Card 2: cat -> chat
     card2 = Mock(spec=models.Flashcard)
     card2.id = 2
@@ -700,7 +712,7 @@ def mock_flashcards():
     card2.answer_text = "chat"
     card2.answer_lang = "fr"
     cards.append(card2)
-    
+
     # Card 3: house -> maison
     card3 = Mock(spec=models.Flashcard)
     card3.id = 3
@@ -711,7 +723,7 @@ def mock_flashcards():
     card3.answer_text = "maison"
     card3.answer_lang = "fr"
     cards.append(card3)
-    
+
     return cards
 
 
@@ -723,7 +735,6 @@ def mock_test_presenter():
     presenter.show_question = Mock()
     presenter.get_user_answer = Mock()
     presenter.show_answer_result = Mock()
-    pytest.fixture
     presenter.wait_for_next = Mock()
     presenter.show_final_results = Mock()
     return presenter

@@ -1,20 +1,23 @@
 """
 Quiz API routes
 """
-from typing import Optional
-from fastapi import APIRouter, Depends, HTTPException, status, Query, File, UploadFile
-from sqlalchemy.orm import Session
 import json
+from typing import Optional
 
-from api.dependencies.auth import get_current_user
-from core.db.database import get_db
-from core.services.quiz_service import QuizService
+from fastapi import APIRouter, Depends, HTTPException, status, Query, File, UploadFile  # pylint: disable=import-error
+from fastapi.responses import JSONResponse  # pylint: disable=import-error
+from sqlalchemy.orm import Session  # pylint: disable=import-error
+
 from api.api_schemas import (
     Quiz, QuizCreate, QuizUpdate, QuizResponse, QuizzesResponse,
     QuizStats, QuizStatsResponse, QuizImportData, QuizFilters,
     PaginationParams
 )
+from api.dependencies.auth import get_current_user
 from api.utils.responses import create_response
+from core.db.crud.repository.flashcard_repository import FlashcardRepository
+from core.db.database import get_db
+from core.services.quiz_service import QuizService
 
 router = APIRouter()
 
@@ -24,7 +27,7 @@ async def get_quizzes(
     db: Session = Depends(get_db),
     pagination: PaginationParams = Depends(),
     filters: QuizFilters = Depends(),
-    current_user = Depends(get_current_user)
+    current_user = Depends(get_current_user)  # pylint: disable=unused-argument
 ):
     """Get all quizzes with optional filtering and pagination."""
     try:
@@ -75,14 +78,14 @@ async def get_quizzes(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to retrieve quizzes: {str(e)}"
-        )
+        ) from e
 
 
 @router.get("/{quiz_id}", response_model=QuizResponse)
 async def get_quiz(
     quiz_id: int,
     db: Session = Depends(get_db),
-    current_user = Depends(get_current_user)
+    current_user = Depends(get_current_user)  # pylint: disable=unused-argument
 ):
     """Get a specific quiz by ID."""
     try:
@@ -117,14 +120,14 @@ async def get_quiz(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to retrieve quiz: {str(e)}"
-        )
+        ) from e
 
 
 @router.post("/", response_model=QuizResponse, status_code=status.HTTP_201_CREATED)
 async def create_quiz(
     quiz_data: QuizCreate,
     db: Session = Depends(get_db),
-    current_user = Depends(get_current_user)
+    current_user = Depends(get_current_user)  # pylint: disable=unused-argument
 ):
     """Create a new quiz."""
     try:
@@ -154,7 +157,7 @@ async def create_quiz(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to create quiz: {str(e)}"
-        )
+        ) from e
 
 
 @router.put("/{quiz_id}", response_model=QuizResponse)
@@ -162,7 +165,7 @@ async def update_quiz(
     quiz_id: int,
     quiz_data: QuizUpdate,
     db: Session = Depends(get_db),
-    current_user = Depends(get_current_user)
+    current_user = Depends(get_current_user)  # pylint: disable=unused-argument
 ):
     """Update an existing quiz."""
     try:
@@ -204,14 +207,14 @@ async def update_quiz(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to update quiz: {str(e)}"
-        )
+        ) from e
 
 
 @router.delete("/{quiz_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_quiz(
     quiz_id: int,
     db: Session = Depends(get_db),
-    current_user = Depends(get_current_user)
+    current_user = Depends(get_current_user)  # pylint: disable=unused-argument
 ):
     """Delete a quiz and all its flashcards."""
     try:
@@ -224,15 +227,12 @@ async def delete_quiz(
                 detail=f"Quiz with ID {quiz_id} not found"
             )
 
-        try:
-            success = quiz_service.delete_quiz(quiz_id)
-            if not success:
-                raise HTTPException(
-                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                    detail="Failed to delete quiz"
-                )
-        except HTTPException:
-            raise
+        success = quiz_service.delete_quiz(quiz_id)
+        if not success:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to delete quiz"
+            )
         return None
 
     except HTTPException:
@@ -241,14 +241,14 @@ async def delete_quiz(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to delete quiz: {str(e)}"
-        )
+        ) from e
 
 
 @router.get("/{quiz_id}/statistics", response_model=QuizStatsResponse)
 async def get_quiz_statistics(
     quiz_id: int,
     db: Session = Depends(get_db),
-    current_user = Depends(get_current_user)
+    current_user = Depends(get_current_user)  # pylint: disable=unused-argument
 ):
     """Get detailed statistics for a quiz."""
     try:
@@ -283,14 +283,14 @@ async def get_quiz_statistics(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to retrieve quiz statistics: {str(e)}"
-        )
+        ) from e
 
 
 @router.post("/import", response_model=QuizResponse, status_code=status.HTTP_201_CREATED)
 async def import_quiz(
     quiz_data: QuizImportData,
     db: Session = Depends(get_db),
-    current_user = Depends(get_current_user)
+    current_user = Depends(get_current_user)  # pylint: disable=unused-argument
 ):
     """Import a quiz from JSON data."""
     try:
@@ -327,14 +327,14 @@ async def import_quiz(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to import quiz: {str(e)}"
-        )
+        ) from e
 
 
 @router.post("/import-file", response_model=QuizResponse, status_code=status.HTTP_201_CREATED)
 async def import_quiz_file(
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
-    current_user = Depends(get_current_user)
+    current_user = Depends(get_current_user)  # pylint: disable=unused-argument
 ):
     """Import a quiz from uploaded JSON file."""
     try:
@@ -349,11 +349,11 @@ async def import_quiz_file(
         content = await file.read()
         try:
             quiz_data = json.loads(content.decode('utf-8'))
-        except json.JSONDecodeError:
+        except json.JSONDecodeError as e:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Invalid JSON format"
-            )
+            ) from e
 
         quiz_service = QuizService(db)
 
@@ -388,14 +388,14 @@ async def import_quiz_file(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to import quiz file: {str(e)}"
-        )
+        ) from e
 
 
 @router.get("/{quiz_id}/export")
 async def export_quiz(
     quiz_id: int,
     db: Session = Depends(get_db),
-    current_user = Depends(get_current_user)
+    current_user = Depends(get_current_user)  # pylint: disable=unused-argument
 ):
     """Export a quiz as JSON data."""
     try:
@@ -444,7 +444,6 @@ async def export_quiz(
             card_data["answer"] = {k: v for k, v in card_data["answer"].items() if v is not None}
             export_data["flashcards"].append(card_data)
 
-        from fastapi.responses import JSONResponse
         return JSONResponse(
             content=export_data,
             headers={
@@ -458,7 +457,7 @@ async def export_quiz(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to export quiz: {str(e)}"
-        )
+        ) from e
 
 
 @router.post("/{quiz_id}/duplicate", response_model=QuizResponse, status_code=status.HTTP_201_CREATED)
@@ -466,7 +465,7 @@ async def duplicate_quiz(
     quiz_id: int,
     new_name: Optional[str] = Query(None, description="New name for duplicated quiz"),
     db: Session = Depends(get_db),
-    current_user = Depends(get_current_user)
+    current_user = Depends(get_current_user)  # pylint: disable=unused-argument
 ):
     """Duplicate an existing quiz with all its flashcards."""
     try:
@@ -513,7 +512,6 @@ async def duplicate_quiz(
             flashcard_data.append(card_dict)
 
         # Import flashcards to new quiz
-        from core.db.crud.repository.flashcard_repository import FlashcardRepository
         flashcard_repo = FlashcardRepository(db)
         flashcard_repo.bulk_create_flashcards(new_quiz.id, flashcard_data)
 
@@ -538,7 +536,7 @@ async def duplicate_quiz(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to duplicate quiz: {str(e)}"
-        )
+        ) from e
 
 
 @router.get("/search", response_model=QuizzesResponse)
@@ -547,7 +545,7 @@ async def search_quizzes(
     subject: Optional[str] = Query(None, description="Filter by subject"),
     limit: int = Query(20, ge=1, le=100, description="Maximum results"),
     db: Session = Depends(get_db),
-    current_user = Depends(get_current_user)
+    current_user = Depends(get_current_user)  # pylint: disable=unused-argument
 ):
     """Search quizzes by name, subject, or description."""
     try:
@@ -594,13 +592,13 @@ async def search_quizzes(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to search quizzes: {str(e)}"
-        )
+        ) from e
 
 
 @router.get("/subjects", response_model=dict)
 async def get_subjects(
     db: Session = Depends(get_db),
-    current_user = Depends(get_current_user)
+    current_user = Depends(get_current_user)  # pylint: disable=unused-argument
 ):
     """Get all unique subjects with quiz counts."""
     try:
@@ -622,4 +620,4 @@ async def get_subjects(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to retrieve subjects: {str(e)}"
-        )
+        ) from e

@@ -53,11 +53,10 @@ class ProgressReporter:
             print(f"Average test score: {report['average_score']:.1f}%")
 
         if report['recent_activity']:
-            print(f"\n🕒 Recent Activity:")
+            print("\n🕒 Recent Activity:")
             for session in report['recent_activity']:
                 quiz_name = session.quiz.name
                 mode_emoji = "🎓" if session.mode == "learn" else "🧪"
                 score_text = f" ({session.score}%)" if session.score else ""
                 date_str = session.started_at.strftime('%Y-%m-%d %H:%M')
                 print(f"  {mode_emoji} {quiz_name}{score_text} - {date_str}")
-

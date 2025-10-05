@@ -1,12 +1,15 @@
 """
 Rate limiting middleware
 """
-import time
+
 import logging
-from typing import Callable, Dict
-from fastapi import Request, Response, HTTPException, status
-from starlette.middleware.base import BaseHTTPMiddleware
+import time
 from collections import defaultdict, deque
+from typing import Callable, Dict
+
+from fastapi import HTTPException, Request, Response, status  # pylint: disable=import-error
+from fastapi.responses import JSONResponse  # pylint: disable=import-error
+from starlette.middleware.base import BaseHTTPMiddleware  # pylint: disable=import-error
 
 from api.utils.responses import create_error_response
 
@@ -16,14 +19,7 @@ logger = logging.getLogger(__name__)
 class RateLimitMiddleware(BaseHTTPMiddleware):
     """Middleware for rate limiting API requests."""
 
-    def __init__(
-        self,
-        app,
-        calls: int = 100,
-        period: int = 60,
-        per_user: bool = True,
-        storage_backend: str = "memory"
-    ):
+    def __init__(self, app, calls: int = 100, period: int = 60, per_user: bool = True, storage_backend: str = "memory"):  # pylint: disable=too-many-positional-arguments
         """
         Initialize rate limiting middleware.
 
@@ -51,14 +47,16 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
     def _setup_redis(self):
         """Setup Redis client for rate limiting."""
         try:
-            import redis
-            from api.api_config import settings
+            import redis  # pylint: disable=import-outside-toplevel
+
+            from api.api_config import settings  # pylint: disable=import-outside-toplevel
+
             self._redis_client = redis.from_url(settings.redis_url)
         except ImportError:
             logger.warning("Redis not available, falling back to memory storage")
             self.storage_backend = "memory"
-        except Exception as e:
-            logger.warning(f"Failed to connect to Redis: {e}, falling back to memory storage")
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            logger.warning("Failed to connect to Redis: %s, falling back to memory storage", e)
             self.storage_backend = "memory"
 
     def _get_identifier(self, request: Request) -> str:
@@ -68,14 +66,16 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
             auth_header = request.headers.get("authorization")
             if auth_header and auth_header.startswith("Bearer "):
                 try:
-                    import jwt
-                    from api.api_config import settings
+                    import jwt  # pylint: disable=import-outside-toplevel,import-error
+
+                    from api.api_config import settings  # pylint: disable=import-outside-toplevel
+
                     token = auth_header.split(" ")[1]
                     payload = jwt.decode(token, settings.jwt_secret_key, algorithms=[settings.jwt_algorithm])
                     user_id = payload.get("user_id")
                     if user_id:
                         return f"user:{user_id}"
-                except Exception:
+                except Exception:  # pylint: disable=broad-exception-caught
                     pass
 
         # Fallback to IP address
@@ -106,10 +106,9 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
             oldest_call = self._memory_storage[key][0] if self._memory_storage[key] else now
             reset_time = int(oldest_call + self.period)
             return True, current_calls, reset_time
-        else:
-            # Not rate limited, add current request
-            self._memory_storage[key].append(now)
-            return False, current_calls + 1, int(now + self.period)
+        # Not rate limited, add current request
+        self._memory_storage[key].append(now)
+        return False, current_calls + 1, int(now + self.period)
 
     def _is_rate_limited_redis(self, key: str) -> tuple[bool, int, int]:
         """Check rate limit using Redis storage."""
@@ -137,11 +136,10 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
                 # Rate limited
                 reset_time = int(now + self.period)
                 return True, current_calls, reset_time
-            else:
-                return False, current_calls + 1, int(now + self.period)
+            return False, current_calls + 1, int(now + self.period)
 
-        except Exception as e:
-            logger.error(f"Redis rate limiting error: {e}")
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            logger.error("Redis rate limiting error: %s", e)
             # Fallback to memory storage
             return self._is_rate_limited_memory(key)
 
@@ -149,8 +147,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         """Check if request should be rate limited."""
         if self.storage_backend == "redis":
             return self._is_rate_limited_redis(key)
-        else:
-            return self._is_rate_limited_memory(key)
+        return self._is_rate_limited_memory(key)
 
     def _get_endpoint(self, request: Request) -> str:
         """Get endpoint identifier for rate limiting."""
@@ -187,22 +184,21 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
 
         if is_limited:
             # Rate limited - return 429 Too Many Requests
-            logger.warning(f"Rate limit exceeded for {identifier} on {endpoint}")
+            logger.warning("Rate limit exceeded for %s on %s", identifier, endpoint)
 
-            from fastapi.responses import JSONResponse
             return JSONResponse(
                 status_code=status.HTTP_429_TOO_MANY_REQUESTS,
                 content=create_error_response(
                     error="RATE_LIMIT_EXCEEDED",
                     message=f"Rate limit exceeded. Maximum {self.calls} requests per {self.period} seconds.",
-                    status_code=status.HTTP_429_TOO_MANY_REQUESTS
+                    status_code=status.HTTP_429_TOO_MANY_REQUESTS,
                 ),
                 headers={
                     "X-RateLimit-Limit": str(self.calls),
                     "X-RateLimit-Remaining": "0",
                     "X-RateLimit-Reset": str(reset_time),
-                    "Retry-After": str(self.period)
-                }
+                    "Retry-After": str(self.period),
+                },
             )
 
         # Process request
@@ -234,6 +230,7 @@ class EndpointRateLimiter:
 
     def __call__(self, func):
         """Decorator function."""
+
         async def wrapper(request: Request, *args, **kwargs):
             # Get client identifier
             client_ip = request.client.host if request.client else "unknown"
@@ -249,8 +246,7 @@ class EndpointRateLimiter:
 
             if len(self._storage[key]) >= self.calls:
                 raise HTTPException(
-                    status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-                    detail=f"Rate limit exceeded for {func.__name__}"
+                    status_code=status.HTTP_429_TOO_MANY_REQUESTS, detail=f"Rate limit exceeded for {func.__name__}"
                 )
 
             # Add current request
@@ -263,9 +259,9 @@ class EndpointRateLimiter:
 
 
 # Decorator instances for common rate limits
-strict_rate_limit = EndpointRateLimiter(calls=5, period=60)   # 5 calls per minute
+strict_rate_limit = EndpointRateLimiter(calls=5, period=60)  # 5 calls per minute
 moderate_rate_limit = EndpointRateLimiter(calls=20, period=60)  # 20 calls per minute
-loose_rate_limit = EndpointRateLimiter(calls=100, period=60)    # 100 calls per minute
+loose_rate_limit = EndpointRateLimiter(calls=100, period=60)  # 100 calls per minute
 
 
 def rate_limit(calls: int = 10, period: int = 60):

@@ -4,11 +4,11 @@ Authentication API routes
 from datetime import datetime, timedelta
 from typing import Optional
 
-import jwt
-from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from sqlalchemy.orm import Session
-import bcrypt
+import jwt  # pylint: disable=import-error
+from fastapi import APIRouter, Depends, HTTPException, status  # pylint: disable=import-error
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials  # pylint: disable=import-error
+from sqlalchemy.orm import Session  # pylint: disable=import-error
+import bcrypt  # pylint: disable=import-error
 
 from core.db.database import get_db
 from core.services.user_service import UserService
@@ -57,12 +57,12 @@ def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
 
         return {"username": username, "user_id": user_id}
 
-    except jwt.PyJWTError:
+    except jwt.PyJWTError as e:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid authentication credentials",
             headers={"WWW-Authenticate": "Bearer"},
-        )
+        ) from e
 
 
 def hash_password(password: str) -> str:
@@ -113,7 +113,7 @@ async def login(
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=f"Authentication failed: {str(e)}"
-        )
+        ) from e
 
 
 @router.post("/register", response_model=AuthResponse, status_code=status.HTTP_201_CREATED)
@@ -176,12 +176,12 @@ async def register(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(e)
-        )
+        ) from e
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Registration failed: {str(e)}"
-        )
+        ) from e
 
 
 @router.get("/me", response_model=UserResponse)
@@ -221,7 +221,7 @@ async def get_current_user(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to retrieve user information: {str(e)}"
-        )
+        ) from e
 
 
 @router.post("/refresh", response_model=AuthResponse)
@@ -252,7 +252,7 @@ async def refresh_token(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to refresh token: {str(e)}"
-        )
+        ) from e
 
 
 @router.post("/logout")

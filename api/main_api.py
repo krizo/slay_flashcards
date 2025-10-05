@@ -1,30 +1,28 @@
 """
 FastAPI application for SlayFlashcards API
 """
-from contextlib import asynccontextmanager
-from fastapi import FastAPI, HTTPException, Depends, status
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+
 import logging
+from contextlib import asynccontextmanager
+
+from fastapi import FastAPI, status  # pylint: disable=import-error
+from fastapi.middleware.cors import CORSMiddleware  # pylint: disable=import-error
+from fastapi.responses import JSONResponse  # pylint: disable=import-error
 
 from api.dependencies import auth
-from core.db.database import engine, Base, SessionLocal
-from api.routes import quizzes_route, users_route, flashcards_route, sessions_route
 from api.middleware.error_handler import ErrorHandlerMiddleware
 from api.middleware.request_logging import RequestLoggingMiddleware
-
+from api.routes import flashcards_route, quizzes_route, sessions_route, users_route
+from core.db.database import Base, SessionLocal, engine
 
 # Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
 logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(app: FastAPI):  # pylint: disable=redefined-outer-name,unused-argument
     """Application lifespan manager."""
     # Startup
     logger.info("Starting SlayFlashcards API...")
@@ -46,7 +44,7 @@ app = FastAPI(
     version="1.0.0",
     docs_url="/docs",
     redoc_url="/redoc",
-    lifespan=lifespan
+    lifespan=lifespan,
 )
 
 # CORS middleware
@@ -77,11 +75,7 @@ def get_db():
 @app.get("/health", tags=["health"])
 async def health_check():
     """Health check endpoint."""
-    return {
-        "status": "healthy",
-        "service": "SlayFlashcards API",
-        "version": "1.0.0"
-    }
+    return {"status": "healthy", "service": "SlayFlashcards API", "version": "1.0.0"}
 
 
 # Include routers
@@ -96,23 +90,18 @@ app.include_router(sessions_route.router, prefix="/api/v1/sessions", tags=["sess
 @app.exception_handler(Exception)
 async def global_exception_handler(request, exc):
     """Global exception handler."""
-    logger.error(f"Unhandled exception: {exc}", exc_info=True)
+    logger.error("Unhandled exception: %s", exc, exc_info=True)
     return JSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         content={
             "error": "Internal server error",
             "message": "An unexpected error occurred. Please try again later.",
-            "request_id": getattr(request.state, "request_id", None)
-        }
+            "request_id": getattr(request.state, "request_id", None),
+        },
     )
 
 
 if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(
-        "main:app",
-        host="0.0.0.0",
-        port=8000,
-        reload=True,
-        log_level="info"
-    )
+    import uvicorn  # pylint: disable=import-error
+
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True, log_level="info")

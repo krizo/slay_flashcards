@@ -3,9 +3,11 @@ Flashcard repository for managing flashcard entities and related operations.
 
 Provides flashcard-specific queries, validation, and answer type support.
 """
-from typing import List, Dict, Any, Optional, Sequence
-from sqlalchemy.orm import Session
-from sqlalchemy import select, func, and_
+
+from typing import Any, Dict, List, Optional, Sequence
+
+from sqlalchemy import and_, func, select  # pylint: disable=import-error
+from sqlalchemy.orm import Session  # pylint: disable=import-error
 
 from core.db import models
 from core.db.crud.repository import BaseRepository
@@ -45,9 +47,7 @@ class FlashcardRepository(BaseRepository[models.Flashcard]):
         Returns:
             List of flashcards
         """
-        return self._execute_query(
-            select(models.Flashcard).where(models.Flashcard.quiz_id == quiz_id)
-        )
+        return self._execute_query(select(models.Flashcard).where(models.Flashcard.quiz_id == quiz_id))
 
     def get_by_difficulty(self, quiz_id: int, difficulty: int) -> Sequence[models.Flashcard]:
         """
@@ -62,10 +62,7 @@ class FlashcardRepository(BaseRepository[models.Flashcard]):
         """
         return self._execute_query(
             select(models.Flashcard).where(
-                and_(
-                    models.Flashcard.quiz_id == quiz_id,
-                    models.Flashcard.question_difficulty == difficulty
-                )
+                and_(models.Flashcard.quiz_id == quiz_id, models.Flashcard.question_difficulty == difficulty)
             )
         )
 
@@ -82,10 +79,7 @@ class FlashcardRepository(BaseRepository[models.Flashcard]):
         """
         return self._execute_query(
             select(models.Flashcard).where(
-                and_(
-                    models.Flashcard.quiz_id == quiz_id,
-                    models.Flashcard.answer_type == answer_type
-                )
+                and_(models.Flashcard.quiz_id == quiz_id, models.Flashcard.answer_type == answer_type)
             )
         )
 
@@ -102,10 +96,7 @@ class FlashcardRepository(BaseRepository[models.Flashcard]):
         """
         return self._execute_query(
             select(models.Flashcard).where(
-                and_(
-                    models.Flashcard.quiz_id == quiz_id,
-                    models.Flashcard.question_text.ilike(f"%{text}%")
-                )
+                and_(models.Flashcard.quiz_id == quiz_id, models.Flashcard.question_text.ilike(f"%{text}%"))
             )
         )
 
@@ -113,12 +104,7 @@ class FlashcardRepository(BaseRepository[models.Flashcard]):
     # FLASHCARD CREATION WITH ANSWER TYPE SUPPORT
     # =========================================================================
 
-    def create_flashcard(
-            self,
-            quiz_id: int,
-            question: Dict[str, Any],
-            answer: Dict[str, Any]
-    ) -> models.Flashcard:
+    def create_flashcard(self, quiz_id: int, question: Dict[str, Any], answer: Dict[str, Any]) -> models.Flashcard:
         """
         Create a single flashcard with enhanced answer type support.
 
@@ -160,14 +146,10 @@ class FlashcardRepository(BaseRepository[models.Flashcard]):
             answer_lang=answer.get("lang"),
             answer_type=answer_type,
             answer_options=answer_options,
-            answer_metadata=answer_metadata
+            answer_metadata=answer_metadata,
         )
 
-    def bulk_create_flashcards(
-            self,
-            quiz_id: int,
-            cards: List[Dict[str, Any]]
-    ) -> List[models.Flashcard]:
+    def bulk_create_flashcards(self, quiz_id: int, cards: List[Dict[str, Any]]) -> List[models.Flashcard]:
         """
         Create multiple flashcards with enhanced answer type support.
 
@@ -199,22 +181,24 @@ class FlashcardRepository(BaseRepository[models.Flashcard]):
             # Validate answer type
             answer_type = self._validate_answer_type(answer_type)
 
-            card_data.append({
-                "quiz_id": quiz_id,
-                # Question fields
-                "question_title": q["title"],
-                "question_text": q["text"],
-                "question_lang": q.get("lang"),
-                "question_difficulty": q.get("difficulty"),
-                "question_emoji": q.get("emoji"),
-                "question_image": q.get("image"),
-                # Answer fields with type support
-                "answer_text": a["text"],
-                "answer_lang": a.get("lang"),
-                "answer_type": answer_type,
-                "answer_options": answer_options,
-                "answer_metadata": answer_metadata
-            })
+            card_data.append(
+                {
+                    "quiz_id": quiz_id,
+                    # Question fields
+                    "question_title": q["title"],
+                    "question_text": q["text"],
+                    "question_lang": q.get("lang"),
+                    "question_difficulty": q.get("difficulty"),
+                    "question_emoji": q.get("emoji"),
+                    "question_image": q.get("image"),
+                    # Answer fields with type support
+                    "answer_text": a["text"],
+                    "answer_lang": a.get("lang"),
+                    "answer_type": answer_type,
+                    "answer_options": answer_options,
+                    "answer_metadata": answer_metadata,
+                }
+            )
 
         return self.bulk_create(card_data)
 
@@ -223,11 +207,11 @@ class FlashcardRepository(BaseRepository[models.Flashcard]):
     # =========================================================================
 
     def update_answer_type(
-            self,
-            flashcard_id: int,
-            answer_type: str,
-            answer_options: Optional[List[Dict[str, Any]]] = None,
-            answer_metadata: Optional[Dict[str, Any]] = None
+        self,
+        flashcard_id: int,
+        answer_type: str,
+        answer_options: Optional[List[Dict[str, Any]]] = None,
+        answer_metadata: Optional[Dict[str, Any]] = None,
     ) -> Optional[models.Flashcard]:
         """
         Update the answer type and related fields of an existing flashcard.
@@ -252,10 +236,7 @@ class FlashcardRepository(BaseRepository[models.Flashcard]):
         validated_type = self._validate_answer_type(answer_type, raise_on_invalid=True)
 
         return self.update(
-            flashcard,
-            answer_type=validated_type,
-            answer_options=answer_options,
-            answer_metadata=answer_metadata or {}
+            flashcard, answer_type=validated_type, answer_options=answer_options, answer_metadata=answer_metadata or {}
         )
 
     def get_answer_type_statistics(self, quiz_id: int) -> Dict[str, int]:
@@ -269,10 +250,7 @@ class FlashcardRepository(BaseRepository[models.Flashcard]):
             Dictionary mapping answer type to count
         """
         results = self.db.execute(
-            select(
-                models.Flashcard.answer_type,
-                func.count(models.Flashcard.id)
-            )
+            select(models.Flashcard.answer_type, func.count(models.Flashcard.id)) # pylint: disable=not-callable
             .where(models.Flashcard.quiz_id == quiz_id)
             .group_by(models.Flashcard.answer_type)
         ).all()
@@ -297,10 +275,7 @@ class FlashcardRepository(BaseRepository[models.Flashcard]):
         Raises:
             ValueError: If answer type is invalid and raise_on_invalid=True
         """
-        valid_types = [
-            "text", "integer", "float", "range",
-            "boolean", "choice", "multiple_choice", "short_text"
-        ]
+        valid_types = ["text", "integer", "float", "range", "boolean", "choice", "multiple_choice", "short_text"]
 
         if answer_type not in valid_types:
             if raise_on_invalid:

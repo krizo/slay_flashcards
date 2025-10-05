@@ -1,15 +1,20 @@
 """
 Pydantic schemas for API request/response models
 """
-from datetime import datetime
-from typing import Optional, List, Dict, Any
-from pydantic import BaseModel, Field, ConfigDict, field_validator
-from enum import Enum
+# pylint: disable=too-many-lines
 
+from datetime import datetime
+from enum import Enum
+from typing import Any, Dict, List, Optional
+
+from pydantic import BaseModel, ConfigDict, Field, field_validator  # pylint: disable=import-error
+
+from api.utils.validation import validate_email, validate_password, validate_username
 
 # =============================================================================
 # ENUMS
 # =============================================================================
+
 
 class SessionMode(str, Enum):
     LEARN = "learn"
@@ -37,8 +42,10 @@ class AnswerEvaluation(str, Enum):
 # BASE SCHEMAS
 # =============================================================================
 
+
 class BaseResponse(BaseModel):
     """Base response model."""
+
     success: bool = True
     message: Optional[str] = None
     timestamp: datetime = Field(default_factory=datetime.now)
@@ -46,12 +53,14 @@ class BaseResponse(BaseModel):
 
 class PaginationParams(BaseModel):
     """Pagination parameters."""
+
     page: int = Field(default=1, ge=1, description="Page number")
     limit: int = Field(default=20, ge=1, le=100, description="Items per page")
 
 
 class PaginatedResponse(BaseModel):
     """Paginated response model."""
+
     items: List[Any]
     total: int
     page: int
@@ -65,41 +74,41 @@ class PaginatedResponse(BaseModel):
 # USER SCHEMAS
 # =============================================================================
 
+
 class UserBase(BaseModel):
     """Base user schema."""
+
     name: str = Field(..., min_length=3, max_length=50, description="Username")
 
 
 class UserCreate(UserBase):
     """User creation schema."""
+
     password: str = Field(..., min_length=8, max_length=128, description="Password")
     email: str = Field(..., description="Email address")
 
     @classmethod
-    @field_validator('name')
+    @field_validator("name")
     def validate_username_format(cls, v: str) -> str:
         """Validate username format."""
-        from api.utils.validation import validate_username
         result = validate_username(v)
         if not result["valid"]:
             raise ValueError("; ".join(result["errors"]))
         return v
 
     @classmethod
-    @field_validator('password')
+    @field_validator("password")
     def validate_password_strength(cls, v: str) -> str:
         """Validate password strength."""
-        from api.utils.validation import validate_password
         result = validate_password(v)
         if not result["valid"]:
             raise ValueError("; ".join(result["errors"]))
         return v
 
     @classmethod
-    @field_validator('email')
+    @field_validator("email")
     def validate_email_format(cls, v: str) -> str:
         """Validate email format."""
-        from api.utils.validation import validate_email
         if not validate_email(v):
             raise ValueError("Invalid email format")
         return v.lower().strip()
@@ -107,6 +116,7 @@ class UserCreate(UserBase):
 
 class User(UserBase):
     """User response schema."""
+
     model_config = ConfigDict(from_attributes=True)
 
     id: int
@@ -116,11 +126,13 @@ class User(UserBase):
 
 class UserUpdate(BaseModel):
     """User update schema."""
+
     name: Optional[str] = Field(None, min_length=1, max_length=100)
 
 
 class UserStats(BaseModel):
     """User statistics schema - must match UserService.get_user_statistics() return dict."""
+
     total_sessions: int
     learn_sessions: int
     test_sessions: int
@@ -135,16 +147,19 @@ class UserStats(BaseModel):
 
 class UserStatsResponse(BaseResponse):
     """User statistics response."""
+
     data: UserStats
 
 
 class UserResponse(BaseResponse):
     """User response with data."""
+
     data: User
 
 
 class UsersResponse(BaseResponse):
     """Multiple users response."""
+
     data: List[User]
 
 
@@ -152,8 +167,10 @@ class UsersResponse(BaseResponse):
 # QUIZ SCHEMAS
 # =============================================================================
 
+
 class QuizBase(BaseModel):
     """Base quiz schema."""
+
     name: str = Field(..., min_length=1, max_length=200, description="Quiz name")
     subject: Optional[str] = Field(None, max_length=100, description="Quiz subject")
     description: Optional[str] = Field(None, max_length=1000, description="Quiz description")
@@ -161,11 +178,11 @@ class QuizBase(BaseModel):
 
 class QuizCreate(QuizBase):
     """Quiz creation schema."""
-    pass
 
 
 class QuizUpdate(BaseModel):
     """Quiz update schema."""
+
     name: Optional[str] = Field(None, min_length=1, max_length=200)
     subject: Optional[str] = Field(None, max_length=100)
     description: Optional[str] = Field(None, max_length=1000)
@@ -173,6 +190,7 @@ class QuizUpdate(BaseModel):
 
 class Quiz(QuizBase):
     """Quiz response schema."""
+
     model_config = ConfigDict(from_attributes=True)
 
     id: int
@@ -182,6 +200,7 @@ class Quiz(QuizBase):
 
 class QuizStats(BaseModel):
     """Quiz statistics schema."""
+
     total_cards: int
     difficulty_distribution: Dict[int, int]
     question_languages: Dict[str, int]
@@ -194,22 +213,26 @@ class QuizStats(BaseModel):
 
 class QuizImportData(BaseModel):
     """Quiz import data schema."""
+
     quiz: Dict[str, Any] = Field(..., description="Quiz metadata")
     flashcards: List[Dict[str, Any]] = Field(..., description="Flashcard data")
 
 
 class QuizResponse(BaseResponse):
     """Quiz response with data."""
+
     data: Quiz
 
 
 class QuizzesResponse(BaseResponse):
     """Multiple quizzes response."""
+
     data: List[Quiz]
 
 
 class QuizStatsResponse(BaseResponse):
     """Quiz statistics response."""
+
     data: QuizStats
 
 
@@ -217,8 +240,10 @@ class QuizStatsResponse(BaseResponse):
 # FLASHCARD SCHEMAS
 # =============================================================================
 
+
 class FlashcardQuestionBase(BaseModel):
     """Base flashcard question schema."""
+
     title: str = Field(..., min_length=1, max_length=500)
     text: str = Field(..., min_length=1, max_length=2000)
     lang: Optional[str] = Field(None, max_length=10)
@@ -229,6 +254,7 @@ class FlashcardQuestionBase(BaseModel):
 
 class FlashcardAnswerBase(BaseModel):
     """Base flashcard answer schema."""
+
     text: str = Field(..., min_length=1, max_length=2000)
     lang: Optional[str] = Field(None, max_length=10)
     type: AnswerType = Field(default=AnswerType.TEXT)
@@ -238,6 +264,7 @@ class FlashcardAnswerBase(BaseModel):
 
 class FlashcardBase(BaseModel):
     """Base flashcard schema."""
+
     quiz_id: int
     question: FlashcardQuestionBase
     answer: FlashcardAnswerBase
@@ -245,17 +272,18 @@ class FlashcardBase(BaseModel):
 
 class FlashcardCreate(FlashcardBase):
     """Flashcard creation schema."""
-    pass
 
 
 class FlashcardUpdate(BaseModel):
     """Flashcard update schema."""
+
     question: Optional[FlashcardQuestionBase] = None
     answer: Optional[FlashcardAnswerBase] = None
 
 
 class Flashcard(BaseModel):
     """Flashcard response schema."""
+
     model_config = ConfigDict(from_attributes=True)
 
     id: int
@@ -275,11 +303,13 @@ class Flashcard(BaseModel):
 
 class FlashcardResponse(BaseResponse):
     """Flashcard response with data."""
+
     data: Flashcard
 
 
 class FlashcardsResponse(BaseResponse):
     """Multiple flashcards response."""
+
     data: List[Flashcard]
 
 
@@ -287,8 +317,10 @@ class FlashcardsResponse(BaseResponse):
 # SESSION SCHEMAS
 # =============================================================================
 
+
 class SessionBase(BaseModel):
     """Base session schema."""
+
     user_id: int
     quiz_id: int
     mode: SessionMode
@@ -296,17 +328,20 @@ class SessionBase(BaseModel):
 
 class SessionCreate(SessionBase):
     """Session creation schema."""
+
     score: Optional[int] = Field(None, ge=0, le=100)
 
 
 class SessionUpdate(BaseModel):
     """Session update schema."""
+
     score: Optional[int] = Field(None, ge=0, le=100)
     completed_at: Optional[datetime] = None
 
 
 class Session(SessionBase):
     """Session response schema."""
+
     model_config = ConfigDict(from_attributes=True)
 
     id: int
@@ -317,6 +352,7 @@ class Session(SessionBase):
 
 class SessionStats(BaseModel):
     """Session statistics schema."""
+
     total_sessions: int
     learn_sessions: int
     test_sessions: int
@@ -329,16 +365,19 @@ class SessionStats(BaseModel):
 
 class SessionResponse(BaseResponse):
     """Session response with data."""
+
     data: Session
 
 
 class SessionsResponse(BaseResponse):
     """Multiple sessions response."""
+
     data: List[Session]
 
 
 class SessionStatsResponse(BaseResponse):
     """Session statistics response."""
+
     data: SessionStats
 
 
@@ -346,8 +385,10 @@ class SessionStatsResponse(BaseResponse):
 # TEST SESSION SCHEMAS
 # =============================================================================
 
+
 class TestAnswer(BaseModel):
     """Test answer schema."""
+
     flashcard_id: int
     user_answer: str
     time_taken: Optional[float] = None
@@ -355,12 +396,14 @@ class TestAnswer(BaseModel):
 
 class TestSubmission(BaseModel):
     """Test submission schema."""
+
     session_id: int
     answers: List[TestAnswer]
 
 
 class CardResult(BaseModel):
     """Card result schema."""
+
     flashcard_id: int
     question: str
     user_answer: str
@@ -372,6 +415,7 @@ class CardResult(BaseModel):
 
 class TestResults(BaseModel):
     """Test results schema."""
+
     session_id: int
     total_questions: int
     correct: int
@@ -384,6 +428,7 @@ class TestResults(BaseModel):
 
 class TestResultsResponse(BaseResponse):
     """Test results response."""
+
     data: TestResults
 
 
@@ -391,8 +436,10 @@ class TestResultsResponse(BaseResponse):
 # LEARNING SESSION SCHEMAS
 # =============================================================================
 
+
 class LearningProgress(BaseModel):
     """Learning progress schema."""
+
     flashcard_id: int
     reviewed: bool
     confidence: Optional[int] = Field(None, ge=1, le=5)
@@ -401,6 +448,7 @@ class LearningProgress(BaseModel):
 
 class LearningSessionUpdate(BaseModel):
     """Learning session update schema."""
+
     progress: List[LearningProgress]
 
 
@@ -408,8 +456,10 @@ class LearningSessionUpdate(BaseModel):
 # AUTHENTICATION SCHEMAS
 # =============================================================================
 
+
 class Token(BaseModel):
     """Token response schema."""
+
     access_token: str
     token_type: str
     expires_in: int
@@ -417,44 +467,44 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     """Token data schema."""
+
     user_id: Optional[int] = None
     username: Optional[str] = None
 
 
 class LoginRequest(BaseModel):
     """Login request schema."""
+
     username: str = Field(..., min_length=1)
     password: str = Field(..., min_length=1)
 
 
 class RegisterRequest(BaseModel):
     """Registration request schema."""
+
     username: str = Field(..., min_length=3, max_length=50)
     password: str = Field(..., min_length=8, max_length=128)
     email: str = Field(...)
 
-    @field_validator('username')
+    @field_validator("username")
     @classmethod
     def validate_username_format(cls, v: str) -> str:
-        from api.utils.validation import validate_username
         result = validate_username(v)
         if not result["valid"]:
             raise ValueError("; ".join(result["errors"]))
         return v
 
-    @field_validator('password')
+    @field_validator("password")
     @classmethod
     def validate_password_strength(cls, v: str) -> str:
-        from api.utils.validation import validate_password
         result = validate_password(v)
         if not result["valid"]:
             raise ValueError("; ".join(result["errors"]))
         return v
 
-    @field_validator('email')
+    @field_validator("email")
     @classmethod
     def validate_email_format(cls, v: str) -> str:
-        from api.utils.validation import validate_email
         if not validate_email(v):
             raise ValueError("Invalid email format")
         return v.lower().strip()
@@ -462,6 +512,7 @@ class RegisterRequest(BaseModel):
 
 class AuthResponse(BaseResponse):
     """Authentication response."""
+
     data: Token
 
 
@@ -469,8 +520,10 @@ class AuthResponse(BaseResponse):
 # SEARCH AND FILTER SCHEMAS
 # =============================================================================
 
+
 class QuizFilters(BaseModel):
     """Quiz filtering parameters."""
+
     subject: Optional[str] = None
     name_contains: Optional[str] = None
     difficulty_min: Optional[int] = Field(None, ge=1, le=5)
@@ -481,6 +534,7 @@ class QuizFilters(BaseModel):
 
 class FlashcardFilters(BaseModel):
     """Flashcard filtering parameters."""
+
     difficulty: Optional[int] = Field(None, ge=1, le=5)
     question_lang: Optional[str] = None
     answer_lang: Optional[str] = None
@@ -490,6 +544,7 @@ class FlashcardFilters(BaseModel):
 
 class SessionFilters(BaseModel):
     """Session filtering parameters."""
+
     user_id: Optional[int] = None
     quiz_id: Optional[int] = None
     mode: Optional[SessionMode] = None
@@ -503,8 +558,10 @@ class SessionFilters(BaseModel):
 # ERROR SCHEMAS
 # =============================================================================
 
+
 class ErrorDetail(BaseModel):
     """Error detail schema."""
+
     field: Optional[str] = None
     message: str
     code: Optional[str] = None
@@ -512,6 +569,7 @@ class ErrorDetail(BaseModel):
 
 class ErrorResponse(BaseModel):
     """Error response schema."""
+
     success: bool = False
     error: str
     message: str
@@ -524,14 +582,17 @@ class ErrorResponse(BaseModel):
 # BULK OPERATION SCHEMAS
 # =============================================================================
 
+
 class BulkFlashcardCreate(BaseModel):
     """Bulk flashcard creation schema."""
+
     quiz_id: int
     flashcards: List[Dict[str, Any]] = Field(..., min_items=1, max_items=100)
 
 
 class BulkOperationResult(BaseModel):
     """Bulk operation result schema."""
+
     total: int
     successful: int
     failed: int
@@ -540,6 +601,7 @@ class BulkOperationResult(BaseModel):
 
 class BulkOperationResponse(BaseResponse):
     """Bulk operation response."""
+
     data: BulkOperationResult
 
 
@@ -547,8 +609,10 @@ class BulkOperationResponse(BaseResponse):
 # ADVANCED FEATURE SCHEMAS
 # =============================================================================
 
+
 class ProgressData(BaseModel):
     """User progress data schema."""
+
     date: str
     learn_sessions: int
     test_sessions: int
@@ -558,11 +622,13 @@ class ProgressData(BaseModel):
 
 class UserProgressResponse(BaseResponse):
     """User progress response."""
+
     data: Dict[str, Any]
 
 
 class LeaderboardEntry(BaseModel):
     """Leaderboard entry schema."""
+
     user_id: int
     username: str
     score: float
@@ -572,11 +638,13 @@ class LeaderboardEntry(BaseModel):
 
 class LeaderboardResponse(BaseResponse):
     """Leaderboard response."""
+
     data: List[LeaderboardEntry]
 
 
 class QuizPerformanceStats(BaseModel):
     """Quiz performance statistics."""
+
     quiz_id: int
     quiz_name: str
     total_attempts: int
@@ -589,11 +657,13 @@ class QuizPerformanceStats(BaseModel):
 
 class PerformanceStatsResponse(BaseResponse):
     """Performance statistics response."""
+
     data: QuizPerformanceStats
 
 
 class StudyStreakData(BaseModel):
     """Study streak information."""
+
     current_streak: int
     longest_streak: int
     streak_start_date: Optional[datetime]
@@ -602,11 +672,13 @@ class StudyStreakData(BaseModel):
 
 class StudyStreakResponse(BaseResponse):
     """Study streak response."""
+
     data: StudyStreakData
 
 
 class DashboardSummary(BaseModel):
     """Dashboard summary data."""
+
     total_quizzes: int
     total_flashcards: int
     total_users: int
@@ -619,6 +691,7 @@ class DashboardSummary(BaseModel):
 
 class DashboardResponse(BaseResponse):
     """Dashboard summary response."""
+
     data: DashboardSummary
 
 
@@ -626,8 +699,10 @@ class DashboardResponse(BaseResponse):
 # NOTIFICATION SCHEMAS
 # =============================================================================
 
+
 class NotificationCreate(BaseModel):
     """Notification creation schema."""
+
     user_id: int
     title: str = Field(..., max_length=200)
     message: str = Field(..., max_length=1000)
@@ -637,6 +712,7 @@ class NotificationCreate(BaseModel):
 
 class Notification(BaseModel):
     """Notification schema."""
+
     id: int
     user_id: int
     title: str
@@ -649,11 +725,13 @@ class Notification(BaseModel):
 
 class NotificationResponse(BaseResponse):
     """Single notification response."""
+
     data: Notification
 
 
 class NotificationsResponse(BaseResponse):
     """Multiple notifications response."""
+
     data: List[Notification]
 
 
@@ -661,8 +739,10 @@ class NotificationsResponse(BaseResponse):
 # ADVANCED QUIZ SCHEMAS
 # =============================================================================
 
+
 class QuizTemplate(BaseModel):
     """Quiz template schema."""
+
     name: str
     description: str
     category: str
@@ -673,11 +753,13 @@ class QuizTemplate(BaseModel):
 
 class QuizTemplateResponse(BaseResponse):
     """Quiz template response."""
+
     data: QuizTemplate
 
 
 class QuizAnalytics(BaseModel):
     """Comprehensive quiz analytics."""
+
     quiz_id: int
     total_attempts: int
     unique_users: int
@@ -690,6 +772,7 @@ class QuizAnalytics(BaseModel):
 
 class QuizAnalyticsResponse(BaseResponse):
     """Quiz analytics response."""
+
     data: QuizAnalytics
 
 
@@ -697,8 +780,10 @@ class QuizAnalyticsResponse(BaseResponse):
 # ADVANCED FLASHCARD SCHEMAS
 # =============================================================================
 
+
 class FlashcardReviewData(BaseModel):
     """Flashcard review data for spaced repetition."""
+
     flashcard_id: int
     user_id: int
     easiness_factor: float = Field(default=2.5, ge=1.3)
@@ -710,12 +795,14 @@ class FlashcardReviewData(BaseModel):
 
 class SpacedRepetitionUpdate(BaseModel):
     """Update for spaced repetition algorithm."""
+
     flashcard_id: int
     quality_response: int = Field(ge=0, le=5)  # 0=complete blackout, 5=perfect response
 
 
 class FlashcardDifficulty(BaseModel):
     """Flashcard difficulty analysis."""
+
     flashcard_id: int
     success_rate: float
     average_response_time: Optional[float]
@@ -727,8 +814,10 @@ class FlashcardDifficulty(BaseModel):
 # ACHIEVEMENT & GAMIFICATION SCHEMAS
 # =============================================================================
 
+
 class Achievement(BaseModel):
     """Achievement schema."""
+
     id: int
     name: str
     description: str
@@ -742,6 +831,7 @@ class Achievement(BaseModel):
 
 class UserAchievement(BaseModel):
     """User achievement schema."""
+
     id: int
     user_id: int
     achievement_id: int
@@ -751,6 +841,7 @@ class UserAchievement(BaseModel):
 
 class AchievementProgress(BaseModel):
     """Achievement progress schema."""
+
     achievement: Achievement
     current_progress: int
     required_progress: int
@@ -760,6 +851,7 @@ class AchievementProgress(BaseModel):
 
 class UserLevel(BaseModel):
     """User level and experience schema."""
+
     user_id: int
     level: int
     experience_points: int
@@ -769,6 +861,7 @@ class UserLevel(BaseModel):
 
 class GamificationData(BaseModel):
     """Complete gamification data for user."""
+
     level: UserLevel
     achievements: List[UserAchievement]
     progress: List[AchievementProgress]
@@ -778,6 +871,7 @@ class GamificationData(BaseModel):
 
 class GamificationResponse(BaseResponse):
     """Gamification data response."""
+
     data: GamificationData
 
 
@@ -785,8 +879,10 @@ class GamificationResponse(BaseResponse):
 # COLLABORATION SCHEMAS
 # =============================================================================
 
+
 class QuizShare(BaseModel):
     """Quiz sharing schema."""
+
     quiz_id: int
     shared_by_user_id: int
     shared_with_user_id: Optional[int] = None  # None for public share
@@ -796,6 +892,7 @@ class QuizShare(BaseModel):
 
 class QuizCollaborator(BaseModel):
     """Quiz collaborator schema."""
+
     user_id: int
     username: str
     permission_level: str
@@ -804,6 +901,7 @@ class QuizCollaborator(BaseModel):
 
 class CollaborativeQuiz(BaseModel):
     """Collaborative quiz schema."""
+
     quiz: Quiz
     owner: User
     collaborators: List[QuizCollaborator]
@@ -815,8 +913,10 @@ class CollaborativeQuiz(BaseModel):
 # IMPORT/EXPORT ADVANCED SCHEMAS
 # =============================================================================
 
+
 class ImportOptions(BaseModel):
     """Import options schema."""
+
     merge_duplicates: bool = False
     update_existing: bool = False
     preserve_ids: bool = False
@@ -825,6 +925,7 @@ class ImportOptions(BaseModel):
 
 class ImportResult(BaseModel):
     """Import operation result."""
+
     success: bool
     imported_quizzes: int
     imported_flashcards: int
@@ -835,6 +936,7 @@ class ImportResult(BaseModel):
 
 class ExportOptions(BaseModel):
     """Export options schema."""
+
     include_statistics: bool = False
     include_user_data: bool = False
     format_version: str = "2.0"
@@ -843,6 +945,7 @@ class ExportOptions(BaseModel):
 
 class BatchImportData(BaseModel):
     """Batch import data schema."""
+
     quizzes: List[QuizImportData]
     options: ImportOptions = ImportOptions()
 
@@ -851,8 +954,10 @@ class BatchImportData(BaseModel):
 # API VERSIONING SCHEMAS
 # =============================================================================
 
+
 class ApiVersion(BaseModel):
     """API version information."""
+
     version: str
     release_date: str
     status: str  # stable, beta, deprecated
@@ -862,11 +967,13 @@ class ApiVersion(BaseModel):
 
 class ApiVersionResponse(BaseResponse):
     """API version response."""
+
     data: ApiVersion
 
 
 class VersionCompatibility(BaseModel):
     """Version compatibility check."""
+
     client_version: str
     server_version: str
     compatible: bool
@@ -878,8 +985,10 @@ class VersionCompatibility(BaseModel):
 # WEBHOOK SCHEMAS
 # =============================================================================
 
+
 class WebhookEvent(BaseModel):
     """Webhook event schema."""
+
     id: str
     event_type: str  # quiz.created, test.completed, user.registered, etc.
     timestamp: datetime
@@ -889,6 +998,7 @@ class WebhookEvent(BaseModel):
 
 class WebhookEndpoint(BaseModel):
     """Webhook endpoint schema."""
+
     id: int
     url: str
     events: List[str]
@@ -899,6 +1009,7 @@ class WebhookEndpoint(BaseModel):
 
 class WebhookDelivery(BaseModel):
     """Webhook delivery attempt."""
+
     id: int
     endpoint_id: int
     event_id: str

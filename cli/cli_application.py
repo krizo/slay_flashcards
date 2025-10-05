@@ -1,15 +1,16 @@
 import typer
 from sqlalchemy.orm import Session
 
-from core.db import database
+from cli.progress_reporter import ProgressReporter
+from core.db.database import SessionLocal, engine, Base, reset_database
 from core.learning.presenters.flashcard_presenter import CLIFlashcardPresenter
 from core.learning.presenters.quiz_presenter import CLITestPresenter
+from core.learning.sessions.answer_evaluator import TypedAnswerEvaluator
 from core.learning.sessions.learning_session import LearningSessionConfig, LearningSession
 from core.learning.sessions.quiz_session import TestSessionConfig, TestSession
 from core.services.audio_service import GTTSAudioService, SilentAudioService
 from core.services.quiz_service import QuizService
 from core.services.user_service import UserService
-from cli.progress_reporter import ProgressReporter
 
 
 class CLIApplication:
@@ -31,7 +32,7 @@ class CLIApplication:
     @staticmethod
     def _get_db() -> Session:
         """Get database session."""
-        return database.SessionLocal()
+        return SessionLocal()
 
     def import_quiz(self, file: str):
         """Import a quiz from a JSON file into the database."""
@@ -67,7 +68,7 @@ class CLIApplication:
         finally:
             db.close()
 
-    def learn(
+    def learn(  # pylint: disable=too-many-positional-arguments,too-many-locals
             self,
             quiz_id: int,
             user: str = typer.Option("default", help="Username for tracking progress"),
@@ -121,18 +122,18 @@ class CLIApplication:
 
             # Show results
             if result.value == "completed":
-                typer.echo(f"\n🎉 Learning session completed!")
+                typer.echo("\n🎉 Learning session completed!")
             elif result.value == "quit_early":
-                typer.echo(f"\n📚 Learning session ended early.")
+                typer.echo("\n📚 Learning session ended early.")
             elif result.value == "interrupted":
-                typer.echo(f"\n\nℹ️  Learning session interrupted.")
+                typer.echo("\n\nℹ️  Learning session interrupted.")
 
             typer.echo(f"📊 Reviewed {learning_session.cards_reviewed} cards")
 
         finally:
             db.close()
 
-    def test(
+    def test(  # pylint: disable=too-many-positional-arguments,too-many-locals
             self,
             quiz_id: int,
             user: str = typer.Option("default", help="Username for tracking progress"),
@@ -198,15 +199,15 @@ class CLIApplication:
 
             # Show results based on completion
             if result.value == "completed":
-                typer.echo(f"\n🎯 Test completed!")
+                typer.echo("\n🎯 Test completed!")
             elif result.value == "quit_early":
-                typer.echo(f"\n📊 Test ended early.")
+                typer.echo("\n📊 Test ended early.")
             elif result.value == "interrupted":
-                typer.echo(f"\n\nℹ️  Test interrupted.")
+                typer.echo("\n\nℹ️  Test interrupted.")
 
             # Show detailed results
             detailed_results = test_session.get_detailed_results()
-            presenter.show_final_results(detailed_results)
+            CLITestPresenter.show_final_results(detailed_results)  # pylint: disable=no-member
 
         except ValueError as e:
             typer.echo(f"❌ Error: {e}")
@@ -241,7 +242,6 @@ class CLIApplication:
         """Reset the database (WARNING: This will delete all data!)."""
         confirm = typer.confirm("Are you sure you want to reset the database? This will delete all data!")
         if confirm:
-            from core.db import reset_database
             reset_database()
             typer.echo("🗑️  Database reset completed!")
         else:
@@ -250,14 +250,13 @@ class CLIApplication:
     def run(self):
         """Run the CLI application."""
         # Create tables if they don't exist
-        database.Base.metadata.create_all(bind=database.engine)
+        Base.metadata.create_all(bind=engine)
         self.app()
 
 
 # Helper command for testing specific features
-def test_answer_evaluation():
+def test_answer_evaluation():  # pylint: disable=redefined-outer-name,reimported,import-outside-toplevel
     """Test the answer evaluation system with sample data."""
-    from core.learning.sessions.quiz_session import TestSessionConfig, TypedAnswerEvaluator
 
     config = TestSessionConfig(
         strict_matching=False,

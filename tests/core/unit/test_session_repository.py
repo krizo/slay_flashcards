@@ -8,7 +8,6 @@ Tests all session-related database operations including:
 - Recent sessions queries
 - Best score tracking
 """
-import pytest
 from datetime import datetime, timedelta
 
 from core.db.crud.repository.user_repository import UserRepository
@@ -302,7 +301,7 @@ def test_get_sessions_by_date_range(test_db):
     user = user_repo.create_user(name="user", email="user@example.com")
     quiz = quiz_repo.create_quiz(name="Quiz")
 
-    session = session_repo.create_session(user.id, quiz.id, "learn")
+    session_repo.create_session(user.id, quiz.id, "learn")
     today = datetime.now()
 
     # Use date range method

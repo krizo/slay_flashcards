@@ -1,5 +1,5 @@
-from typing import List, Dict, Any
 from enum import Enum
+from typing import Any, Dict, List
 
 from core.db import models
 from core.learning.presenters.quiz_presenter import TypedPresenterInterface
@@ -9,6 +9,7 @@ from core.services.audio_service import AudioServiceInterface
 
 class TestResult(Enum):
     """Results of a test session."""
+
     COMPLETED = "completed"
     INTERRUPTED = "interrupted"
     QUIT_EARLY = "quit_early"
@@ -16,6 +17,7 @@ class TestResult(Enum):
 
 class AnswerEvaluation(Enum):
     """Answer evaluation results."""
+
     CORRECT = "correct"
     INCORRECT = "incorrect"
     PARTIAL = "partial"
@@ -35,16 +37,16 @@ class CardResult:
 class TestSessionConfig:
     """Configuration for test sessions."""
 
-    def __init__(
-            self,
-            audio_enabled: bool = True,
-            question_lang: str = "en",
-            answer_lang: str = "fr",
-            strict_matching: bool = False,
-            case_sensitive: bool = False,
-            similarity_threshold: float = 0.8,
-            allow_partial_credit: bool = True,
-            override_card_languages: bool = True
+    def __init__(  # pylint: disable=too-many-positional-arguments
+        self,
+        audio_enabled: bool = True,
+        question_lang: str = "en",
+        answer_lang: str = "fr",
+        strict_matching: bool = False,
+        case_sensitive: bool = False,
+        similarity_threshold: float = 0.8,
+        allow_partial_credit: bool = True,
+        override_card_languages: bool = True,
     ):
         self.audio_enabled = audio_enabled
         self.question_lang = question_lang
@@ -60,11 +62,11 @@ class TestSession:
     """Manages a flashcard test session."""
 
     def __init__(
-            self,
-            flashcards: List[models.Flashcard],
-            presenter: TypedPresenterInterface,
-            audio_service: AudioServiceInterface,
-            config: TestSessionConfig
+        self,
+        flashcards: List[models.Flashcard],
+        presenter: TypedPresenterInterface,
+        audio_service: AudioServiceInterface,
+        config: TestSessionConfig,
     ):
         self.flashcards = flashcards
         self.presenter = presenter
@@ -100,7 +102,7 @@ class TestSession:
             user_answer = self.presenter.get_user_answer()
 
             # Handle early quit
-            if user_answer.lower() in ['quit', 'exit', 'q']:
+            if user_answer.lower() in ["quit", "exit", "q"]:
                 return TestResult.QUIT_EARLY
 
             # Evaluate answer
@@ -133,14 +135,7 @@ class TestSession:
     def get_detailed_results(self) -> Dict[str, Any]:
         """Get detailed test results."""
         if not self.results:
-            return {
-                "total_questions": 0,
-                "correct": 0,
-                "partial": 0,
-                "incorrect": 0,
-                "final_score": 0,
-                "breakdown": []
-            }
+            return {"total_questions": 0, "correct": 0, "partial": 0, "incorrect": 0, "final_score": 0, "breakdown": []}
 
         correct = len([r for r in self.results if r.evaluation == AnswerEvaluation.CORRECT])
         partial = len([r for r in self.results if r.evaluation == AnswerEvaluation.PARTIAL])
@@ -148,13 +143,15 @@ class TestSession:
 
         breakdown = []
         for result in self.results:
-            breakdown.append({
-                "question": result.card.question_title,
-                "user_answer": result.user_answer,
-                "correct_answer": result.correct_answer,
-                "evaluation": result.evaluation.value,
-                "score": result.score
-            })
+            breakdown.append(
+                {
+                    "question": result.card.question_title,
+                    "user_answer": result.user_answer,
+                    "correct_answer": result.correct_answer,
+                    "evaluation": result.evaluation.value,
+                    "score": result.score,
+                }
+            )
 
         return {
             "total_questions": len(self.results),
@@ -162,19 +159,17 @@ class TestSession:
             "partial": partial,
             "incorrect": incorrect,
             "final_score": self.get_final_score(),
-            "breakdown": breakdown
+            "breakdown": breakdown,
         }
 
     def _get_question_language(self, card: models.Flashcard) -> str:
         """Get the language to use for question audio."""
         if self.config.override_card_languages:
             return self.config.question_lang
-        else:
-            return card.question_lang or self.config.question_lang
+        return card.question_lang or self.config.question_lang
 
     def _get_answer_language(self, card: models.Flashcard) -> str:
         """Get the language to use for answer audio."""
         if self.config.override_card_languages:
             return self.config.answer_lang
-        else:
-            return card.answer_lang or self.config.answer_lang
+        return card.answer_lang or self.config.answer_lang
