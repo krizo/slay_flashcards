@@ -1,4 +1,5 @@
 from typing import Protocol
+
 from core.db import models
 
 
@@ -7,19 +8,15 @@ class FlashcardPresenterInterface(Protocol):
 
     def show_question(self, card: models.Flashcard, card_num: int, total_cards: int) -> None:
         """Display the question part of a flashcard."""
-        pass
 
     def show_answer(self, card: models.Flashcard) -> None:
         """Display the answer part of a flashcard."""
-        pass
 
     def wait_for_reveal(self) -> None:
         """Wait for user input to reveal answer."""
-        pass
 
     def get_continue_choice(self) -> str:
         """Get user choice to continue, quit, or repeat."""
-        pass
 
 
 class CLIFlashcardPresenter:
@@ -52,6 +49,6 @@ class CLIFlashcardPresenter:
         """Get user choice via CLI prompt."""
         try:
             choice = input("\n🔄 Continue? ([y]es/[n]o/[r]epeat): ").lower()
-            return choice if choice in ['y', 'n', 'r', 'yes', 'no', 'repeat'] else 'y'
+            return choice if choice in ["y", "n", "r", "yes", "no", "repeat"] else "y"
         except (EOFError, KeyboardInterrupt):
-            return 'n'
+            return "n"

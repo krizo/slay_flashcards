@@ -3,13 +3,15 @@ Quiz importer module for loading quizzes from JSON files.
 
 Provides utilities to import quiz definitions into the database.
 """
+
 import json
-from sqlalchemy.orm import Session
 from datetime import datetime
 
+from sqlalchemy.orm import Session  # pylint: disable=import-error
+
 from core.db import models
-from core.db.crud.repository.quiz_repository import QuizRepository
 from core.db.crud.repository.flashcard_repository import FlashcardRepository
+from core.db.crud.repository.quiz_repository import QuizRepository
 
 
 def import_quiz_from_file(db: Session, file_path: str) -> models.Quiz:
@@ -48,9 +50,7 @@ def import_quiz_from_dict(db: Session, data: dict) -> models.Quiz:
         name=quiz_meta["name"],
         subject=quiz_meta.get("subject"),
         description=quiz_meta.get("description"),
-        created_at=datetime.fromisoformat(quiz_meta["created_at"])
-        if quiz_meta.get("created_at")
-        else None,
+        created_at=datetime.fromisoformat(quiz_meta["created_at"]) if quiz_meta.get("created_at") else None,
     )
 
     flashcard_repo.bulk_create_flashcards(quiz.id, data.get("flashcards", []))

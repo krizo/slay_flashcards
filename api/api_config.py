@@ -1,13 +1,24 @@
 """
 API Configuration settings
 """
+
 import os
-from typing import List
-from pydantic_settings import BaseSettings
+from typing import List, Union
+
+from pydantic import field_validator  # pylint: disable=import-error
+from pydantic_settings import BaseSettings, SettingsConfigDict  # pylint: disable=import-error
 
 
 class Settings(BaseSettings):
     """Application settings from environment variables."""
+
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        case_sensitive=False,
+        env_prefix="SLAY_",
+        extra="ignore"
+    )
 
     # API Settings
     api_title: str = "SlayFlashcards API"
@@ -36,7 +47,7 @@ class Settings(BaseSettings):
         "http://localhost:3000",
         "http://localhost:5173",
         "http://127.0.0.1:3000",
-        "http://127.0.0.1:5173"
+        "http://127.0.0.1:5173",
     ]
     cors_allow_credentials: bool = True
     cors_allow_methods: List[str] = ["*"]
@@ -67,19 +78,16 @@ class Settings(BaseSettings):
     environment: str = "development"
     timezone: str = "UTC"
 
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
-        case_sensitive = False
-
-        # Allow environment variable overrides
-        env_prefix = "SLAY_"
-
-        @classmethod
-        def parse_env_var(cls, field_name: str, raw_val: str) -> any:
-            if field_name == 'cors_origins':
-                return [x.strip() for x in raw_val.split(',')]
-            return cls.json_loads(raw_val)
+    @field_validator(
+        'cors_origins', 'cors_allow_methods', 'cors_allow_headers',
+        'allowed_file_extensions', mode='before'
+    )
+    @classmethod
+    def parse_list_fields(cls, value: Union[str, List[str]]) -> List[str]:
+        """Parse list fields from comma-separated string or list."""
+        if isinstance(value, str):
+            return [x.strip() for x in value.split(",")]
+        return value
 
 
 # Create settings instance

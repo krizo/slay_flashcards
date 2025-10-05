@@ -1,24 +1,28 @@
 """
 Session API routes
 """
-from typing import Optional
 import datetime
-from fastapi import APIRouter, Depends, HTTPException, status, Query
-from sqlalchemy.orm import Session as DBSession
+from collections import defaultdict
+from typing import Optional
 
-from api.dependencies.auth import get_current_user
-from core.db.database import get_db
-from core.services.user_service import UserService
-from core.services.quiz_service import QuizService
-from core.learning.sessions.answer_evaluator import TypedAnswerEvaluator, AnswerEvaluation
-from core.learning.sessions.quiz_session import TestSessionConfig
+from fastapi import APIRouter, Depends, HTTPException, status, Query  # pylint: disable=import-error
+from sqlalchemy.orm import Session as DBSession  # pylint: disable=import-error
+
 from api.api_schemas import (
     Session, SessionCreate, SessionUpdate, SessionResponse, SessionsResponse,
     SessionStats, SessionStatsResponse, PaginationParams, SessionFilters,
     TestSubmission, TestResults, TestResultsResponse, CardResult,
     LearningSessionUpdate, SessionMode, AnswerEvaluation as ApiAnswerEvaluation
 )
+from api.dependencies.auth import get_current_user
 from api.utils.responses import create_response
+from core.db.crud.repository.session_repository import SessionRepository
+from core.db.crud.repository.user_repository import UserRepository
+from core.db.database import get_db
+from core.learning.sessions.answer_evaluator import TypedAnswerEvaluator, AnswerEvaluation
+from core.learning.sessions.quiz_session import TestSessionConfig
+from core.services.quiz_service import QuizService
+from core.services.user_service import UserService
 
 router = APIRouter()
 
@@ -31,7 +35,6 @@ async def get_sessions(
 ):
     """Get sessions with optional filtering and pagination."""
     try:
-        from core.db.crud.repository.session_repository import SessionRepository
         session_repo = SessionRepository(db)
 
         # Get sessions based on filters
@@ -94,11 +97,11 @@ async def get_sessions(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to retrieve sessions: {str(e)}"
-        )
+        ) from e
 
 
 @router.get("/statistics", response_model=SessionStatsResponse)
-async def get_session_statistics(
+async def get_session_statistics(  # pylint: disable=too-many-locals
     user_id: Optional[int] = Query(None, description="Filter by user ID"),
     quiz_id: Optional[int] = Query(None, description="Filter by quiz ID"),
     days: int = Query(30, ge=1, le=365, description="Number of days to analyze"),
@@ -106,7 +109,6 @@ async def get_session_statistics(
 ):
     """Get session statistics."""
     try:
-        from core.db.crud.repository.session_repository import SessionRepository
         session_repo = SessionRepository(db)
 
         # Get sessions based on filters
@@ -164,7 +166,7 @@ async def get_session_statistics(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to calculate session statistics: {str(e)}"
-        )
+        ) from e
 
 
 @router.get("/{session_id}", response_model=SessionResponse)
@@ -174,7 +176,6 @@ async def get_session(
 ):
     """Get a specific session by ID."""
     try:
-        from core.db.crud.repository.session_repository import SessionRepository
         session_repo = SessionRepository(db)
         session = session_repo.get_by_id(session_id)
 
@@ -205,14 +206,14 @@ async def get_session(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to retrieve session: {str(e)}"
-        )
+        ) from e
 
 
 @router.post("/", response_model=SessionResponse, status_code=status.HTTP_201_CREATED)
 async def create_session(
     session_data: SessionCreate,
     db: DBSession = Depends(get_db),
-    current_user = Depends(get_current_user)
+    current_user = Depends(get_current_user)  # pylint: disable=unused-argument
 ):
     """Create a new learning or test session."""
     try:
@@ -222,7 +223,6 @@ async def create_session(
 
         user = user_service.get_user_by_name(current_user) if isinstance(current_user, str) else None
         if not user:
-            from core.db.crud.repository.user_repository import UserRepository
             user_repo = UserRepository(db)
             user = user_repo.get_by_id(session_data.user_id)
 
@@ -269,7 +269,7 @@ async def create_session(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to create session: {str(e)}"
-        )
+        ) from e
 
 
 @router.put("/{session_id}", response_model=SessionResponse)
@@ -280,7 +280,6 @@ async def update_session(
 ):
     """Update an existing session."""
     try:
-        from core.db.crud.repository.session_repository import SessionRepository
         session_repo = SessionRepository(db)
 
         session = session_repo.get_by_id(session_id)
@@ -315,7 +314,7 @@ async def update_session(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to update session: {str(e)}"
-        )
+        ) from e
 
 
 @router.delete("/{session_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -325,7 +324,6 @@ async def delete_session(
 ):
     """Delete a session."""
     try:
-        from core.db.crud.repository.session_repository import SessionRepository
         session_repo = SessionRepository(db)
 
         session = session_repo.get_by_id(session_id)
@@ -344,18 +342,17 @@ async def delete_session(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to delete session: {str(e)}"
-        )
+        ) from e
 
 
 @router.post("/test/submit", response_model=TestResultsResponse)
-async def submit_test(
+async def submit_test(  # pylint: disable=too-many-locals
     test_data: TestSubmission,
     db: DBSession = Depends(get_db),
 ):
     """Submit test answers and get results."""
     try:
         # Get session
-        from core.db.crud.repository.session_repository import SessionRepository
         session_repo = SessionRepository(db)
         session = session_repo.get_by_id(test_data.session_id)
 
@@ -457,7 +454,7 @@ async def submit_test(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to submit test: {str(e)}"
-        )
+        ) from e
 
 
 @router.put("/learning/{session_id}/progress", response_model=SessionResponse)
@@ -468,7 +465,6 @@ async def update_learning_progress(
 ):
     """Update progress for a learning session."""
     try:
-        from core.db.crud.repository.session_repository import SessionRepository
         session_repo = SessionRepository(db)
 
         session = session_repo.get_by_id(session_id)
@@ -486,7 +482,7 @@ async def update_learning_progress(
 
         # Store progress data (you might want to create a separate table for this)
         # For now, we'll just mark the session as completed
-        total_time = sum(p.time_spent for p in progress_data.progress if p.time_spent)
+        # total_time = sum(p.time_spent for p in progress_data.progress if p.time_spent)  # Unused
         completed_count = len([p for p in progress_data.progress if p.reviewed])
 
         # You could store more detailed progress data here
@@ -513,7 +509,7 @@ async def update_learning_progress(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to update learning progress: {str(e)}"
-        )
+        ) from e
 
 
 
@@ -527,7 +523,6 @@ async def get_user_recent_sessions(
     """Get recent sessions for a user."""
     try:
         # Verify user exists
-        from core.db.crud.repository.user_repository import UserRepository
         user_repo = UserRepository(db)
         user = user_repo.get_by_id(user_id)
 
@@ -538,7 +533,6 @@ async def get_user_recent_sessions(
             )
 
         # Get recent sessions
-        from core.db.crud.repository.session_repository import SessionRepository
         session_repo = SessionRepository(db)
 
         if mode:
@@ -574,11 +568,11 @@ async def get_user_recent_sessions(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to retrieve recent sessions: {str(e)}"
-        )
+        ) from e
 
 
 @router.get("/quiz/{quiz_id}/performance", response_model=dict)
-async def get_quiz_performance_stats(
+async def get_quiz_performance_stats(  # pylint: disable=too-many-locals,too-many-branches
     quiz_id: int,
     days: int = Query(30, ge=1, le=365, description="Number of days to analyze"),
     db: DBSession = Depends(get_db),
@@ -596,7 +590,6 @@ async def get_quiz_performance_stats(
             )
 
         # Get quiz sessions
-        from core.db.crud.repository.session_repository import SessionRepository
         session_repo = SessionRepository(db)
 
         since_date = datetime.datetime.now() - datetime.timedelta(days=days)
@@ -649,7 +642,6 @@ async def get_quiz_performance_stats(
             performance_data["scores"]["distribution"] = score_ranges
 
         # Activity trend (daily activity over the period)
-        from collections import defaultdict
         daily_activity = defaultdict(lambda: {"sessions": 0, "average_score": None, "scores": []})
 
         for session in recent_sessions:
@@ -679,4 +671,4 @@ async def get_quiz_performance_stats(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to retrieve quiz performance stats: {str(e)}"
-        )
+        ) from e

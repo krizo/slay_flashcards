@@ -1,18 +1,22 @@
 """
 User API routes
 """
+from datetime import datetime, timedelta
 from typing import Optional
-from fastapi import APIRouter, Depends, HTTPException, status, Query
-from sqlalchemy.orm import Session
 
-from api.dependencies.auth import get_current_user
-from core.db.database import get_db
-from core.services.user_service import UserService
+from fastapi import APIRouter, Depends, HTTPException, status, Query  # pylint: disable=import-error
+from sqlalchemy.orm import Session  # pylint: disable=import-error
+
 from api.api_schemas import (
     User, UserCreate, UserUpdate, UserResponse, UsersResponse,
     UserStats, UserStatsResponse, PaginationParams
 )
+from api.dependencies.auth import get_current_user
 from api.utils.responses import create_response
+from core.db.crud.repository.session_repository import SessionRepository
+from core.db.crud.repository.user_repository import UserRepository
+from core.db.database import get_db
+from core.services.user_service import UserService
 
 router = APIRouter()
 
@@ -23,7 +27,7 @@ async def get_users(
     pagination: PaginationParams = Depends(),
     name_contains: Optional[str] = Query(None, description="Filter users by name pattern"),
     has_sessions: Optional[bool] = Query(None, description="Filter users who have sessions"),
-    current_user = Depends(get_current_user)
+    current_user = Depends(get_current_user)  # pylint: disable=unused-argument
 ):
     """Get all users with optional filtering and pagination."""
     try:
@@ -31,12 +35,10 @@ async def get_users(
 
         if has_sessions is True:
             # Get users who have at least one session
-            from core.db.crud.repository.user_repository import UserRepository
             user_repo = UserRepository(db)
             users = user_repo.get_users_with_sessions()
         elif name_contains:
             # Search users by name pattern
-            from core.db.crud.repository.user_repository import UserRepository
             user_repo = UserRepository(db)
             users = user_repo.search_by_name_pattern(name_contains)
         else:
@@ -67,18 +69,17 @@ async def get_users(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to retrieve users: {str(e)}"
-        )
+        ) from e
 
 
 @router.get("/{user_id}", response_model=UserResponse)
 async def get_user(
     user_id: int,
     db: Session = Depends(get_db),
-    current_user = Depends(get_current_user)
+    current_user = Depends(get_current_user)  # pylint: disable=unused-argument
 ):
     """Get a specific user by ID."""
     try:
-        from core.db.crud.repository.user_repository import UserRepository
         user_repo = UserRepository(db)
         user = user_repo.get_by_id(user_id)
 
@@ -105,14 +106,14 @@ async def get_user(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to retrieve user: {str(e)}"
-        )
+        ) from e
 
 
 @router.get("/name/{username}", response_model=UserResponse)
 async def get_user_by_name(
     username: str,
     db: Session = Depends(get_db),
-    current_user = Depends(get_current_user)
+    current_user = Depends(get_current_user)  # pylint: disable=unused-argument
 ):
     """Get a user by username."""
     try:
@@ -142,14 +143,14 @@ async def get_user_by_name(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to retrieve user: {str(e)}"
-        )
+        ) from e
 
 
 @router.post("/", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 async def create_user(
     user_data: UserCreate,
     db: Session = Depends(get_db),
-    current_user = Depends(get_current_user)
+    current_user = Depends(get_current_user)  # pylint: disable=unused-argument
 ):
     """Create a new user."""
     try:
@@ -183,7 +184,7 @@ async def create_user(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to create user: {str(e)}"
-        )
+        ) from e
 
 
 @router.put("/{user_id}", response_model=UserResponse)
@@ -191,11 +192,10 @@ async def update_user(
     user_id: int,
     user_data: UserUpdate,
     db: Session = Depends(get_db),
-    current_user = Depends(get_current_user)
+    current_user = Depends(get_current_user)  # pylint: disable=unused-argument
 ):
     """Update an existing user."""
     try:
-        from core.db.crud.repository.user_repository import UserRepository
         user_repo = UserRepository(db)
 
         # Get existing user
@@ -236,7 +236,7 @@ async def update_user(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to update user: {str(e)}"
-        )
+        ) from e
 
 
 @router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -244,11 +244,10 @@ async def delete_user(
     user_id: int,
     delete_sessions: bool = Query(False, description="Also delete all user sessions"),
     db: Session = Depends(get_db),
-    current_user = Depends(get_current_user)
+    current_user = Depends(get_current_user)  # pylint: disable=unused-argument
 ):
     """Delete a user and optionally their sessions."""
     try:
-        from core.db.crud.repository.user_repository import UserRepository
         user_repo = UserRepository(db)
 
         user = user_repo.get_by_id(user_id)
@@ -278,19 +277,18 @@ async def delete_user(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to delete user: {str(e)}"
-        )
+        ) from e
 
 
 @router.get("/{user_id}/statistics", response_model=UserStatsResponse)
 async def get_user_statistics(
     user_id: int,
     db: Session = Depends(get_db),
-    current_user = Depends(get_current_user)
+    current_user = Depends(get_current_user)  # pylint: disable=unused-argument
 ):
     """Get comprehensive statistics for a user."""
     try:
         # Verify user exists
-        from core.db.crud.repository.user_repository import UserRepository
         user_repo = UserRepository(db)
         user = user_repo.get_by_id(user_id)
 
@@ -301,7 +299,6 @@ async def get_user_statistics(
             )
 
         # Get statistics using repository method
-        from core.db.crud.repository.session_repository import SessionRepository
         session_repo = SessionRepository(db)
         stats = session_repo.get_session_statistics(user_id)
 
@@ -316,14 +313,14 @@ async def get_user_statistics(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to retrieve user statistics: {str(e)}"
-        )
+        ) from e
 
 
 @router.post("/ensure", response_model=UserResponse)
 async def ensure_user_exists(
     user_data: UserCreate,
     db: Session = Depends(get_db),
-    current_user = Depends(get_current_user)
+    current_user = Depends(get_current_user)  # pylint: disable=unused-argument
 ):
     """Get user if exists, create if not."""
     try:
@@ -345,7 +342,7 @@ async def ensure_user_exists(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to ensure user exists: {str(e)}"
-        )
+        ) from e
 
 
 @router.get("/{user_id}/progress", response_model=dict)
@@ -354,12 +351,11 @@ async def get_user_progress(
     quiz_id: Optional[int] = Query(None, description="Filter by specific quiz"),
     days: Optional[int] = Query(30, ge=1, le=365, description="Number of days to analyze"),
     db: Session = Depends(get_db),
-    current_user = Depends(get_current_user)
+    current_user = Depends(get_current_user)  # pylint: disable=unused-argument
 ):
     """Get user learning progress over time."""
     try:
         # Verify user exists
-        from core.db.crud.repository.user_repository import UserRepository
         user_repo = UserRepository(db)
         user = user_repo.get_by_id(user_id)
 
@@ -370,11 +366,9 @@ async def get_user_progress(
             )
 
         # Get sessions
-        from core.db.crud.repository.session_repository import SessionRepository
         session_repo = SessionRepository(db)
 
         # Get sessions within date range
-        from datetime import datetime, timedelta
         since_date = datetime.now() - timedelta(days=days)
         sessions = session_repo.get_sessions_since_date(user_id, since_date)
 
@@ -425,22 +419,19 @@ async def get_user_progress(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to retrieve user progress: {str(e)}"
-        )
+        ) from e
 
 
 @router.get("/leaderboard", response_model=dict)
-async def get_user_leaderboard(
+async def get_user_leaderboard(  # pylint: disable=too-many-locals
     quiz_id: Optional[int] = Query(None, description="Filter by specific quiz"),
     mode: Optional[str] = Query("test", description="Filter by session mode"),
     limit: int = Query(10, ge=1, le=100, description="Number of top users"),
     db: Session = Depends(get_db),
-    current_user = Depends(get_current_user)
+    current_user = Depends(get_current_user)  # pylint: disable=unused-argument
 ):
     """Get user leaderboard based on performance."""
     try:
-        from core.db.crud.repository.user_repository import UserRepository
-        from core.db.crud.repository.session_repository import SessionRepository
-
         user_repo = UserRepository(db)
         session_repo = SessionRepository(db)
 
@@ -501,7 +492,7 @@ async def get_user_leaderboard(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to retrieve leaderboard: {str(e)}"
-        )
+        ) from e
 
 
 @router.get("/search", response_model=UsersResponse)
@@ -509,11 +500,10 @@ async def search_users(
     q: str = Query(..., min_length=1, description="Search query"),
     limit: int = Query(20, ge=1, le=100, description="Maximum results"),
     db: Session = Depends(get_db),
-    current_user = Depends(get_current_user)
+    current_user = Depends(get_current_user)  # pylint: disable=unused-argument
 ):
     """Search users by name."""
     try:
-        from core.db.crud.repository.user_repository import UserRepository
         user_repo = UserRepository(db)
 
         users = user_repo.search_by_name_pattern(q)
@@ -540,4 +530,4 @@ async def search_users(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to search users: {str(e)}"
-        )
+        ) from e

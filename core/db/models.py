@@ -1,6 +1,8 @@
-from sqlalchemy import Column, Integer, String, DateTime, Text, ForeignKey, JSON, UniqueConstraint, func
-from sqlalchemy.orm import relationship
 import datetime
+
+from sqlalchemy import JSON, Column, DateTime, ForeignKey, Integer, String, Text, UniqueConstraint, \
+    func  # pylint: disable=import-error
+from sqlalchemy.orm import relationship  # pylint: disable=import-error
 
 from core.db.database import Base
 
@@ -12,15 +14,15 @@ class User(Base):
     name = Column(String(100), unique=True, nullable=False, index=True)
     email = Column(String(255), unique=True, nullable=False, index=True)
     password_hash = Column(String(255), nullable=True)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    created_at = Column(DateTime(timezone=True), server_default=func.now())  # pylint: disable=not-callable
 
     # Relationships
     sessions = relationship("Session", back_populates="user", cascade="all, delete-orphan")
 
     # Ensure both username and email are unique
     __table_args__ = (
-        UniqueConstraint('name', name='uq_user_name'),
-        UniqueConstraint('email', name='uq_user_email'),
+        UniqueConstraint("name", name="uq_user_name"),
+        UniqueConstraint("email", name="uq_user_email"),
     )
 
 
@@ -68,7 +70,7 @@ class Session(Base):
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
     quiz_id = Column(Integer, ForeignKey("quizzes.id"), nullable=False, index=True)
     mode = Column(String(20), nullable=False)  # "learn" or "test"
-    started_at = Column(DateTime(timezone=True), server_default=func.now())
+    started_at = Column(DateTime(timezone=True), server_default=func.now())  # pylint: disable=not-callable
     completed_at = Column(DateTime(timezone=True), nullable=True)
     score = Column(Integer, nullable=True)
 

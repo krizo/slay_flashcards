@@ -1,10 +1,12 @@
 """
 Security utilities for API
 """
+
 import hashlib
 import secrets
 import string
-import bcrypt
+
+import bcrypt  # pylint: disable=import-error
 
 
 def hash_password(password: str) -> str:
@@ -18,8 +20,8 @@ def hash_password(password: str) -> str:
         Hashed password
     """
     salt = bcrypt.gensalt()
-    hashed = bcrypt.hashpw(password.encode('utf-8'), salt)
-    return hashed.decode('utf-8')
+    hashed = bcrypt.hashpw(password.encode("utf-8"), salt)
+    return hashed.decode("utf-8")
 
 
 def verify_password(password: str, hashed_password: str) -> bool:
@@ -34,19 +36,13 @@ def verify_password(password: str, hashed_password: str) -> bool:
         True if password matches, False otherwise
     """
     try:
-        return bcrypt.checkpw(
-            password.encode('utf-8'),
-            hashed_password.encode('utf-8')
-        )
-    except Exception:
+        return bcrypt.checkpw(password.encode("utf-8"), hashed_password.encode("utf-8"))
+    except Exception:  # pylint: disable=broad-exception-caught
         return False
 
 
 def generate_random_string(
-    length: int = 32,
-    include_letters: bool = True,
-    include_digits: bool = True,
-    include_punctuation: bool = False
+    length: int = 32, include_letters: bool = True, include_digits: bool = True, include_punctuation: bool = False
 ) -> str:
     """
     Generate a random string.
@@ -72,7 +68,7 @@ def generate_random_string(
     if not characters:
         characters = string.ascii_letters + string.digits
 
-    return ''.join(secrets.choice(characters) for _ in range(length))
+    return "".join(secrets.choice(characters) for _ in range(length))
 
 
 def generate_api_key(length: int = 32) -> str:
@@ -114,14 +110,13 @@ def hash_string(text: str, algorithm: str = "sha256") -> str:
     """
     if algorithm == "md5":
         return hashlib.md5(text.encode()).hexdigest()
-    elif algorithm == "sha1":
+    if algorithm == "sha1":
         return hashlib.sha1(text.encode()).hexdigest()
-    elif algorithm == "sha256":
+    if algorithm == "sha256":
         return hashlib.sha256(text.encode()).hexdigest()
-    elif algorithm == "sha512":
+    if algorithm == "sha512":
         return hashlib.sha512(text.encode()).hexdigest()
-    else:
-        raise ValueError(f"Unsupported algorithm: {algorithm}")
+    raise ValueError(f"Unsupported algorithm: {algorithm}")
 
 
 def sanitize_filename(filename: str) -> str:
@@ -138,9 +133,8 @@ def sanitize_filename(filename: str) -> str:
         return "unnamed_file"
 
     # Remove directory separators and dangerous characters
-    sanitized = filename.replace('/', '').replace('\\', '')
-    sanitized = ''.join(char for char in sanitized
-                       if char.isalnum() or char in '._-')
+    sanitized = filename.replace("/", "").replace("\\", "")
+    sanitized = "".join(char for char in sanitized if char.isalnum() or char in "._-")
 
     # Ensure filename is not empty
     if not sanitized:
@@ -148,9 +142,9 @@ def sanitize_filename(filename: str) -> str:
 
     # Limit length
     if len(sanitized) > 255:
-        name, ext = sanitized.rsplit('.', 1) if '.' in sanitized else (sanitized, '')
+        name, ext = sanitized.rsplit(".", 1) if "." in sanitized else (sanitized, "")
         max_name_len = 250 - len(ext)
-        sanitized = name[:max_name_len] + ('.' + ext if ext else '')
+        sanitized = name[:max_name_len] + ("." + ext if ext else "")
 
     return sanitized
 
@@ -186,4 +180,4 @@ def generate_otp(length: int = 6) -> str:
     Returns:
         OTP string containing only digits
     """
-    return ''.join(secrets.choice(string.digits) for _ in range(length))
+    return "".join(secrets.choice(string.digits) for _ in range(length))

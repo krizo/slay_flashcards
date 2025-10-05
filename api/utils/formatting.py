@@ -1,6 +1,7 @@
 """
 Formatting utilities for API responses
 """
+
 from datetime import datetime, timezone
 from typing import Optional, Union
 
@@ -67,7 +68,7 @@ def parse_datetime(dt_string: str) -> Optional[datetime]:
         "%Y-%m-%dT%H:%M:%S.%fZ",
         "%Y-%m-%d",
         "%d/%m/%Y",
-        "%m/%d/%Y"
+        "%m/%d/%Y",
     ]
 
     for fmt in formats:
@@ -118,14 +119,13 @@ def format_duration(seconds: float) -> str:
     """
     if seconds < 60:
         return f"{seconds:.1f}s"
-    elif seconds < 3600:
+    if seconds < 3600:
         minutes = int(seconds // 60)
         remaining_seconds = int(seconds % 60)
         return f"{minutes}m {remaining_seconds}s"
-    else:
-        hours = int(seconds // 3600)
-        minutes = int((seconds % 3600) // 60)
-        return f"{hours}h {minutes}m"
+    hours = int(seconds // 3600)
+    minutes = int((seconds % 3600) // 60)
+    return f"{hours}h {minutes}m"
 
 
 def format_score(score: Union[int, float]) -> str:
@@ -154,13 +154,7 @@ def format_difficulty(difficulty: int) -> str:
     Returns:
         Descriptive difficulty text
     """
-    difficulty_map = {
-        1: "Very Easy",
-        2: "Easy",
-        3: "Medium",
-        4: "Hard",
-        5: "Very Hard"
-    }
+    difficulty_map = {1: "Very Easy", 2: "Easy", 3: "Medium", 4: "Hard", 5: "Very Hard"}
 
     return difficulty_map.get(difficulty, "Unknown")
 
@@ -180,10 +174,10 @@ def truncate_text(text: str, max_length: int = 100, suffix: str = "...") -> str:
     if not text or len(text) <= max_length:
         return text
 
-    return text[:max_length - len(suffix)] + suffix
+    return text[: max_length - len(suffix)] + suffix
 
 
-def format_relative_time(dt: datetime) -> str:
+def format_relative_time(dt: datetime) -> str:  # pylint: disable=too-many-return-statements
     """
     Format datetime as relative time (e.g., "2 hours ago").
 
@@ -205,18 +199,17 @@ def format_relative_time(dt: datetime) -> str:
 
     if seconds < 60:
         return "Just now"
-    elif seconds < 3600:
+    if seconds < 3600:
         minutes = int(seconds // 60)
         return f"{minutes} minute{'s' if minutes != 1 else ''} ago"
-    elif seconds < 86400:
+    if seconds < 86400:
         hours = int(seconds // 3600)
         return f"{hours} hour{'s' if hours != 1 else ''} ago"
-    elif seconds < 2592000:  # 30 days
+    if seconds < 2592000:  # 30 days
         days = int(seconds // 86400)
         return f"{days} day{'s' if days != 1 else ''} ago"
-    elif seconds < 31536000:  # 365 days
+    if seconds < 31536000:  # 365 days
         months = int(seconds // 2592000)
         return f"{months} month{'s' if months != 1 else ''} ago"
-    else:
-        years = int(seconds // 31536000)
-        return f"{years} year{'s' if years != 1 else ''} ago"
+    years = int(seconds // 31536000)
+    return f"{years} year{'s' if years != 1 else ''} ago"

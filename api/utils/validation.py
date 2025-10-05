@@ -1,10 +1,13 @@
 """
 Validation utilities for API
 """
-import re
+
 import html
+import re
 from typing import Optional
-from email_validator import validate_email as validate_email_lib, EmailNotValidError
+
+from email_validator import EmailNotValidError  # pylint: disable=import-error
+from email_validator import validate_email as validate_email_lib  # pylint: disable=import-error
 
 
 def validate_email(email: str) -> bool:
@@ -34,11 +37,7 @@ def validate_password(password: str) -> dict:
     Returns:
         Dictionary with validation results
     """
-    result = {
-        "valid": True,
-        "errors": [],
-        "strength": "weak"
-    }
+    result = {"valid": True, "errors": [], "strength": "weak"}
 
     # Length check
     if len(password) < 8:
@@ -46,9 +45,9 @@ def validate_password(password: str) -> dict:
         result["errors"].append("Password must be at least 8 characters long")
 
     # Character type checks
-    has_lower = bool(re.search(r'[a-z]', password))
-    has_upper = bool(re.search(r'[A-Z]', password))
-    has_digit = bool(re.search(r'\d', password))
+    has_lower = bool(re.search(r"[a-z]", password))
+    has_upper = bool(re.search(r"[A-Z]", password))
+    has_digit = bool(re.search(r"\d", password))
     has_special = bool(re.search(r'[!@#$%^&*(),.?":{}|<>]', password))
 
     strength_score = sum([has_lower, has_upper, has_digit, has_special])
@@ -84,10 +83,7 @@ def validate_username(username: str) -> dict:
     Returns:
         Dictionary with validation results
     """
-    result = {
-        "valid": True,
-        "errors": []
-    }
+    result = {"valid": True, "errors": []}
 
     # Length check
     if len(username) < 3:
@@ -98,12 +94,12 @@ def validate_username(username: str) -> dict:
         result["errors"].append("Username cannot be longer than 50 characters")
 
     # Character check (alphanumeric + underscore + hyphen)
-    if not re.match(r'^[a-zA-Z0-9_-]+$', username):
+    if not re.match(r"^[a-zA-Z0-9_-]+$", username):
         result["valid"] = False
         result["errors"].append("Username can only contain letters, numbers, underscores, and hyphens")
 
     # Cannot start/end with special characters
-    if username.startswith(('_', '-')) or username.endswith(('_', '-')):
+    if username.startswith(("_", "-")) or username.endswith(("_", "-")):
         result["valid"] = False
         result["errors"].append("Username cannot start or end with underscore or hyphen")
 
@@ -128,7 +124,7 @@ def sanitize_string(text: str, max_length: Optional[int] = None) -> str:
     sanitized = html.escape(text.strip())
 
     # Remove extra whitespace
-    sanitized = re.sub(r'\s+', ' ', sanitized)
+    sanitized = re.sub(r"\s+", " ", sanitized)
 
     # Limit length if specified
     if max_length and len(sanitized) > max_length:
@@ -151,7 +147,7 @@ def validate_file_extension(filename: str, allowed_extensions: list) -> bool:
     if not filename:
         return False
 
-    file_extension = filename.lower().split('.')[-1]
+    file_extension = filename.lower().split(".")[-1]
     return f".{file_extension}" in [ext.lower() for ext in allowed_extensions]
 
 
@@ -165,10 +161,7 @@ def validate_quiz_name(name: str) -> dict:
     Returns:
         Dictionary with validation results
     """
-    result = {
-        "valid": True,
-        "errors": []
-    }
+    result = {"valid": True, "errors": []}
 
     if not name or not name.strip():
         result["valid"] = False

@@ -23,35 +23,6 @@ def setup_database():
     Base.metadata.drop_all(bind=engine)
 
 
-@pytest.fixture(scope="function")
-def registered_user():
-    """Fixture that registers a user and returns credentials."""
-    register_data = {
-        "username": "testuser",
-        "password": "TestPass123",
-        "email": "testuser@example.com"
-    }
-    response = client.post("/api/v1/auth/register", json=register_data)
-    assert response.status_code == 201
-
-    token = response.json()["data"]["access_token"]
-
-    return {
-        "username": register_data["username"],
-        "email": register_data["email"],
-        "token": token,
-        "headers": {"Authorization": f"Bearer {token}"}
-    }
-
-
-@pytest.fixture(scope="function")
-def authenticated_client(registered_user):
-    """Fixture that returns an authenticated TestClient."""
-    test_client = TestClient(app)
-    test_client.headers.update(registered_user["headers"])
-    return test_client
-
-
 def test_health_check():
     """Test the health check endpoint."""
     response = client.get("/health")
@@ -258,7 +229,7 @@ def test_quiz_import(authenticated_client):
     assert result["data"]["flashcard_count"] == 2
 
 
-def test_session_and_test_submission(authenticated_client, registered_user):
+def test_session_and_test_submission(authenticated_client):
     """Test creating a session and submitting test answers."""
     # Get user ID
     me_response = authenticated_client.get("/api/v1/auth/me")
@@ -315,7 +286,7 @@ def test_session_and_test_submission(authenticated_client, registered_user):
     assert results["data"]["correct"] == 1
 
 
-def test_user_statistics(authenticated_client, registered_user):
+def test_user_statistics(authenticated_client):
     """Test retrieving user statistics."""
     # Get user ID
     me_response = authenticated_client.get("/api/v1/auth/me")

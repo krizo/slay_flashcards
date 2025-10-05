@@ -43,8 +43,8 @@ def list_quizzes():
 
 def main():
     """Entry point for the CLI application."""
-    app = CLIApplication()
-    app.run()
+    cliApp = CLIApplication()
+    cliApp.run()
 
 
 if __name__ == "__main__":

@@ -2,8 +2,8 @@ import os
 import tempfile
 from abc import ABC, abstractmethod
 
-from gtts import gTTS
-import pygame
+import pygame  # pylint: disable=import-error
+from gtts import gTTS  # pylint: disable=import-error
 
 
 class AudioServiceInterface(ABC):
@@ -12,12 +12,10 @@ class AudioServiceInterface(ABC):
     @abstractmethod
     def play_text(self, text: str, lang: str = "en") -> bool:
         """Play text as speech. Returns True if successful."""
-        pass
 
     @abstractmethod
     def is_available(self) -> bool:
         """Check if audio service is available."""
-        pass
 
 
 class GTTSAudioService(AudioServiceInterface):
@@ -36,9 +34,9 @@ class GTTSAudioService(AudioServiceInterface):
         """Check if GTTS and pygame are available."""
         try:
             # Test if we can create a TTS object
-            test_tts = gTTS(text="test", lang="en", slow=False)
+            gTTS(text="test", lang="en", slow=False)
             return True
-        except Exception:
+        except Exception:  # pylint: disable=broad-exception-caught
             return False
 
     def play_text(self, text: str, lang: str = "en") -> bool:
@@ -50,7 +48,7 @@ class GTTSAudioService(AudioServiceInterface):
             tts = gTTS(text=text, lang=lang, slow=False)
 
             # Save to temporary file
-            with tempfile.NamedTemporaryFile(delete=False, suffix='.mp3') as tmp_file:
+            with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as tmp_file:
                 tts.save(tmp_file.name)
 
                 # Play audio
@@ -65,7 +63,7 @@ class GTTSAudioService(AudioServiceInterface):
                 os.unlink(tmp_file.name)
                 return True
 
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-exception-caught
             print(f"Audio playback failed: {e}")
             return False
         finally:
@@ -75,7 +73,7 @@ class GTTSAudioService(AudioServiceInterface):
 
     def __del__(self):
         """Cleanup pygame on destruction."""
-        if hasattr(self, '_pygame_initialized') and self._pygame_initialized:
+        if hasattr(self, "_pygame_initialized") and self._pygame_initialized:
             pygame.mixer.quit()
 
 

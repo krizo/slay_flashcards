@@ -70,7 +70,10 @@ def test_session_statistics(authenticated_client):
 
     # Step 3: Create sessions for the user and quiz
     authenticated_client.post("/api/v1/sessions/", json={"user_id": user_id, "quiz_id": quiz_id, "mode": "learn"})
-    authenticated_client.post("/api/v1/sessions/", json={"user_id": user_id, "quiz_id": quiz_id, "mode": "test", "score": 85})
+    authenticated_client.post("/api/v1/sessions/", json={"user_id": user_id,
+                                                         "quiz_id": quiz_id,
+                                                         "mode": "test",
+                                                         "score": 85})
 
     # Step 4: Call the statistics endpoint with the correct user_id as a query parameter
     response = authenticated_client.get(f"/api/v1/sessions/statistics?user_id={user_id}")

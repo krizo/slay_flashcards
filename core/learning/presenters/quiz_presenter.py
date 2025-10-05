@@ -1,18 +1,19 @@
-from typing import Protocol, Dict, Any
-import streamlit as st
+# pylint: disable=no-else-return
+from typing import Any, Dict, Protocol
+
+import streamlit as st  # pylint: disable=import-error
+
 from core.db import models
 
 
-class TypedPresenterInterface(Protocol):
+class TypedPresenterInterface(Protocol):  # pylint: disable=unnecessary-pass
     """Interface for presenting different answer types."""
 
     def render_answer_input(self, card: models.Flashcard, key_suffix: str = "") -> str:
         """Render appropriate input widget based on answer type."""
-        pass
 
     def show_answer_hint(self, card: models.Flashcard) -> None:
         """Show hint about expected answer format."""
-        pass
 
 
 class CLITestPresenter:
@@ -73,12 +74,51 @@ class CLITestPresenter:
             tolerance = metadata["tolerance"]
             print(f"📏 Tolerance: ±{tolerance}")
 
+    @staticmethod
+    def show_final_results(detailed_results: dict) -> None:
+        """Show final test results with detailed breakdown."""
+        print("\n" + "=" * 50)
+        print("📊 TEST RESULTS")
+        print("=" * 50)
+
+        # Show overall score
+        final_score = detailed_results.get("final_score", 0.0)
+        total_questions = detailed_results.get("total_questions", 0)
+        correct_count = detailed_results.get("correct_count", 0)
+        partial_count = detailed_results.get("partial_count", 0)
+        incorrect_count = detailed_results.get("incorrect_count", 0)
+
+        print(f"\n🎯 Final Score: {final_score:.1%}")
+        print(f"📝 Total Questions: {total_questions}")
+        print(f"✅ Correct: {correct_count}")
+        print(f"⚠️  Partial: {partial_count}")
+        print(f"❌ Incorrect: {incorrect_count}")
+
+        # Show breakdown by question
+        breakdown = detailed_results.get("breakdown", [])
+        if breakdown:
+            print("\n📋 Question Breakdown:")
+            print("-" * 50)
+            for i, result in enumerate(breakdown, 1):
+                status_emoji = {
+                    "correct": "✅",
+                    "partial": "⚠️",
+                    "incorrect": "❌"
+                }.get(result.get("evaluation", "incorrect"), "❓")
+
+                score = result.get("score", 0.0)
+                question_title = result.get("question_title", f"Question {i}")
+
+                print(f"{status_emoji} Q{i}: {question_title} - {score:.0%}")
+
+        print("=" * 50 + "\n")
+
 
 class StreamlitTypedPresenter:
     """Streamlit presenter for different answer types."""
 
     @staticmethod
-    def render_answer_input(card: models.Flashcard, key_suffix: str = "") -> str:
+    def render_answer_input(card: models.Flashcard, key_suffix: str = "") -> str:  # pylint: disable=too-many-return-statements,too-many-branches
         """Render appropriate Streamlit input widget based on answer type."""
         answer_type = card.answer_type or "text"
         key = f"answer_input_{answer_type}_{key_suffix}"
@@ -88,32 +128,17 @@ class StreamlitTypedPresenter:
 
         if answer_type == "text":
             return st.text_area(
-                "Your answer:",
-                key=key,
-                placeholder="Enter your answer here...",
-                help="Free text answer"
+                "Your answer:", key=key, placeholder="Enter your answer here...", help="Free text answer"
             )
 
         elif answer_type == "integer":
             # Use number_input with step=1 for integers
-            num_val = st.number_input(
-                "Your answer:",
-                key=key,
-                step=1,
-                format="%d",
-                help="Enter a whole number"
-            )
+            num_val = st.number_input("Your answer:", key=key, step=1, format="%d", help="Enter a whole number")
             return str(int(num_val)) if num_val is not None else ""
 
         elif answer_type == "float":
             # Use number_input for floats
-            num_val = st.number_input(
-                "Your answer:",
-                key=key,
-                step=0.01,
-                format="%.2f",
-                help="Enter a decimal number"
-            )
+            num_val = st.number_input("Your answer:", key=key, step=0.01, format="%.2f", help="Enter a decimal number")
             return str(float(num_val)) if num_val is not None else ""
 
         elif answer_type == "range":
@@ -121,46 +146,31 @@ class StreamlitTypedPresenter:
                 "Your answer:",
                 key=key,
                 placeholder="e.g., 5-10 or 3 to 7",
-                help="Enter a range using formats like '5-10' or '3 to 7'"
+                help="Enter a range using formats like '5-10' or '3 to 7'",
             )
 
         elif answer_type == "boolean":
             # Use radio buttons for boolean
             bool_val = st.radio(
-                "Your answer:",
-                options=["True", "False"],
-                key=key,
-                horizontal=True,
-                help="Select True or False"
+                "Your answer:", options=["True", "False"], key=key, horizontal=True, help="Select True or False"
             )
             return bool_val
 
         elif answer_type == "choice":
             if card.answer_options:
                 options = [opt.get("text", str(opt)) for opt in card.answer_options]
-                selected = st.radio(
-                    "Select your answer:",
-                    options=options,
-                    key=key,
-                    help="Choose one option"
-                )
+                selected = st.radio("Select your answer:", options=options, key=key, help="Choose one option")
                 return selected
             else:
                 return st.text_input(
-                    "Your answer:",
-                    key=key,
-                    placeholder="Enter your choice",
-                    help="Single choice answer"
+                    "Your answer:", key=key, placeholder="Enter your choice", help="Single choice answer"
                 )
 
         elif answer_type == "multiple_choice":
             if card.answer_options:
                 options = [opt.get("text", str(opt)) for opt in card.answer_options]
                 selected = st.multiselect(
-                    "Select your answers:",
-                    options=options,
-                    key=key,
-                    help="Choose multiple options"
+                    "Select your answers:", options=options, key=key, help="Choose multiple options"
                 )
                 return ", ".join(selected)
             else:
@@ -168,25 +178,15 @@ class StreamlitTypedPresenter:
                     "Your answers:",
                     key=key,
                     placeholder="Enter answers separated by commas",
-                    help="Multiple choice answer (comma-separated)"
+                    help="Multiple choice answer (comma-separated)",
                 )
 
         elif answer_type == "short_text":
-            return st.text_input(
-                "Your answer:",
-                key=key,
-                placeholder="Short answer",
-                help="Brief text answer"
-            )
+            return st.text_input("Your answer:", key=key, placeholder="Short answer", help="Brief text answer")
 
         else:
             # Fallback to text input
-            return st.text_input(
-                "Your answer:",
-                key=key,
-                placeholder="Enter your answer",
-                help="Text answer"
-            )
+            return st.text_input("Your answer:", key=key, placeholder="Enter your answer", help="Text answer")
 
     @staticmethod
     def show_answer_info_line(card: models.Flashcard) -> None:
@@ -277,11 +277,7 @@ class AnswerTypeUtils:
     @staticmethod
     def validate_answer_format(user_answer: str, answer_type: str) -> Dict[str, Any]:
         """Validate if user answer matches expected format."""
-        validation_result = {
-            "is_valid": True,
-            "error_message": None,
-            "parsed_value": user_answer
-        }
+        validation_result = {"is_valid": True, "error_message": None, "parsed_value": user_answer}
 
         if answer_type == "integer":
             try:

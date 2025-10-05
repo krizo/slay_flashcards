@@ -10,8 +10,8 @@ Tests all user-related database operations including:
 - User activity queries
 - User statistics
 """
-import pytest
 from datetime import datetime, timedelta
+import pytest
 
 from core.db.crud.repository.user_repository import UserRepository
 from core.db.crud.repository.session_repository import SessionRepository
@@ -419,7 +419,7 @@ def test_get_most_active_users(test_db):
 
     assert len(most_active) >= 2
     # First user should have most sessions
-    top_user, count = most_active[0]
+    _, count = most_active[0]
     assert count >= 3
 
 
@@ -427,7 +427,7 @@ def test_get_users_by_registration_date(test_db):
     """Test getting users by registration date range."""
     user_repo = UserRepository(test_db)
 
-    user = user_repo.create_user(name="recent", email="recent@example.com")
+    user_repo.create_user(name="recent", email="recent@example.com")
 
     # Get users from last week
     start_date = datetime.now() - timedelta(days=7)

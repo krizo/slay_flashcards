@@ -8,7 +8,6 @@ Tests all quiz-related database operations including:
 - Quiz deletion
 - Subject management
 """
-import pytest
 from datetime import datetime
 
 from core.db.crud.repository.quiz_repository import QuizRepository
