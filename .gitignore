@@ -4,3 +4,4 @@
 *.db
 /data/*.json
 .env
+frontend/node_modules
