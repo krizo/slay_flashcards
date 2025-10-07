@@ -1,8 +1,15 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import FlashcardComponent from './FlashcardComponent';
 import { FlashcardData } from '../types';
+
+// Mock the audio utils
+vi.mock('../utils/audioUtils', () => ({
+  playAudio: vi.fn(),
+  stopAudio: vi.fn(),
+  isAudioAvailable: vi.fn(() => true),
+}));
 
 describe('FlashcardComponent', () => {
   let mockFlashcardData: FlashcardData;
@@ -170,11 +177,117 @@ describe('FlashcardComponent', () => {
     expect(activeDots).toHaveLength(2);
   });
 
-  it('renders both Show Answer and Next Flashcard buttons', () => {
+  it('renders "Don\'t Know" button on front side', () => {
+    render(<FlashcardComponent flashcardData={mockFlashcardData} />);
+
+    expect(screen.getByText('Don\'t Know')).toBeInTheDocument();
+  });
+
+  it('renders "Show Answer" button on front side', () => {
     render(<FlashcardComponent flashcardData={mockFlashcardData} />);
 
     expect(screen.getByText('Show Answer')).toBeInTheDocument();
+  });
+
+  it('renders "Next Flashcard" button on back side', () => {
+    render(<FlashcardComponent flashcardData={mockFlashcardData} />);
+
     expect(screen.getByText('Next Flashcard')).toBeInTheDocument();
+  });
+
+  it('calls onNextFlashcard when "Next Flashcard" button is clicked', () => {
+    const mockOnNext = vi.fn();
+    render(<FlashcardComponent flashcardData={mockFlashcardData} onNextFlashcard={mockOnNext} />);
+
+    const nextButton = screen.getByText('Next Flashcard');
+    fireEvent.click(nextButton);
+
+    expect(mockOnNext).toHaveBeenCalledTimes(1);
+  });
+
+  it('calls onNextFlashcard when "Don\'t Know" button is clicked', () => {
+    const mockOnNext = vi.fn();
+    render(<FlashcardComponent flashcardData={mockFlashcardData} onNextFlashcard={mockOnNext} />);
+
+    const dontKnowButton = screen.getByText('Don\'t Know');
+    fireEvent.click(dontKnowButton);
+
+    expect(mockOnNext).toHaveBeenCalledTimes(1);
+  });
+
+  it('prevents card flip when clicking "Next Flashcard" button', () => {
+    const mockOnNext = vi.fn();
+    render(<FlashcardComponent flashcardData={mockFlashcardData} onNextFlashcard={mockOnNext} />);
+
+    const flashcardContainer = document.querySelector('.flashcard-container');
+
+    // Flip the card first
+    fireEvent.click(flashcardContainer!);
+    expect(flashcardContainer).toHaveClass('flipped');
+
+    // Click the Next button
+    const nextButton = screen.getByText('Next Flashcard');
+    fireEvent.click(nextButton);
+
+    // Card should be reset to front (not flipped)
+    expect(flashcardContainer).not.toHaveClass('flipped');
+  });
+
+  it('prevents card flip when clicking "Don\'t Know" button', () => {
+    const mockOnNext = vi.fn();
+    render(<FlashcardComponent flashcardData={mockFlashcardData} onNextFlashcard={mockOnNext} />);
+
+    const flashcardContainer = document.querySelector('.flashcard-container');
+
+    // Initially not flipped
+    expect(flashcardContainer).not.toHaveClass('flipped');
+
+    // Click Don't Know button shouldn't flip the card
+    const dontKnowButton = screen.getByText('Don\'t Know');
+    fireEvent.click(dontKnowButton);
+
+    expect(flashcardContainer).not.toHaveClass('flipped');
+  });
+
+  it('calls playAudio when clicking audio icon on question', async () => {
+    const { playAudio } = await import('../utils/audioUtils');
+    render(<FlashcardComponent flashcardData={mockFlashcardData} />);
+
+    const audioIcons = document.querySelectorAll('.fa-volume-up');
+    const questionAudioIcon = audioIcons[0] as HTMLElement;
+
+    fireEvent.click(questionAudioIcon);
+
+    expect(playAudio).toHaveBeenCalledWith('Explain what TypeScript is.', 'en');
+  });
+
+  it('calls playAudio when clicking audio icon on answer', async () => {
+    const { playAudio } = await import('../utils/audioUtils');
+    render(<FlashcardComponent flashcardData={mockFlashcardData} />);
+
+    const audioIcons = document.querySelectorAll('.fa-volume-up');
+    const answerAudioIcon = audioIcons[1] as HTMLElement;
+
+    fireEvent.click(answerAudioIcon);
+
+    expect(playAudio).toHaveBeenCalledWith(
+      'TypeScript is a strongly typed programming language that builds on JavaScript.',
+      'en'
+    );
+  });
+
+  it('prevents card flip when clicking audio icon', () => {
+    render(<FlashcardComponent flashcardData={mockFlashcardData} />);
+
+    const flashcardContainer = document.querySelector('.flashcard-container');
+    const audioIcons = document.querySelectorAll('.fa-volume-up');
+    const questionAudioIcon = audioIcons[0] as HTMLElement;
+
+    // Click audio icon
+    fireEvent.click(questionAudioIcon);
+
+    // Card should not flip
+    expect(flashcardContainer).not.toHaveClass('flipped');
   });
 
   it('applies correct CSS classes for flip animation', () => {

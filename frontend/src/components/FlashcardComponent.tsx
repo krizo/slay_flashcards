@@ -1,9 +1,11 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { FlashcardData, FlashcardMode } from '../types';
+import { playAudio, stopAudio } from '../utils/audioUtils';
 
 interface FlashcardComponentProps {
     flashcardData: FlashcardData;
     mode?: FlashcardMode;
+    onNextFlashcard?: () => void;
 }
 
 /**
@@ -17,8 +19,9 @@ interface FlashcardComponentProps {
  * - Dynamic height based on content
  */
 const FlashcardComponent: React.FC<FlashcardComponentProps> = ({
-    flashcardData
-                                                               }) => {
+    flashcardData,
+    onNextFlashcard
+}) => {
     // State to track if card is flipped (false = showing question, true = showing answer)
     const [isFlipped, setIsFlipped] = useState<boolean>(false);
     const [cardHeight, setCardHeight] = useState<number>(350);
@@ -46,9 +49,22 @@ const FlashcardComponent: React.FC<FlashcardComponentProps> = ({
         return () => window.removeEventListener('resize', updateHeight);
     }, [flashcardData, isFlipped]);
 
-    // Toggle flip state when card is clicked
-    const flipFlashcard = () => {
-        setIsFlipped(!isFlipped);
+    // Stop audio when flashcard changes
+    useEffect(() => {
+        return () => {
+            stopAudio();
+        };
+    }, [flashcardData.id]);
+
+    // Toggle flip state when Show Answer button is clicked
+    const handleShowAnswerClick = (event: React.MouseEvent) => {
+        event.stopPropagation();
+        setIsFlipped(true);
+    };
+
+    // Flip back to question when clicking on answer side
+    const handleBackClick = () => {
+        setIsFlipped(false);
     };
 
     const { question, answer } = flashcardData;
@@ -67,11 +83,34 @@ const FlashcardComponent: React.FC<FlashcardComponentProps> = ({
         return dots;
     };
 
+    // Handle audio playback for question or answer
+    const handleAudioClick = (event: React.MouseEvent, text: string, lang: string | null) => {
+        event.stopPropagation(); // Prevent card flip
+        playAudio(text, lang);
+    };
+
+    // Handle next flashcard button click
+    const handleNextClick = (event: React.MouseEvent) => {
+        event.stopPropagation(); // Prevent card flip
+        if (onNextFlashcard) {
+            setIsFlipped(false); // Reset to front side
+            onNextFlashcard();
+        }
+    };
+
+    // Handle "Don't Know" button click
+    const handleDontKnowClick = (event: React.MouseEvent) => {
+        event.stopPropagation(); // Prevent card flip
+        if (onNextFlashcard) {
+            setIsFlipped(false); // Reset to front side
+            onNextFlashcard();
+        }
+    };
+
 
     return (
         <div
             className={`flashcard-container ${isFlipped ? 'flipped' : ''}`}
-            onClick={flipFlashcard}
             style={{ height: `${cardHeight}px` }}
         >
             {/* FRONT SIDE - Question */}
@@ -96,21 +135,35 @@ const FlashcardComponent: React.FC<FlashcardComponentProps> = ({
                         <span>{question.text}</span>
                         {question.lang && (
                             <>
-                                <i className="fas fa-volume-up flashcard-audio-icon"></i>
+                                <i
+                                    className="fas fa-volume-up flashcard-audio-icon"
+                                    onClick={(e) => handleAudioClick(e, question.text, question.lang ?? null)}
+                                ></i>
                                 <span className="flashcard-lang-tag">{question.lang}</span>
                             </>
                         )}
                     </div>
                 </div>
 
-                {/* Show Answer Button */}
-                <button className="flashcard-button">
-                    Show Answer
-                </button>
+                {/* Action buttons - Front side */}
+                <div className="flashcard-button-group">
+                    <button
+                        className="flashcard-button-secondary"
+                        onClick={handleDontKnowClick}
+                    >
+                        Don't Know
+                    </button>
+                    <button
+                        className="flashcard-button"
+                        onClick={handleShowAnswerClick}
+                    >
+                        Show Answer
+                    </button>
+                </div>
             </div>
 
             {/* BACK SIDE - Answer */}
-            <div className="flashcard-back" ref={backRef}>
+            <div className="flashcard-back" ref={backRef} onClick={handleBackClick}>
                 {/* Header with difficulty and progress */}
                 <div className="flashcard-header">
                     <div className="flashcard-difficulty">
@@ -135,7 +188,10 @@ const FlashcardComponent: React.FC<FlashcardComponentProps> = ({
                             <span>{answer.text}</span>
                             {answer.lang && (
                                 <>
-                                    <i className="fas fa-volume-up flashcard-audio-icon"></i>
+                                    <i
+                                        className="fas fa-volume-up flashcard-audio-icon"
+                                        onClick={(e) => handleAudioClick(e, answer.text, answer.lang ?? null)}
+                                    ></i>
                                     <span className="flashcard-lang-tag">{answer.lang}</span>
                                 </>
                             )}
@@ -148,8 +204,11 @@ const FlashcardComponent: React.FC<FlashcardComponentProps> = ({
                     </p>
                 </div>
 
-                {/* Next Flashcard Button */}
-                <button className="flashcard-button">
+                {/* Action button - Back side */}
+                <button
+                    className="flashcard-button"
+                    onClick={handleNextClick}
+                >
                     Next Flashcard
                 </button>
             </div>
