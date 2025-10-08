@@ -2,10 +2,61 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { ProgressDataPoint } from '../../types';
 
 interface ProgressChartCardProps {
-    data: ProgressDataPoint[];
+    data: ProgressDataPoint[] | null;
+    isLoading?: boolean;
+    error?: Error | null;
 }
 
-const ProgressChartCard = ({ data }: ProgressChartCardProps) => {
+const ProgressChartCard = ({ data, isLoading, error }: ProgressChartCardProps) => {
+    // Loading state
+    if (isLoading) {
+        return (
+            <div className="dashboard-card progress-chart-card">
+                <div className="card-header">
+                    <h3 className="card-title">Progress Over Time</h3>
+                    <p className="card-subtitle">Your average scores over the last 7 days</p>
+                </div>
+                <div className="loading-state">
+                    <div className="loading-spinner"></div>
+                    <p>Loading progress data...</p>
+                </div>
+            </div>
+        );
+    }
+
+    // Error state
+    if (error) {
+        return (
+            <div className="dashboard-card progress-chart-card">
+                <div className="card-header">
+                    <h3 className="card-title">Progress Over Time</h3>
+                    <p className="card-subtitle">Your average scores over the last 7 days</p>
+                </div>
+                <div className="error-state">
+                    <span className="error-icon">⚠️</span>
+                    <p className="error-message">Failed to load progress data</p>
+                    <p className="error-detail">{error.message}</p>
+                </div>
+            </div>
+        );
+    }
+
+    // No data state
+    if (!data || data.length === 0) {
+        return (
+            <div className="dashboard-card progress-chart-card">
+                <div className="card-header">
+                    <h3 className="card-title">Progress Over Time</h3>
+                    <p className="card-subtitle">Your average scores over the last 7 days</p>
+                </div>
+                <div className="empty-state">
+                    <span className="empty-icon">📈</span>
+                    <p>No progress data available</p>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="dashboard-card progress-chart-card">
             <div className="card-header">

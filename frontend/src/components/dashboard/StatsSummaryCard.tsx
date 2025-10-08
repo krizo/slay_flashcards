@@ -1,11 +1,50 @@
 import { UserStats } from '../../types';
 
 interface StatsSummaryCardProps {
-    stats: UserStats;
+    stats: UserStats | null;
     userName?: string;
+    isLoading?: boolean;
+    error?: Error | null;
 }
 
-const StatsSummaryCard = ({ stats, userName = 'User' }: StatsSummaryCardProps) => {
+const StatsSummaryCard = ({ stats, userName = 'User', isLoading, error }: StatsSummaryCardProps) => {
+    // Loading state
+    if (isLoading) {
+        return (
+            <div className="dashboard-card stats-summary-card">
+                <div className="loading-state">
+                    <div className="loading-spinner"></div>
+                    <p>Loading statistics...</p>
+                </div>
+            </div>
+        );
+    }
+
+    // Error state
+    if (error) {
+        return (
+            <div className="dashboard-card stats-summary-card">
+                <div className="error-state">
+                    <span className="error-icon">⚠️</span>
+                    <p className="error-message">Failed to load statistics</p>
+                    <p className="error-detail">{error.message}</p>
+                </div>
+            </div>
+        );
+    }
+
+    // No data state
+    if (!stats) {
+        return (
+            <div className="dashboard-card stats-summary-card">
+                <div className="empty-state">
+                    <span className="empty-icon">📊</span>
+                    <p>No statistics available</p>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="dashboard-card stats-summary-card">
             <div className="stats-welcome">
@@ -14,7 +53,7 @@ const StatsSummaryCard = ({ stats, userName = 'User' }: StatsSummaryCardProps) =
             </div>
 
             <div className="stats-grid">
-                <div className="stat-item stat-primary">
+                <div className="stat-item">
                     <div className="stat-icon">📚</div>
                     <div className="stat-content">
                         <div className="stat-value">{stats.total_sessions}</div>
@@ -22,10 +61,12 @@ const StatsSummaryCard = ({ stats, userName = 'User' }: StatsSummaryCardProps) =
                     </div>
                 </div>
 
-                <div className="stat-item stat-primary">
+                <div className="stat-item">
                     <div className="stat-icon">⭐</div>
                     <div className="stat-content">
-                        <div className="stat-value">{stats.average_score ?? 'N/A'}%</div>
+                        <div className="stat-value">
+                            {stats.average_score ? Math.round(stats.average_score) : 'N/A'}%
+                        </div>
                         <div className="stat-label">Average Score</div>
                     </div>
                 </div>
@@ -41,7 +82,9 @@ const StatsSummaryCard = ({ stats, userName = 'User' }: StatsSummaryCardProps) =
                 <div className="stat-item">
                     <div className="stat-icon">🏆</div>
                     <div className="stat-content">
-                        <div className="stat-value">{stats.best_score ?? 'N/A'}%</div>
+                        <div className="stat-value">
+                            {stats.best_score ? Math.round(stats.best_score) : 'N/A'}%
+                        </div>
                         <div className="stat-label">Best Score</div>
                     </div>
                 </div>
