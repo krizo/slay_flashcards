@@ -147,7 +147,8 @@ class SessionRepository(BaseRepository[models.Session]):
                 "test_sessions": 0,
                 "average_score": None,
                 "best_score": None,
-                "total_study_time": 0,  # Could be calculated if we track end times
+                "study_streak": 0,
+                "favorite_subjects": [],
                 "unique_quizzes": 0,
                 "sessions_this_week": 0,
                 "sessions_this_month": 0,
@@ -172,13 +173,62 @@ class SessionRepository(BaseRepository[models.Session]):
         sessions_this_week = len([s for s in all_sessions if s.started_at >= week_ago])
         sessions_this_month = len([s for s in all_sessions if s.started_at >= month_ago])
 
+        # Calculate study streak (consecutive days with sessions)
+        study_streak = self._calculate_study_streak(all_sessions)
+
+        # Calculate favorite subjects (most practiced quizzes)
+        favorite_subjects = self._calculate_favorite_subjects(all_sessions)
+
         return {
             "total_sessions": len(all_sessions),
             "learn_sessions": len(learn_sessions),
             "test_sessions": len(test_sessions),
             "average_score": avg_score,
             "best_score": best_score,
+            "study_streak": study_streak,
+            "favorite_subjects": favorite_subjects,
             "unique_quizzes": unique_quizzes,
             "sessions_this_week": sessions_this_week,
             "sessions_this_month": sessions_this_month,
         }
+
+    def _calculate_study_streak(self, sessions) -> int:
+        """Calculate consecutive days with at least one session, starting from today."""
+        if not sessions:
+            return 0
+
+        # Get unique dates with sessions
+        session_dates = set()
+        for session in sessions:
+            date_str = session.started_at.date()
+            session_dates.add(date_str)
+
+        # Check consecutive days starting from today
+        today = datetime.now().date()
+        streak = 0
+
+        # Start from today and go backwards
+        current_date = today
+        while current_date in session_dates:
+            streak += 1
+            current_date -= timedelta(days=1)
+
+        return streak
+
+    def _calculate_favorite_subjects(self, sessions) -> list:
+        """Calculate favorite subjects (most practiced quizzes) with their counts."""
+        from collections import Counter
+
+        if not sessions:
+            return []
+
+        # Count sessions per quiz_id
+        quiz_counts = Counter(session.quiz_id for session in sessions)
+
+        # Get top 5 quizzes
+        top_quizzes = quiz_counts.most_common(5)
+
+        # Format as list of dicts: [{quiz_id: count}, ...]
+        # Note: This returns quiz_id as the key. Ideally we'd fetch quiz names,
+        # but that would require additional DB queries
+        return [{f"quiz_{quiz_id}": count} for quiz_id, count in top_quizzes]

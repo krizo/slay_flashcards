@@ -1,12 +1,12 @@
 import { Session } from '../../types';
-import { TrendingQuiz } from '../../data/mockData';
 
 interface ActivitySidebarProps {
-    recentSessions: Session[];
-    trendingQuizzes: TrendingQuiz[];
+    recentSessions: Session[] | null;
+    isLoading?: boolean;
+    error?: Error | null;
 }
 
-const ActivitySidebar = ({ recentSessions, trendingQuizzes }: ActivitySidebarProps) => {
+const ActivitySidebar = ({ recentSessions, isLoading, error }: ActivitySidebarProps) => {
     const formatDate = (dateString: string) => {
         const date = new Date(dateString);
         const now = new Date();
@@ -26,14 +26,44 @@ const ActivitySidebar = ({ recentSessions, trendingQuizzes }: ActivitySidebarPro
                 <div className="card-header">
                     <h3 className="card-title">Recent Activity</h3>
                 </div>
-                <div className="activity-list">
-                    {recentSessions.map((session) => (
+
+                {/* Loading state */}
+                {isLoading && (
+                    <div className="loading-state">
+                        <div className="loading-spinner"></div>
+                        <p>Loading activity...</p>
+                    </div>
+                )}
+
+                {/* Error state */}
+                {!isLoading && error && (
+                    <div className="error-state">
+                        <span className="error-icon">⚠️</span>
+                        <p className="error-message">Failed to load activity</p>
+                        <p className="error-detail">{error.message}</p>
+                    </div>
+                )}
+
+                {/* Empty state */}
+                {!isLoading && !error && (!recentSessions || recentSessions.length === 0) && (
+                    <div className="empty-state">
+                        <span className="empty-icon">📝</span>
+                        <p>No recent activity</p>
+                    </div>
+                )}
+
+                {/* Data state */}
+                {!isLoading && !error && recentSessions && recentSessions.length > 0 && (
+                    <div className="activity-list">
+                        {recentSessions.map((session) => (
                         <div key={session.id} className="activity-item">
                             <div className="activity-icon">
                                 {session.mode === 'learn' ? '📖' : '✅'}
                             </div>
                             <div className="activity-content">
-                                <div className="activity-quiz-name">{session.quiz_name}</div>
+                                <div className="activity-quiz-name">
+                                    {session.quiz_name || `Quiz #${session.quiz_id}`}
+                                </div>
                                 <div className="activity-meta">
                                     <span className="activity-mode">{session.mode}</span>
                                     {session.score !== null && (
@@ -44,33 +74,8 @@ const ActivitySidebar = ({ recentSessions, trendingQuizzes }: ActivitySidebarPro
                             </div>
                         </div>
                     ))}
-                </div>
-            </div>
-
-            {/* Trending Quizzes Section */}
-            <div className="dashboard-card trending-card">
-                <div className="card-header">
-                    <h3 className="card-title">Trending Quizzes</h3>
-                </div>
-                <div className="trending-list">
-                    {trendingQuizzes.map((quiz) => (
-                        <div key={quiz.id} className="trending-item">
-                            <div className="trending-icon">{quiz.emoji}</div>
-                            <div className="trending-content">
-                                <div className="trending-quiz-name">{quiz.name}</div>
-                                <div className="trending-popularity">
-                                    <div className="popularity-bar">
-                                        <div
-                                            className="popularity-fill"
-                                            style={{ width: `${quiz.popularity}%` }}
-                                        ></div>
-                                    </div>
-                                    <span className="popularity-value">{quiz.popularity}%</span>
-                                </div>
-                            </div>
-                        </div>
-                    ))}
-                </div>
+                    </div>
+                )}
             </div>
         </div>
     );

@@ -480,7 +480,7 @@ paths:
           - type: string
           - type: 'null'
           description: Filter by session mode
-          default: test
+          default: "test"
           title: Mode
         description: Filter by session mode
       - name: limit
@@ -491,7 +491,7 @@ paths:
           maximum: 100
           minimum: 1
           description: Number of top users
-          default: 10
+          default: "10"
           title: Limit
         description: Number of top users
       responses:

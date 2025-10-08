@@ -60,7 +60,7 @@ export interface Session {
     score: number | null;
     completed_at: string | null;
     // Add field for quiz name for readability in Dashboard (Quiz Name)
-    quiz_name: string;
+    quiz_name?: string;
 }
 
 // Interface for chart data (Progress)
