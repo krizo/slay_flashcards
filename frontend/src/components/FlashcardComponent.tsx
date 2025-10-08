@@ -1,6 +1,7 @@
-import { useState, useRef, useEffect } from 'react';
-import { FlashcardData, FlashcardMode } from '../types';
-import { playAudio, stopAudio } from '../utils/audioUtils';
+import {useEffect, useRef, useState} from 'react';
+import {FlashcardData, FlashcardMode} from '../types';
+import {playAudio, stopAudio} from '../utils/audioUtils';
+import AnswerInput from './AnswerInput';
 
 interface FlashcardComponentProps {
     flashcardData: FlashcardData;
@@ -19,12 +20,13 @@ interface FlashcardComponentProps {
  * - Dynamic height based on content
  */
 const FlashcardComponent: React.FC<FlashcardComponentProps> = ({
-    flashcardData,
-    onNextFlashcard
-}) => {
+                                                                   flashcardData,
+                                                                   onNextFlashcard
+                                                               }) => {
     // State to track if card is flipped (false = showing question, true = showing answer)
     const [isFlipped, setIsFlipped] = useState<boolean>(false);
     const [cardHeight, setCardHeight] = useState<number>(350);
+    const [userAnswer, setUserAnswer] = useState<string | string[]>('');
 
     const frontRef = useRef<HTMLDivElement>(null);
     const backRef = useRef<HTMLDivElement>(null);
@@ -67,7 +69,7 @@ const FlashcardComponent: React.FC<FlashcardComponentProps> = ({
         setIsFlipped(false);
     };
 
-    const { question, answer } = flashcardData;
+    const {question, answer} = flashcardData;
 
     // Render difficulty dots based on difficulty level (1-5)
     const renderDifficultyDots = () => {
@@ -94,6 +96,7 @@ const FlashcardComponent: React.FC<FlashcardComponentProps> = ({
         event.stopPropagation(); // Prevent card flip
         if (onNextFlashcard) {
             setIsFlipped(false); // Reset to front side
+            setUserAnswer(''); // Clear answer
             onNextFlashcard();
         }
     };
@@ -103,15 +106,21 @@ const FlashcardComponent: React.FC<FlashcardComponentProps> = ({
         event.stopPropagation(); // Prevent card flip
         if (onNextFlashcard) {
             setIsFlipped(false); // Reset to front side
+            setUserAnswer(''); // Clear answer
             onNextFlashcard();
         }
+    };
+
+    // Handle answer change
+    const handleAnswerChange = (value: string | string[]) => {
+        setUserAnswer(value);
     };
 
 
     return (
         <div
             className={`flashcard-container ${isFlipped ? 'flipped' : ''}`}
-            style={{ height: `${cardHeight}px` }}
+            style={{height: `${cardHeight}px`}}
         >
             {/* FRONT SIDE - Question */}
             <div className="flashcard-front" ref={frontRef}>
@@ -143,6 +152,13 @@ const FlashcardComponent: React.FC<FlashcardComponentProps> = ({
                             </>
                         )}
                     </div>
+
+                    {/* Answer Input */}
+                    <AnswerInput
+                        answer={answer}
+                        userAnswer={userAnswer}
+                        onAnswerChange={handleAnswerChange}
+                    />
                 </div>
 
                 {/* Action buttons - Front side */}

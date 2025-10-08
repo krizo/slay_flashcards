@@ -304,6 +304,13 @@ body {
     border-radius: var(--border-radius-small);
     font-size: var(--font-size-body);
     margin-top: var(--spacing-md);
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+}
+
+.flashcard-textarea {
+    resize: vertical;
+    min-height: 80px;
 }
 
 .flashcard-option-group {
