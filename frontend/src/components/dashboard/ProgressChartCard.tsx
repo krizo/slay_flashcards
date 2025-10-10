@@ -94,7 +94,7 @@ const ProgressChartCard = ({ data, isLoading, error }: ProgressChartCardProps) =
                                 const date = new Date(value);
                                 return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
                             }}
-                            formatter={(value: number) => [`${value}%`, 'Score']}
+                            formatter={(value: number) => [`${Math.round(value)}%`, 'Score']}
                         />
                         <Line
                             type="monotone"

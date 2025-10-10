@@ -1,18 +1,20 @@
-import { useAuth } from '../context/AuthContext';
 import StatsSummaryCard from '../components/dashboard/StatsSummaryCard';
 import ProgressChartCard from '../components/dashboard/ProgressChartCard';
+import SessionsChartCard from '../components/dashboard/SessionsChartCard';
 import ActivitySidebar from '../components/dashboard/ActivitySidebar';
-import { useUserStats, useRecentSessions, useProgressData } from '../hooks/useDashboardData';
+import { useCurrentUser, useUserStats, useRecentSessions, useProgressData, useSessionsData } from '../hooks/useDashboardData';
 
 function DashboardPage() {
-    // Get user from auth context
-    const { user } = useAuth();
-    const userId = user?.id || 0;
+    // Fetch current user and dashboard data using custom hooks
+    const { data: user } = useCurrentUser();
+    const userId = user?.id;
 
-    // Fetch dashboard data using custom hooks
-    const { data: stats, isLoading: statsLoading, error: statsError } = useUserStats(userId);
-    const { data: sessions, isLoading: sessionsLoading, error: sessionsError } = useRecentSessions(userId, 5);
-    const { data: progress, isLoading: progressLoading, error: progressError } = useProgressData(userId, 7);
+    // Only fetch dashboard data if we have a valid user ID
+    // Pass 0 to prevent API calls when userId is undefined
+    const { data: stats, isLoading: statsLoading, error: statsError } = useUserStats(userId ?? 0);
+    const { data: sessions, isLoading: sessionsLoading, error: sessionsError } = useRecentSessions(userId ?? 0, 5);
+    const { data: progress, isLoading: progressLoading, error: progressError } = useProgressData(userId ?? 0, 7);
+    const { data: sessionsData, isLoading: sessionsDataLoading, error: sessionsDataError } = useSessionsData(userId ?? 0, 7);
 
     return (
         <div className="page-container">
@@ -35,6 +37,11 @@ function DashboardPage() {
                         data={progress}
                         isLoading={progressLoading}
                         error={progressError}
+                    />
+                    <SessionsChartCard
+                        data={sessionsData}
+                        isLoading={sessionsDataLoading}
+                        error={sessionsDataError}
                     />
                 </div>
                 <ActivitySidebar

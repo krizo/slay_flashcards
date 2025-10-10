@@ -137,7 +137,7 @@ class UserStats(BaseModel):
     learn_sessions: int
     test_sessions: int
     average_score: Optional[float] = None
-    best_score: Optional[int] = None
+    best_score: Optional[float] = None  # Changed from int to float to match score type
     study_streak: int = 0
     favorite_subjects: List[Dict[str, Any]] = []
     sessions_this_week: int = 0
@@ -333,13 +333,13 @@ class SessionBase(BaseModel):
 class SessionCreate(SessionBase):
     """Session creation schema."""
 
-    score: Optional[int] = Field(None, ge=0, le=100)
+    score: Optional[float] = Field(None, ge=0, le=100)
 
 
 class SessionUpdate(BaseModel):
     """Session update schema."""
 
-    score: Optional[int] = Field(None, ge=0, le=100)
+    score: Optional[float] = Field(None, ge=0, le=100)
     completed_at: Optional[datetime] = None
 
 
@@ -350,7 +350,7 @@ class Session(SessionBase):
 
     id: int
     started_at: datetime
-    score: Optional[int]
+    score: Optional[float]
     completed_at: Optional[datetime] = None
 
 
@@ -361,7 +361,7 @@ class SessionStats(BaseModel):
     learn_sessions: int
     test_sessions: int
     average_score: Optional[float]
-    best_score: Optional[int]
+    best_score: Optional[float]  # Changed from int to float to match score type
     unique_quizzes: int
     sessions_this_week: int
     sessions_this_month: int
@@ -554,8 +554,8 @@ class SessionFilters(BaseModel):
     user_id: Optional[int] = None
     quiz_id: Optional[int] = None
     mode: Optional[SessionMode] = None
-    score_min: Optional[int] = Field(None, ge=0, le=100)
-    score_max: Optional[int] = Field(None, ge=0, le=100)
+    score_min: Optional[float] = Field(None, ge=0, le=100)
+    score_max: Optional[float] = Field(None, ge=0, le=100)
     started_after: Optional[datetime] = None
     started_before: Optional[datetime] = None
 

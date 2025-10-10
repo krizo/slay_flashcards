@@ -8,6 +8,19 @@ vi.mock('../services/apiClient', () => ({
     apiClient: vi.fn(),
 }));
 
+// Mock the AuthContext module
+vi.mock('../context/AuthContext', () => ({
+    useAuth: () => ({
+        accessToken: 'mock-access-token',
+        user: null,
+        isLoading: false,
+        isAuthenticated: true,
+        login: vi.fn(),
+        register: vi.fn(),
+        logout: vi.fn(),
+    }),
+}));
+
 describe('useDashboardData hooks', () => {
     beforeEach(() => {
         vi.clearAllMocks();
@@ -39,7 +52,7 @@ describe('useDashboardData hooks', () => {
 
             expect(result.current.data).toEqual(mockUser);
             expect(result.current.error).toBe(null);
-            expect(apiClient.apiClient).toHaveBeenCalledWith('/auth/me');
+            expect(apiClient.apiClient).toHaveBeenCalledWith('/auth/me', undefined, 'mock-access-token');
         });
 
         it('should handle error when fetching user fails', async () => {
@@ -84,7 +97,7 @@ describe('useDashboardData hooks', () => {
 
             expect(result.current.data).toEqual(mockStats);
             expect(result.current.error).toBe(null);
-            expect(apiClient.apiClient).toHaveBeenCalledWith('/users/1/statistics');
+            expect(apiClient.apiClient).toHaveBeenCalledWith('/users/1/statistics', undefined, 'mock-access-token');
         });
 
         it('should handle error when fetching stats fails', async () => {
@@ -113,11 +126,39 @@ describe('useDashboardData hooks', () => {
                     started_at: '2025-10-08T08:38:52Z',
                     score: 75,
                     completed_at: '2025-10-08T09:00:52Z',
-                    quiz_name: 'Test Quiz',
                 },
             ];
 
+            const mockQuizzes = [
+                {
+                    id: 7,
+                    name: 'Test Quiz',
+                    subject: 'Math',
+                    category: 'Algebra',
+                    level: 'Intermediate',
+                    description: 'A test quiz',
+                    user_id: 1,
+                },
+            ];
+
+            const expectedSessions = [
+                {
+                    id: 1,
+                    user_id: 1,
+                    quiz_id: 7,
+                    mode: 'test' as const,
+                    started_at: '2025-10-08T08:38:52Z',
+                    score: 75,
+                    completed_at: '2025-10-08T09:00:52Z',
+                    quiz_name: 'Test Quiz',
+                    quiz_category: 'Algebra',
+                    quiz_level: 'Intermediate',
+                },
+            ];
+
+            // Mock both API calls: sessions and quizzes
             vi.mocked(apiClient.apiClient).mockResolvedValueOnce(mockSessions);
+            vi.mocked(apiClient.apiClient).mockResolvedValueOnce(mockQuizzes);
 
             const { result } = renderHook(() => useRecentSessions(1, 5));
 
@@ -127,9 +168,10 @@ describe('useDashboardData hooks', () => {
                 expect(result.current.isLoading).toBe(false);
             });
 
-            expect(result.current.data).toEqual(mockSessions);
+            expect(result.current.data).toEqual(expectedSessions);
             expect(result.current.error).toBe(null);
-            expect(apiClient.apiClient).toHaveBeenCalledWith('/sessions/user/1/recent?limit=5');
+            expect(apiClient.apiClient).toHaveBeenCalledWith('/sessions/user/1/recent?limit=5', undefined, 'mock-access-token');
+            expect(apiClient.apiClient).toHaveBeenCalledWith('/quizzes/', undefined, 'mock-access-token');
         });
     });
 
