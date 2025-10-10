@@ -368,7 +368,7 @@ def test_delete_user_and_sessions_cascade(test_db):
     quiz_repo = QuizRepository(test_db)
 
     user = user_repo.create_user(name="user", email="user@example.com")
-    quiz = quiz_repo.create_quiz(name="Quiz")
+    quiz = quiz_repo.create_quiz(name="Quiz", user_id=user.id)
     session_repo.create_session(user.id, quiz.id, "learn")
 
     result = user_repo.delete_user_and_sessions(user.id)
@@ -391,7 +391,7 @@ def test_get_users_with_sessions(test_db):
     active_user = user_repo.create_user(name="active", email="active@example.com")
     user_repo.create_user(name="inactive", email="inactive@example.com")
 
-    quiz = quiz_repo.create_quiz(name="Quiz")
+    quiz = quiz_repo.create_quiz(name="Quiz", user_id=active_user.id)
     session_repo.create_session(active_user.id, quiz.id, "learn")
 
     users_with_sessions = user_repo.get_users_with_sessions()
@@ -408,7 +408,7 @@ def test_get_most_active_users(test_db):
 
     user1 = user_repo.create_user(name="user1", email="user1@example.com")
     user2 = user_repo.create_user(name="user2", email="user2@example.com")
-    quiz = quiz_repo.create_quiz(name="Quiz")
+    quiz = quiz_repo.create_quiz(name="Quiz", user_id=user1.id)
 
     # User1 has 3 sessions, User2 has 1
     for _ in range(3):
@@ -448,7 +448,7 @@ def test_get_user_statistics_summary(test_db):
     quiz_repo = QuizRepository(test_db)
 
     user = user_repo.create_user(name="user", email="user@example.com")
-    quiz = quiz_repo.create_quiz(name="Quiz")
+    quiz = quiz_repo.create_quiz(name="Quiz", user_id=user.id)
     session_repo.create_session(user.id, quiz.id, "learn")
 
     stats = user_repo.get_user_statistics_summary()

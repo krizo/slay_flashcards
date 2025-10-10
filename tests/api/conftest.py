@@ -53,7 +53,7 @@ def registered_user(test_client):
     """Fixture that registers a user and returns credentials."""
     register_data = {
         "username": "testuser_auth",
-        "password": "TestPass123",
+        "password": "TestPass123!",  # Updated to meet password requirements
         "email": "testuser@example.com"
     }
     response = test_client.post("/api/v1/auth/register", json=register_data)
@@ -87,7 +87,7 @@ def multiple_users(test_client):
     for i in range(3):
         user_data = {
             "username": f"user{i}",
-            "password": f"Password{i}23",
+            "password": f"Password{i}23!",  # Updated to meet password requirements
             "email": f"user{i}@example.com"
         }
         response = test_client.post("/api/v1/auth/register", json=user_data)

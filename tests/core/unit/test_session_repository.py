@@ -26,7 +26,7 @@ def test_create_session_minimal(test_db):
     session_repo = SessionRepository(test_db)
 
     user = user_repo.create_user(name="user", email="user@example.com")
-    quiz = quiz_repo.create_quiz(name="Quiz")
+    quiz = quiz_repo.create_quiz(name="Quiz", user_id=user.id)
 
     session = session_repo.create_session(
         user_id=user.id,
@@ -49,7 +49,7 @@ def test_create_session_with_score(test_db):
     session_repo = SessionRepository(test_db)
 
     user = user_repo.create_user(name="user", email="user@example.com")
-    quiz = quiz_repo.create_quiz(name="Quiz")
+    quiz = quiz_repo.create_quiz(name="Quiz", user_id=user.id)
 
     session = session_repo.create_session(
         user_id=user.id,
@@ -68,7 +68,7 @@ def test_create_learn_session(test_db):
     session_repo = SessionRepository(test_db)
 
     user = user_repo.create_user(name="user", email="user@example.com")
-    quiz = quiz_repo.create_quiz(name="Quiz")
+    quiz = quiz_repo.create_quiz(name="Quiz", user_id=user.id)
 
     session = session_repo.create_session(user.id, quiz.id, "learn")
 
@@ -82,7 +82,7 @@ def test_create_test_session(test_db):
     session_repo = SessionRepository(test_db)
 
     user = user_repo.create_user(name="user", email="user@example.com")
-    quiz = quiz_repo.create_quiz(name="Quiz")
+    quiz = quiz_repo.create_quiz(name="Quiz", user_id=user.id)
 
     session = session_repo.create_session(user.id, quiz.id, "test", score=90)
 
@@ -101,7 +101,7 @@ def test_get_by_id(test_db):
     session_repo = SessionRepository(test_db)
 
     user = user_repo.create_user(name="user", email="user@example.com")
-    quiz = quiz_repo.create_quiz(name="Quiz")
+    quiz = quiz_repo.create_quiz(name="Quiz", user_id=user.id)
 
     created = session_repo.create_session(user.id, quiz.id, "learn")
     found = session_repo.get_by_id(created.id)
@@ -118,7 +118,7 @@ def test_get_by_user_id(test_db):
 
     user1 = user_repo.create_user(name="user1", email="user1@example.com")
     user2 = user_repo.create_user(name="user2", email="user2@example.com")
-    quiz = quiz_repo.create_quiz(name="Quiz")
+    quiz = quiz_repo.create_quiz(name="Quiz", user_id=user1.id)
 
     session_repo.create_session(user1.id, quiz.id, "learn")
     session_repo.create_session(user1.id, quiz.id, "test")
@@ -137,8 +137,8 @@ def test_get_by_quiz_id(test_db):
     session_repo = SessionRepository(test_db)
 
     user = user_repo.create_user(name="user", email="user@example.com")
-    quiz1 = quiz_repo.create_quiz(name="Quiz 1")
-    quiz2 = quiz_repo.create_quiz(name="Quiz 2")
+    quiz1 = quiz_repo.create_quiz(name="Quiz 1", user_id=user.id)
+    quiz2 = quiz_repo.create_quiz(name="Quiz 2", user_id=user.id)
 
     session_repo.create_session(user.id, quiz1.id, "learn")
     session_repo.create_session(user.id, quiz1.id, "test")
@@ -157,7 +157,7 @@ def test_get_by_mode(test_db):
     session_repo = SessionRepository(test_db)
 
     user = user_repo.create_user(name="user", email="user@example.com")
-    quiz = quiz_repo.create_quiz(name="Quiz")
+    quiz = quiz_repo.create_quiz(name="Quiz", user_id=user.id)
 
     session_repo.create_session(user.id, quiz.id, "learn")
     session_repo.create_session(user.id, quiz.id, "learn")
@@ -176,7 +176,7 @@ def test_get_recent_sessions(test_db):
     session_repo = SessionRepository(test_db)
 
     user = user_repo.create_user(name="user", email="user@example.com")
-    quiz = quiz_repo.create_quiz(name="Quiz")
+    quiz = quiz_repo.create_quiz(name="Quiz", user_id=user.id)
 
     for i in range(5):
         session_repo.create_session(user.id, quiz.id, "learn")
@@ -200,8 +200,8 @@ def test_get_user_quiz_sessions(test_db):
     session_repo = SessionRepository(test_db)
 
     user = user_repo.create_user(name="user", email="user@example.com")
-    quiz1 = quiz_repo.create_quiz(name="Quiz 1")
-    quiz2 = quiz_repo.create_quiz(name="Quiz 2")
+    quiz1 = quiz_repo.create_quiz(name="Quiz 1", user_id=user.id)
+    quiz2 = quiz_repo.create_quiz(name="Quiz 2", user_id=user.id)
 
     session_repo.create_session(user.id, quiz1.id, "learn")
     session_repo.create_session(user.id, quiz1.id, "test")
@@ -221,7 +221,7 @@ def test_get_by_user_and_mode(test_db):
 
     user1 = user_repo.create_user(name="user1", email="user1@example.com")
     user2 = user_repo.create_user(name="user2", email="user2@example.com")
-    quiz = quiz_repo.create_quiz(name="Quiz")
+    quiz = quiz_repo.create_quiz(name="Quiz", user_id=user1.id)
 
     session_repo.create_session(user1.id, quiz.id, "learn")
     session_repo.create_session(user1.id, quiz.id, "test")
@@ -241,8 +241,8 @@ def test_get_by_quiz_and_mode(test_db):
     session_repo = SessionRepository(test_db)
 
     user = user_repo.create_user(name="user", email="user@example.com")
-    quiz1 = quiz_repo.create_quiz(name="Quiz 1")
-    quiz2 = quiz_repo.create_quiz(name="Quiz 2")
+    quiz1 = quiz_repo.create_quiz(name="Quiz 1", user_id=user.id)
+    quiz2 = quiz_repo.create_quiz(name="Quiz 2", user_id=user.id)
 
     session_repo.create_session(user.id, quiz1.id, "learn")
     session_repo.create_session(user.id, quiz1.id, "test")
@@ -266,7 +266,7 @@ def test_get_sessions_in_date_range(test_db):
     session_repo = SessionRepository(test_db)
 
     user = user_repo.create_user(name="user", email="user@example.com")
-    quiz = quiz_repo.create_quiz(name="Quiz")
+    quiz = quiz_repo.create_quiz(name="Quiz", user_id=user.id)
 
     # Create sessions at different times
     now = datetime.now()
@@ -299,7 +299,7 @@ def test_get_sessions_by_date_range(test_db):
     session_repo = SessionRepository(test_db)
 
     user = user_repo.create_user(name="user", email="user@example.com")
-    quiz = quiz_repo.create_quiz(name="Quiz")
+    quiz = quiz_repo.create_quiz(name="Quiz", user_id=user.id)
 
     session_repo.create_session(user.id, quiz.id, "learn")
     today = datetime.now()
@@ -325,7 +325,7 @@ def test_update_score(test_db):
     session_repo = SessionRepository(test_db)
 
     user = user_repo.create_user(name="user", email="user@example.com")
-    quiz = quiz_repo.create_quiz(name="Quiz")
+    quiz = quiz_repo.create_quiz(name="Quiz", user_id=user.id)
 
     session = session_repo.create_session(user.id, quiz.id, "test")
     updated = session_repo.update(session, score=95)
@@ -340,7 +340,7 @@ def test_get_best_score(test_db):
     session_repo = SessionRepository(test_db)
 
     user = user_repo.create_user(name="user", email="user@example.com")
-    quiz = quiz_repo.create_quiz(name="Quiz")
+    quiz = quiz_repo.create_quiz(name="Quiz", user_id=user.id)
 
     session_repo.create_session(user.id, quiz.id, "test", score=70)
     session_repo.create_session(user.id, quiz.id, "test", score=95)
@@ -360,7 +360,7 @@ def test_get_average_score_from_statistics(test_db):
     session_repo = SessionRepository(test_db)
 
     user = user_repo.create_user(name="user", email="user@example.com")
-    quiz = quiz_repo.create_quiz(name="Quiz")
+    quiz = quiz_repo.create_quiz(name="Quiz", user_id=user.id)
 
     session_repo.create_session(user.id, quiz.id, "test", score=70)
     session_repo.create_session(user.id, quiz.id, "test", score=80)
@@ -380,7 +380,7 @@ def test_get_user_statistics(test_db):
     session_repo = SessionRepository(test_db)
 
     user = user_repo.create_user(name="user", email="user@example.com")
-    quiz = quiz_repo.create_quiz(name="Quiz")
+    quiz = quiz_repo.create_quiz(name="Quiz", user_id=user.id)
 
     session_repo.create_session(user.id, quiz.id, "learn")
     session_repo.create_session(user.id, quiz.id, "test", score=85)
@@ -405,7 +405,7 @@ def test_update_session(test_db):
     session_repo = SessionRepository(test_db)
 
     user = user_repo.create_user(name="user", email="user@example.com")
-    quiz = quiz_repo.create_quiz(name="Quiz")
+    quiz = quiz_repo.create_quiz(name="Quiz", user_id=user.id)
 
     session = session_repo.create_session(user.id, quiz.id, "learn")
 
@@ -426,7 +426,7 @@ def test_delete_session(test_db):
     session_repo = SessionRepository(test_db)
 
     user = user_repo.create_user(name="user", email="user@example.com")
-    quiz = quiz_repo.create_quiz(name="Quiz")
+    quiz = quiz_repo.create_quiz(name="Quiz", user_id=user.id)
 
     session = session_repo.create_session(user.id, quiz.id, "learn")
     session_id = session.id
@@ -443,7 +443,7 @@ def test_delete_by_id(test_db):
     session_repo = SessionRepository(test_db)
 
     user = user_repo.create_user(name="user", email="user@example.com")
-    quiz = quiz_repo.create_quiz(name="Quiz")
+    quiz = quiz_repo.create_quiz(name="Quiz", user_id=user.id)
 
     session = session_repo.create_session(user.id, quiz.id, "learn")
 
@@ -464,7 +464,7 @@ def test_get_session_activity(test_db):
     session_repo = SessionRepository(test_db)
 
     user = user_repo.create_user(name="user", email="user@example.com")
-    quiz = quiz_repo.create_quiz(name="Quiz")
+    quiz = quiz_repo.create_quiz(name="Quiz", user_id=user.id)
 
     # Create multiple sessions
     for _ in range(5):
