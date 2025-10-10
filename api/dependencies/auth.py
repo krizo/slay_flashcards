@@ -80,13 +80,36 @@ async def login(
         login_data: LoginRequest,
         db: Session = Depends(get_db)
 ):
-    """Authenticate user and return access token."""
+    """Authenticate user and return access token. Accepts username or email."""
     try:
         user_service = UserService(db)
 
+        # Try to find user by username first, then by email
         user = user_service.get_user_by_name(login_data.username)
+        if not user:
+            # Try finding by email if username lookup fails
+            user = user_service.get_user_by_email(login_data.username)
 
         if not user:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid username or password")
+
+        # Password verification
+        # TESTING MODE: Uncomment the lines below to skip password verification for testing
+        # This is useful when you have users without password_hash in the database
+        # if True:  # Skip password check for testing
+        #     pass  # Skip to token creation
+        # else:
+
+        # PRODUCTION MODE: Verify password (comment out for testing without passwords)
+        if not hasattr(user, 'password_hash') or not user.password_hash:
+            # User has no password set (legacy data)
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid username or password")
+
+        if not verify_password(login_data.password, user.password_hash):
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid username or password")
@@ -109,10 +132,12 @@ async def login(
             message="Login successful"
         )
 
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=f"Authentication failed: {str(e)}"
+            detail="Authentication failed"
         ) from e
 
 
