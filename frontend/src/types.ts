@@ -40,7 +40,7 @@ export interface UserStats {
     learn_sessions: number;
     test_sessions: number;
     average_score: number | null;
-    best_score: number | null;
+    best_score: number | null;  // Float value to match API
     study_streak: number;
     favorite_subjects: { [key: string]: number }[]; // Simplified type
     sessions_this_week: number;
@@ -57,14 +57,50 @@ export interface Session {
     quiz_id: number;
     mode: SessionMode;
     started_at: string;
-    score: number | null;
+    score: number | null;  // Float value to match API
     completed_at: string | null;
-    // Add field for quiz name for readability in Dashboard (Quiz Name)
+    // Quiz details for display in Dashboard
     quiz_name?: string;
+    quiz_category?: string | null;
+    quiz_level?: string | null;
 }
 
 // Interface for chart data (Progress)
 export interface ProgressDataPoint {
     date: string; // e.g. YYYY-MM-DD
     score: number; // Average score for the given day
+}
+
+// Quiz interface for quiz management
+export interface Quiz {
+    id: number;
+    name: string;
+    subject: string;
+    category?: string | null;
+    level?: string | null;
+    description: string | null;
+    user_id: number;
+    flashcard_count?: number;
+    created_at?: string;
+    updated_at?: string;
+}
+
+// Request/Response types for Quiz operations
+export interface QuizCreateRequest {
+    name: string;
+    subject: string;
+    description?: string | null;
+}
+
+export interface QuizUpdateRequest {
+    name?: string;
+    subject?: string;
+    description?: string | null;
+}
+
+export interface QuizListResponse {
+    quizzes: Quiz[];
+    total: number;
+    page: number;
+    limit: number;
 }

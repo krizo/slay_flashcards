@@ -55,25 +55,38 @@ const ActivitySidebar = ({ recentSessions, isLoading, error }: ActivitySidebarPr
                 {/* Data state */}
                 {!isLoading && !error && recentSessions && recentSessions.length > 0 && (
                     <div className="activity-list">
-                        {recentSessions.map((session) => (
-                        <div key={session.id} className="activity-item">
-                            <div className="activity-icon">
-                                {session.mode === 'learn' ? '📖' : '✅'}
-                            </div>
-                            <div className="activity-content">
-                                <div className="activity-quiz-name">
-                                    {session.quiz_name || `Quiz #${session.quiz_id}`}
+                        {recentSessions.map((session) => {
+                            // Build category/level subtitle if they exist
+                            const subtitleParts = [];
+                            if (session.quiz_category) subtitleParts.push(session.quiz_category);
+                            if (session.quiz_level) subtitleParts.push(session.quiz_level);
+                            const subtitle = subtitleParts.length > 0 ? subtitleParts.join(' • ') : null;
+
+                            return (
+                                <div key={session.id} className="activity-item">
+                                    <div className="activity-icon">
+                                        {session.mode === 'learn' ? '📖' : '✅'}
+                                    </div>
+                                    <div className="activity-content">
+                                        <div className="activity-quiz-name">
+                                            {session.quiz_name || `Quiz #${session.quiz_id}`}
+                                        </div>
+                                        {subtitle && (
+                                            <div className="activity-quiz-details">
+                                                {subtitle}
+                                            </div>
+                                        )}
+                                        <div className="activity-meta">
+                                            <span className="activity-mode">{session.mode}</span>
+                                            {session.score !== null && (
+                                                <span className="activity-score">{Math.round(session.score)}%</span>
+                                            )}
+                                        </div>
+                                        <div className="activity-time">{formatDate(session.started_at)}</div>
+                                    </div>
                                 </div>
-                                <div className="activity-meta">
-                                    <span className="activity-mode">{session.mode}</span>
-                                    {session.score !== null && (
-                                        <span className="activity-score">{session.score}%</span>
-                                    )}
-                                </div>
-                                <div className="activity-time">{formatDate(session.started_at)}</div>
-                            </div>
-                        </div>
-                    ))}
+                            );
+                        })}
                     </div>
                 )}
             </div>

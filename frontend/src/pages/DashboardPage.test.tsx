@@ -10,6 +10,20 @@ vi.mock('../hooks/useDashboardData', () => ({
     useUserStats: vi.fn(),
     useRecentSessions: vi.fn(),
     useProgressData: vi.fn(),
+    useSessionsData: vi.fn(),
+}));
+
+// Mock the AuthContext module
+vi.mock('../context/AuthContext', () => ({
+    useAuth: () => ({
+        accessToken: 'mock-access-token',
+        user: { id: 1, name: 'Emila', email: 'emila@test.com', created_at: '2025-10-08T10:00:00Z' },
+        isLoading: false,
+        isAuthenticated: true,
+        login: vi.fn(),
+        register: vi.fn(),
+        logout: vi.fn(),
+    }),
 }));
 
 describe('DashboardPage', () => {
@@ -66,6 +80,16 @@ describe('DashboardPage', () => {
         { date: '2025-10-08', score: 88 },
     ];
 
+    const mockSessionsData = [
+        { date: '2025-10-04', learn: 2, test: 1 },
+        { date: '2025-10-05', learn: 1, test: 0 },
+        { date: '2025-10-06', learn: 3, test: 2 },
+        { date: '2025-10-07', learn: 0, test: 1 },
+        { date: '2025-10-08', learn: 2, test: 0 },
+        { date: '2025-10-09', learn: 1, test: 1 },
+        { date: '2025-10-10', learn: 2, test: 3 },
+    ];
+
     beforeEach(() => {
         vi.clearAllMocks();
 
@@ -93,6 +117,12 @@ describe('DashboardPage', () => {
             isLoading: false,
             error: null,
         });
+
+        vi.mocked(useDashboardData.useSessionsData).mockReturnValue({
+            data: mockSessionsData,
+            isLoading: false,
+            error: null,
+        });
     });
 
     it('renders page header with title and description', () => {
@@ -102,12 +132,13 @@ describe('DashboardPage', () => {
         expect(screen.getByText('Track your learning progress and stay motivated!')).toBeInTheDocument();
     });
 
-    it('renders all three main dashboard components', () => {
+    it('renders all main dashboard components', () => {
         render(<DashboardPage />);
 
         // Check for elements from each component
         expect(screen.getByText(/Welcome back/)).toBeInTheDocument(); // StatsSummaryCard
         expect(screen.getByText('Progress Over Time')).toBeInTheDocument(); // ProgressChartCard
+        expect(screen.getByText('Sessions Over Time')).toBeInTheDocument(); // SessionsChartCard
         expect(screen.getByText('Recent Activity')).toBeInTheDocument(); // ActivitySidebar
     });
 
@@ -160,6 +191,7 @@ describe('DashboardPage', () => {
         expect(useDashboardData.useUserStats).toHaveBeenCalledWith(1); // userId = 1
         expect(useDashboardData.useRecentSessions).toHaveBeenCalledWith(1, 5); // userId = 1, limit = 5
         expect(useDashboardData.useProgressData).toHaveBeenCalledWith(1, 7); // userId = 1, days = 7
+        expect(useDashboardData.useSessionsData).toHaveBeenCalledWith(1, 7); // userId = 1, days = 7
     });
 
     it('handles error state in StatsSummaryCard', () => {

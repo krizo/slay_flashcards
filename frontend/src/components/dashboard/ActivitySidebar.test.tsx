@@ -217,4 +217,274 @@ describe('ActivitySidebar', () => {
         expect(activityIcons[1].textContent).toBe('📖'); // Second session is learning one
         expect(activityIcons[2].textContent).toBe('✅'); // Third session is the test
     });
+
+    describe('Quiz Details Display', () => {
+        it('displays quiz category and level when both are provided', () => {
+            const sessionsWithDetails: Session[] = [
+                {
+                    id: 1,
+                    user_id: 1,
+                    quiz_id: 1,
+                    mode: 'test',
+                    started_at: new Date().toISOString(),
+                    score: 85,
+                    completed_at: new Date().toISOString(),
+                    quiz_name: 'Matematyka - Funkcje kwadratowe',
+                    quiz_category: 'Funkcje',
+                    quiz_level: 'Klasa 2',
+                },
+            ];
+
+            render(<ActivitySidebar recentSessions={sessionsWithDetails} />);
+
+            expect(screen.getByText('Matematyka - Funkcje kwadratowe')).toBeInTheDocument();
+            expect(screen.getByText('Funkcje • Klasa 2')).toBeInTheDocument();
+        });
+
+        it('displays only category when level is null', () => {
+            const sessionsWithCategory: Session[] = [
+                {
+                    id: 1,
+                    user_id: 1,
+                    quiz_id: 1,
+                    mode: 'learn',
+                    started_at: new Date().toISOString(),
+                    score: null,
+                    completed_at: new Date().toISOString(),
+                    quiz_name: 'Test Quiz',
+                    quiz_category: 'Algebra',
+                    quiz_level: null,
+                },
+            ];
+
+            render(<ActivitySidebar recentSessions={sessionsWithCategory} />);
+
+            expect(screen.getByText('Test Quiz')).toBeInTheDocument();
+            expect(screen.getByText('Algebra')).toBeInTheDocument();
+            expect(screen.queryByText('•')).not.toBeInTheDocument();
+        });
+
+        it('displays only level when category is null', () => {
+            const sessionsWithLevel: Session[] = [
+                {
+                    id: 1,
+                    user_id: 1,
+                    quiz_id: 1,
+                    mode: 'test',
+                    started_at: new Date().toISOString(),
+                    score: 90,
+                    completed_at: new Date().toISOString(),
+                    quiz_name: 'Test Quiz',
+                    quiz_category: null,
+                    quiz_level: 'Beginner',
+                },
+            ];
+
+            render(<ActivitySidebar recentSessions={sessionsWithLevel} />);
+
+            expect(screen.getByText('Test Quiz')).toBeInTheDocument();
+            expect(screen.getByText('Beginner')).toBeInTheDocument();
+            expect(screen.queryByText('•')).not.toBeInTheDocument();
+        });
+
+        it('does not display quiz details when both category and level are null', () => {
+            const sessionsWithoutDetails: Session[] = [
+                {
+                    id: 1,
+                    user_id: 1,
+                    quiz_id: 1,
+                    mode: 'learn',
+                    started_at: new Date().toISOString(),
+                    score: null,
+                    completed_at: new Date().toISOString(),
+                    quiz_name: 'Simple Quiz',
+                    quiz_category: null,
+                    quiz_level: null,
+                },
+            ];
+
+            const { container } = render(<ActivitySidebar recentSessions={sessionsWithoutDetails} />);
+
+            expect(screen.getByText('Simple Quiz')).toBeInTheDocument();
+            expect(container.querySelector('.activity-quiz-details')).not.toBeInTheDocument();
+        });
+
+        it('does not display quiz details when both are undefined', () => {
+            const sessionsWithoutDetails: Session[] = [
+                {
+                    id: 1,
+                    user_id: 1,
+                    quiz_id: 1,
+                    mode: 'test',
+                    started_at: new Date().toISOString(),
+                    score: 75,
+                    completed_at: new Date().toISOString(),
+                    quiz_name: 'Basic Quiz',
+                },
+            ];
+
+            const { container } = render(<ActivitySidebar recentSessions={sessionsWithoutDetails} />);
+
+            expect(screen.getByText('Basic Quiz')).toBeInTheDocument();
+            expect(container.querySelector('.activity-quiz-details')).not.toBeInTheDocument();
+        });
+
+        it('applies correct CSS class to quiz details', () => {
+            const sessionsWithDetails: Session[] = [
+                {
+                    id: 1,
+                    user_id: 1,
+                    quiz_id: 1,
+                    mode: 'test',
+                    started_at: new Date().toISOString(),
+                    score: 88,
+                    completed_at: new Date().toISOString(),
+                    quiz_name: 'Quiz Name',
+                    quiz_category: 'Category',
+                    quiz_level: 'Level',
+                },
+            ];
+
+            const { container } = render(<ActivitySidebar recentSessions={sessionsWithDetails} />);
+
+            const detailsElement = container.querySelector('.activity-quiz-details');
+            expect(detailsElement).toBeInTheDocument();
+            expect(detailsElement?.textContent).toBe('Category • Level');
+        });
+
+        it('separates category and level with bullet point', () => {
+            const sessionsWithDetails: Session[] = [
+                {
+                    id: 1,
+                    user_id: 1,
+                    quiz_id: 1,
+                    mode: 'learn',
+                    started_at: new Date().toISOString(),
+                    score: null,
+                    completed_at: new Date().toISOString(),
+                    quiz_name: 'Physics Quiz',
+                    quiz_category: 'Mechanics',
+                    quiz_level: 'Advanced',
+                },
+            ];
+
+            render(<ActivitySidebar recentSessions={sessionsWithDetails} />);
+
+            expect(screen.getByText('Mechanics • Advanced')).toBeInTheDocument();
+        });
+
+        it('handles multiple sessions with varying quiz details', () => {
+            const mixedSessions: Session[] = [
+                {
+                    id: 1,
+                    user_id: 1,
+                    quiz_id: 1,
+                    mode: 'test',
+                    started_at: new Date().toISOString(),
+                    score: 85,
+                    completed_at: new Date().toISOString(),
+                    quiz_name: 'Quiz 1',
+                    quiz_category: 'Cat1',
+                    quiz_level: 'Lv1',
+                },
+                {
+                    id: 2,
+                    user_id: 1,
+                    quiz_id: 2,
+                    mode: 'learn',
+                    started_at: new Date().toISOString(),
+                    score: null,
+                    completed_at: new Date().toISOString(),
+                    quiz_name: 'Quiz 2',
+                    quiz_category: 'Cat2',
+                    quiz_level: null,
+                },
+                {
+                    id: 3,
+                    user_id: 1,
+                    quiz_id: 3,
+                    mode: 'test',
+                    started_at: new Date().toISOString(),
+                    score: 90,
+                    completed_at: new Date().toISOString(),
+                    quiz_name: 'Quiz 3',
+                    quiz_category: null,
+                    quiz_level: null,
+                },
+            ];
+
+            const { container } = render(<ActivitySidebar recentSessions={mixedSessions} />);
+
+            expect(screen.getByText('Cat1 • Lv1')).toBeInTheDocument();
+            expect(screen.getByText('Cat2')).toBeInTheDocument();
+            expect(container.querySelectorAll('.activity-quiz-details')).toHaveLength(2);
+        });
+    });
+
+    describe('Score Rounding', () => {
+        it('rounds decimal scores to integers', () => {
+            const sessionsWithDecimals: Session[] = [
+                {
+                    id: 1,
+                    user_id: 1,
+                    quiz_id: 1,
+                    mode: 'test',
+                    started_at: new Date().toISOString(),
+                    score: 76.20143411436945,
+                    completed_at: new Date().toISOString(),
+                    quiz_name: 'Test Quiz',
+                },
+                {
+                    id: 2,
+                    user_id: 1,
+                    quiz_id: 2,
+                    mode: 'test',
+                    started_at: new Date().toISOString(),
+                    score: 88.7,
+                    completed_at: new Date().toISOString(),
+                    quiz_name: 'Quiz 2',
+                },
+                {
+                    id: 3,
+                    user_id: 1,
+                    quiz_id: 3,
+                    mode: 'test',
+                    started_at: new Date().toISOString(),
+                    score: 91.3,
+                    completed_at: new Date().toISOString(),
+                    quiz_name: 'Quiz 3',
+                },
+            ];
+
+            render(<ActivitySidebar recentSessions={sessionsWithDecimals} />);
+
+            expect(screen.getByText('76%')).toBeInTheDocument();
+            expect(screen.getByText('89%')).toBeInTheDocument();
+            expect(screen.getByText('91%')).toBeInTheDocument();
+
+            // Should not display decimal scores
+            expect(screen.queryByText('76.20143411436945%')).not.toBeInTheDocument();
+            expect(screen.queryByText('88.7%')).not.toBeInTheDocument();
+            expect(screen.queryByText('91.3%')).not.toBeInTheDocument();
+        });
+
+        it('rounds score 0.5 up', () => {
+            const sessionsWithHalf: Session[] = [
+                {
+                    id: 1,
+                    user_id: 1,
+                    quiz_id: 1,
+                    mode: 'test',
+                    started_at: new Date().toISOString(),
+                    score: 85.5,
+                    completed_at: new Date().toISOString(),
+                    quiz_name: 'Test',
+                },
+            ];
+
+            render(<ActivitySidebar recentSessions={sessionsWithHalf} />);
+
+            expect(screen.getByText('86%')).toBeInTheDocument();
+        });
+    });
 });
