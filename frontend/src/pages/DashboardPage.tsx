@@ -1,14 +1,15 @@
+import { useAuth } from '../context/AuthContext';
 import StatsSummaryCard from '../components/dashboard/StatsSummaryCard';
 import ProgressChartCard from '../components/dashboard/ProgressChartCard';
 import ActivitySidebar from '../components/dashboard/ActivitySidebar';
-import { useCurrentUser, useUserStats, useRecentSessions, useProgressData } from '../hooks/useDashboardData';
+import { useUserStats, useRecentSessions, useProgressData } from '../hooks/useDashboardData';
 
 function DashboardPage() {
-    // TODO: Replace with actual user ID from auth context
-    const userId = 1;
+    // Get user from auth context
+    const { user } = useAuth();
+    const userId = user?.id || 0;
 
-    // Fetch current user and dashboard data using custom hooks
-    const { data: currentUser } = useCurrentUser();
+    // Fetch dashboard data using custom hooks
     const { data: stats, isLoading: statsLoading, error: statsError } = useUserStats(userId);
     const { data: sessions, isLoading: sessionsLoading, error: sessionsError } = useRecentSessions(userId, 5);
     const { data: progress, isLoading: progressLoading, error: progressError } = useProgressData(userId, 7);
@@ -26,7 +27,7 @@ function DashboardPage() {
                 <div className="dashboard-main">
                     <StatsSummaryCard
                         stats={stats}
-                        userName={currentUser?.name}
+                        userName={user?.name}
                         isLoading={statsLoading}
                         error={statsError}
                     />

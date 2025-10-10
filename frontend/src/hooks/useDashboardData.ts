@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { apiClient } from '../services/apiClient';
+import { useAuth } from '../context/AuthContext';
 import { UserStats, Session, ProgressDataPoint, User } from '../types';
 
 // Generic hook return type
@@ -14,6 +15,7 @@ interface UseApiResult<T> {
  * Fetches from GET /api/v1/auth/me
  */
 export function useCurrentUser(): UseApiResult<User> {
+    const { accessToken } = useAuth();
     const [user, setUser] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [error, setError] = useState<Error | null>(null);
@@ -23,7 +25,7 @@ export function useCurrentUser(): UseApiResult<User> {
             try {
                 setIsLoading(true);
                 setError(null);
-                const data = await apiClient<User>('/auth/me');
+                const data = await apiClient<User>('/auth/me', undefined, accessToken);
                 setUser(data);
             } catch (err) {
                 setError(err instanceof Error ? err : new Error('Failed to fetch user information'));
@@ -32,8 +34,12 @@ export function useCurrentUser(): UseApiResult<User> {
             }
         };
 
-        fetchUser();
-    }, []);
+        if (accessToken) {
+            fetchUser();
+        } else {
+            setIsLoading(false);
+        }
+    }, [accessToken]);
 
     return { data: user, isLoading, error };
 }
@@ -43,6 +49,7 @@ export function useCurrentUser(): UseApiResult<User> {
  * Fetches from GET /api/v1/users/{userId}/statistics
  */
 export function useUserStats(userId: number): UseApiResult<UserStats> {
+    const { accessToken } = useAuth();
     const [stats, setStats] = useState<UserStats | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [error, setError] = useState<Error | null>(null);
@@ -52,7 +59,7 @@ export function useUserStats(userId: number): UseApiResult<UserStats> {
             try {
                 setIsLoading(true);
                 setError(null);
-                const data = await apiClient<UserStats>(`/users/${userId}/statistics`);
+                const data = await apiClient<UserStats>(`/users/${userId}/statistics`, undefined, accessToken);
                 setStats(data);
             } catch (err) {
                 setError(err instanceof Error ? err : new Error('Failed to fetch user statistics'));
@@ -61,8 +68,12 @@ export function useUserStats(userId: number): UseApiResult<UserStats> {
             }
         };
 
-        fetchStats();
-    }, [userId]);
+        if (accessToken) {
+            fetchStats();
+        } else {
+            setIsLoading(false);
+        }
+    }, [userId, accessToken]);
 
     return { data: stats, isLoading, error };
 }
@@ -72,6 +83,7 @@ export function useUserStats(userId: number): UseApiResult<UserStats> {
  * Fetches from GET /api/v1/sessions/user/{userId}/recent?limit=4
  */
 export function useRecentSessions(userId: number, limit: number = 5): UseApiResult<Session[]> {
+    const { accessToken } = useAuth();
     const [sessions, setSessions] = useState<Session[] | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [error, setError] = useState<Error | null>(null);
@@ -81,7 +93,7 @@ export function useRecentSessions(userId: number, limit: number = 5): UseApiResu
             try {
                 setIsLoading(true);
                 setError(null);
-                const data = await apiClient<Session[]>(`/sessions/user/${userId}/recent?limit=${limit}`);
+                const data = await apiClient<Session[]>(`/sessions/user/${userId}/recent?limit=${limit}`, undefined, accessToken);
                 setSessions(data);
             } catch (err) {
                 setError(err instanceof Error ? err : new Error('Failed to fetch recent sessions'));
@@ -90,8 +102,12 @@ export function useRecentSessions(userId: number, limit: number = 5): UseApiResu
             }
         };
 
-        fetchSessions();
-    }, [userId, limit]);
+        if (accessToken) {
+            fetchSessions();
+        } else {
+            setIsLoading(false);
+        }
+    }, [userId, limit, accessToken]);
 
     return { data: sessions, isLoading, error };
 }
@@ -119,6 +135,7 @@ interface ProgressApiResponse {
  * Transforms the API response into chart-ready data
  */
 export function useProgressData(userId: number, days: number = 7): UseApiResult<ProgressDataPoint[]> {
+    const { accessToken } = useAuth();
     const [progress, setProgress] = useState<ProgressDataPoint[] | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [error, setError] = useState<Error | null>(null);
@@ -128,7 +145,7 @@ export function useProgressData(userId: number, days: number = 7): UseApiResult<
             try {
                 setIsLoading(true);
                 setError(null);
-                const data = await apiClient<ProgressApiResponse>(`/users/${userId}/progress?days=${days}`);
+                const data = await apiClient<ProgressApiResponse>(`/users/${userId}/progress?days=${days}`, undefined, accessToken);
 
                 // Transform the API response into chart data format
                 const chartData: ProgressDataPoint[] = Object.entries(data.daily_activity)
@@ -146,8 +163,12 @@ export function useProgressData(userId: number, days: number = 7): UseApiResult<
             }
         };
 
-        fetchProgress();
-    }, [userId, days]);
+        if (accessToken) {
+            fetchProgress();
+        } else {
+            setIsLoading(false);
+        }
+    }, [userId, days, accessToken]);
 
     return { data: progress, isLoading, error };
 }

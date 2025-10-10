@@ -1,4 +1,5 @@
-import { UserStats } from '../../types';
+import {UserStats} from '../../types';
+import {capitalize} from '../../utils/textUtils';
 
 interface StatsSummaryCardProps {
     stats: UserStats | null;
@@ -7,7 +8,7 @@ interface StatsSummaryCardProps {
     error?: Error | null;
 }
 
-const StatsSummaryCard = ({ stats, userName = 'User', isLoading, error }: StatsSummaryCardProps) => {
+const StatsSummaryCard = ({stats, userName = 'User', isLoading, error}: StatsSummaryCardProps) => {
     // Loading state
     if (isLoading) {
         return (
@@ -48,7 +49,9 @@ const StatsSummaryCard = ({ stats, userName = 'User', isLoading, error }: StatsS
     return (
         <div className="dashboard-card stats-summary-card">
             <div className="stats-welcome">
-                <h2 className="welcome-message">Welcome back, {userName}! 👋</h2>
+                <h2 className="welcome-message">
+                    Welcome back, {capitalize(userName)}! 👋
+                </h2>
                 <p className="welcome-subtitle">Here's your learning progress</p>
             </div>
 
