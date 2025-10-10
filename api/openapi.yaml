@@ -22,7 +22,8 @@ paths:
       tags:
       - authentication
       summary: Login
-      description: Authenticate user and return access token.
+      description: Authenticate user and return access token. Accepts username or
+        email.
       operationId: login_api_v1_auth_login_post
       requestBody:
         content:
@@ -73,9 +74,9 @@ paths:
     get:
       tags:
       - authentication
-      summary: Get Current User
+      summary: Get Current User Info
       description: Get current user information.
-      operationId: get_current_user_api_v1_auth_me_get
+      operationId: get_current_user_info_api_v1_auth_me_get
       responses:
         '200':
           description: Successful Response
@@ -445,7 +446,8 @@ paths:
               schema:
                 type: object
                 additionalProperties: true
-                title: Response Get User Progress Api V1 Users  User Id  Progress Get
+                title: Response Get User Progress Api V1 Users  User Id  Progress
+                  Get
         '422':
           description: Validation Error
           content:
@@ -480,7 +482,7 @@ paths:
           - type: string
           - type: 'null'
           description: Filter by session mode
-          default: "test"
+          default: test
           title: Mode
         description: Filter by session mode
       - name: limit
@@ -491,7 +493,7 @@ paths:
           maximum: 100
           minimum: 1
           description: Number of top users
-          default: "10"
+          default: 10
           title: Limit
         description: Number of top users
       responses:
@@ -587,6 +589,22 @@ paths:
           - type: string
           - type: 'null'
           title: Subject
+      - name: category
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Category
+      - name: level
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Level
       - name: name_contains
         in: query
         required: false
@@ -1293,7 +1311,8 @@ paths:
               schema:
                 type: object
                 additionalProperties: true
-                title: Response Get Flashcard Answer Types Api V1 Flashcards Quiz  Quiz Id  Types Get
+                title: Response Get Flashcard Answer Types Api V1 Flashcards Quiz  Quiz
+                  Id  Types Get
         '422':
           description: Validation Error
           content:
@@ -1700,7 +1719,8 @@ paths:
               schema:
                 type: object
                 additionalProperties: true
-                title: Response Get Quiz Performance Stats Api V1 Sessions Quiz  Quiz Id  Performance Get
+                title: Response Get Quiz Performance Stats Api V1 Sessions Quiz  Quiz
+                  Id  Performance Get
         '422':
           description: Validation Error
           content:
@@ -2167,6 +2187,20 @@ components:
           - type: 'null'
           title: Subject
           description: Quiz subject
+        category:
+          anyOf:
+          - type: string
+            maxLength: 100
+          - type: 'null'
+          title: Category
+          description: Category within subject (e.g., Poland)
+        level:
+          anyOf:
+          - type: string
+            maxLength: 50
+          - type: 'null'
+          title: Level
+          description: Level of advancement (e.g., Beginner, Class 5)
         description:
           anyOf:
           - type: string
@@ -2208,6 +2242,20 @@ components:
           - type: 'null'
           title: Subject
           description: Quiz subject
+        category:
+          anyOf:
+          - type: string
+            maxLength: 100
+          - type: 'null'
+          title: Category
+          description: Category within subject (e.g., Poland)
+        level:
+          anyOf:
+          - type: string
+            maxLength: 50
+          - type: 'null'
+          title: Level
+          description: Level of advancement (e.g., Beginner, Class 5)
         description:
           anyOf:
           - type: string
@@ -2350,6 +2398,18 @@ components:
             maxLength: 100
           - type: 'null'
           title: Subject
+        category:
+          anyOf:
+          - type: string
+            maxLength: 100
+          - type: 'null'
+          title: Category
+        level:
+          anyOf:
+          - type: string
+            maxLength: 50
+          - type: 'null'
+          title: Level
         description:
           anyOf:
           - type: string
@@ -2844,7 +2904,8 @@ components:
       - learn_sessions
       - test_sessions
       title: UserStats
-      description: User statistics schema - must match UserService.get_user_statistics() return dict.
+      description: User statistics schema - must match UserService.get_user_statistics()
+        return dict.
     UserStatsResponse:
       properties:
         success:

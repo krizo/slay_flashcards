@@ -37,13 +37,18 @@ class QuizService:
     # QUIZ OPERATIONS
     # =========================================================================
 
-    def get_all_quizzes(self) -> Sequence[models.Quiz]:
+    def get_all_quizzes(self, user_id: Optional[int] = None) -> Sequence[models.Quiz]:
         """
-        Get all available quizzes.
+        Get all available quizzes, optionally filtered by user.
+
+        Args:
+            user_id: Optional user ID to filter quizzes by ownership
 
         Returns:
-            List of all quizzes
+            List of all quizzes (or user's quizzes if user_id provided)
         """
+        if user_id is not None:
+            return self.quiz_repo.get_by_user_id(user_id)
         return self.quiz_repo.get_all()
 
     def get_quiz_by_id(self, quiz_id: int) -> Optional[models.Quiz]:
@@ -58,19 +63,30 @@ class QuizService:
         """
         return self.quiz_repo.get_by_id(quiz_id)
 
-    def create_quiz(self, name: str, subject: Optional[str] = None, description: Optional[str] = None) -> models.Quiz:
+    def create_quiz(
+        self,
+        name: str,
+        user_id: int,
+        subject: Optional[str] = None,
+        category: Optional[str] = None,
+        level: Optional[str] = None,
+        description: Optional[str] = None
+    ) -> models.Quiz:
         """
         Create a new quiz.
 
         Args:
             name: Quiz name
+            user_id: ID of the user who owns this quiz
             subject: Optional subject/category
+            category: Optional category within subject (e.g., "Poland" within "Geography")
+            level: Optional level of advancement (e.g., "Beginner", "Class 5")
             description: Optional description
 
         Returns:
             Created quiz instance
         """
-        return self.quiz_repo.create_quiz(name, subject, description)
+        return self.quiz_repo.create_quiz(name, user_id, subject, category, level, description)
 
     def delete_quiz(self, quiz_id: int) -> bool:
         """
@@ -136,29 +152,31 @@ class QuizService:
     # IMPORT OPERATIONS
     # =========================================================================
 
-    def import_quiz_from_file(self, file_path: str) -> models.Quiz:
+    def import_quiz_from_file(self, file_path: str, user_id: int) -> models.Quiz:
         """
         Import a quiz from a JSON file.
 
         Args:
             file_path: Path to JSON file
+            user_id: ID of the user who will own this quiz
 
         Returns:
             Imported quiz instance
         """
-        return importers.import_quiz_from_file(self.db, file_path)
+        return importers.import_quiz_from_file(self.db, file_path, user_id)
 
-    def import_quiz_from_dict(self, data: dict) -> models.Quiz:
+    def import_quiz_from_dict(self, data: dict, user_id: int) -> models.Quiz:
         """
         Import a quiz from a dictionary.
 
         Args:
             data: Quiz data dictionary
+            user_id: ID of the user who will own this quiz
 
         Returns:
             Imported quiz instance
         """
-        return importers.import_quiz_from_dict(self.db, data)
+        return importers.import_quiz_from_dict(self.db, data, user_id)
 
     # =========================================================================
     # STATISTICS AND ANALYSIS

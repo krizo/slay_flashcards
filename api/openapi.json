@@ -32,7 +32,7 @@
           "authentication"
         ],
         "summary": "Login",
-        "description": "Authenticate user and return access token.",
+        "description": "Authenticate user and return access token. Accepts username or email.",
         "operationId": "login_api_v1_auth_login_post",
         "requestBody": {
           "content": {
@@ -115,9 +115,9 @@
         "tags": [
           "authentication"
         ],
-        "summary": "Get Current User",
+        "summary": "Get Current User Info",
         "description": "Get current user information.",
-        "operationId": "get_current_user_api_v1_auth_me_get",
+        "operationId": "get_current_user_info_api_v1_auth_me_get",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -947,6 +947,38 @@
                 }
               ],
               "title": "Subject"
+            }
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Category"
+            }
+          },
+          {
+            "name": "level",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Level"
             }
           },
           {
@@ -3514,6 +3546,32 @@
             "title": "Subject",
             "description": "Quiz subject"
           },
+          "category": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Category",
+            "description": "Category within subject (e.g., Poland)"
+          },
+          "level": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 50
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Level",
+            "description": "Level of advancement (e.g., Beginner, Class 5)"
+          },
           "description": {
             "anyOf": [
               {
@@ -3578,6 +3636,32 @@
             ],
             "title": "Subject",
             "description": "Quiz subject"
+          },
+          "category": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Category",
+            "description": "Category within subject (e.g., Poland)"
+          },
+          "level": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 50
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Level",
+            "description": "Level of advancement (e.g., Beginner, Class 5)"
           },
           "description": {
             "anyOf": [
@@ -3796,6 +3880,30 @@
               }
             ],
             "title": "Subject"
+          },
+          "category": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Category"
+          },
+          "level": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 50
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Level"
           },
           "description": {
             "anyOf": [

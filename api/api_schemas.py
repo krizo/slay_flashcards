@@ -173,6 +173,8 @@ class QuizBase(BaseModel):
 
     name: str = Field(..., min_length=1, max_length=200, description="Quiz name")
     subject: Optional[str] = Field(None, max_length=100, description="Quiz subject")
+    category: Optional[str] = Field(None, max_length=100, description="Category within subject (e.g., Poland)")
+    level: Optional[str] = Field(None, max_length=50, description="Level of advancement (e.g., Beginner, Class 5)")
     description: Optional[str] = Field(None, max_length=1000, description="Quiz description")
 
 
@@ -185,6 +187,8 @@ class QuizUpdate(BaseModel):
 
     name: Optional[str] = Field(None, min_length=1, max_length=200)
     subject: Optional[str] = Field(None, max_length=100)
+    category: Optional[str] = Field(None, max_length=100)
+    level: Optional[str] = Field(None, max_length=50)
     description: Optional[str] = Field(None, max_length=1000)
 
 
@@ -525,6 +529,8 @@ class QuizFilters(BaseModel):
     """Quiz filtering parameters."""
 
     subject: Optional[str] = None
+    category: Optional[str] = None
+    level: Optional[str] = None
     name_contains: Optional[str] = None
     difficulty_min: Optional[int] = Field(None, ge=1, le=5)
     difficulty_max: Optional[int] = Field(None, ge=1, le=5)
