@@ -18,6 +18,7 @@ class User(Base):
 
     # Relationships
     sessions = relationship("Session", back_populates="user", cascade="all, delete-orphan")
+    quizzes = relationship("Quiz", back_populates="user", cascade="all, delete-orphan")
 
     # Ensure both username and email are unique
     __table_args__ = (
@@ -30,12 +31,16 @@ class Quiz(Base):
     __tablename__ = "quizzes"
 
     id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
     name = Column(String, nullable=False)
     subject = Column(String)
+    category = Column(String, nullable=True)  # NEW: Category within subject (e.g., "Poland" within "Geography")
+    level = Column(String, nullable=True)     # NEW: Level of advancement (e.g., "Beginner", "Class 5")
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
     description = Column(Text)
 
-    flashcards = relationship("Flashcard", back_populates="quiz")
+    user = relationship("User", back_populates="quizzes")
+    flashcards = relationship("Flashcard", back_populates="quiz", cascade="all, delete-orphan")
     sessions = relationship("Session", back_populates="quiz")
 
 

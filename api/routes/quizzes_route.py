@@ -27,18 +27,24 @@ async def get_quizzes(
     db: Session = Depends(get_db),
     pagination: PaginationParams = Depends(),
     filters: QuizFilters = Depends(),
-    current_user = Depends(get_current_user)  # pylint: disable=unused-argument
+    current_user = Depends(get_current_user)
 ):
     """Get all quizzes with optional filtering and pagination."""
     try:
         quiz_service = QuizService(db)
 
-        # Get base query
-        quizzes_query = quiz_service.get_all_quizzes()
+        # Get base query filtered by current user
+        quizzes_query = quiz_service.get_all_quizzes(user_id=current_user.id)
 
         # Apply filters
         if filters.subject:
             quizzes_query = [q for q in quizzes_query if q.subject == filters.subject]
+
+        if filters.category:
+            quizzes_query = [q for q in quizzes_query if q.category == filters.category]
+
+        if filters.level:
+            quizzes_query = [q for q in quizzes_query if q.level == filters.level]
 
         if filters.name_contains:
             quizzes_query = [q for q in quizzes_query
@@ -58,6 +64,8 @@ async def get_quizzes(
                 "id": quiz.id,
                 "name": quiz.name,
                 "subject": quiz.subject,
+                "category": quiz.category,
+                "level": quiz.level,
                 "description": quiz.description,
                 "created_at": quiz.created_at,
                 "flashcard_count": len(flashcards)
@@ -104,6 +112,8 @@ async def get_quiz(
             "id": quiz.id,
             "name": quiz.name,
             "subject": quiz.subject,
+                "category": quiz.category,
+                "level": quiz.level,
             "description": quiz.description,
             "created_at": quiz.created_at,
             "flashcard_count": len(flashcards)
@@ -127,14 +137,17 @@ async def get_quiz(
 async def create_quiz(
     quiz_data: QuizCreate,
     db: Session = Depends(get_db),
-    current_user = Depends(get_current_user)  # pylint: disable=unused-argument
+    current_user = Depends(get_current_user)
 ):
     """Create a new quiz."""
     try:
         quiz_service = QuizService(db)
         quiz = quiz_service.create_quiz(
             name=quiz_data.name,
+            user_id=current_user.id,
             subject=quiz_data.subject,
+            category=quiz_data.category,
+            level=quiz_data.level,
             description=quiz_data.description
         )
 
@@ -142,6 +155,8 @@ async def create_quiz(
             "id": quiz.id,
             "name": quiz.name,
             "subject": quiz.subject,
+                "category": quiz.category,
+                "level": quiz.level,
             "description": quiz.description,
             "created_at": quiz.created_at,
             "flashcard_count": 0
@@ -191,6 +206,8 @@ async def update_quiz(
             "id": quiz.id,
             "name": quiz.name,
             "subject": quiz.subject,
+                "category": quiz.category,
+                "level": quiz.level,
             "description": quiz.description,
             "created_at": quiz.created_at,
             "flashcard_count": len(flashcards)
@@ -290,7 +307,7 @@ async def get_quiz_statistics(
 async def import_quiz(
     quiz_data: QuizImportData,
     db: Session = Depends(get_db),
-    current_user = Depends(get_current_user)  # pylint: disable=unused-argument
+    current_user = Depends(get_current_user)
 ):
     """Import a quiz from JSON data."""
     try:
@@ -303,13 +320,15 @@ async def import_quiz(
                 detail="Invalid quiz data format"
             )
 
-        quiz = quiz_service.import_quiz_from_dict(quiz_data.model_dump())
+        quiz = quiz_service.import_quiz_from_dict(quiz_data.model_dump(), current_user.id)
 
         flashcards = quiz_service.get_quiz_flashcards(quiz.id)
         quiz_dict = {
             "id": quiz.id,
             "name": quiz.name,
             "subject": quiz.subject,
+                "category": quiz.category,
+                "level": quiz.level,
             "description": quiz.description,
             "created_at": quiz.created_at,
             "flashcard_count": len(flashcards)
@@ -334,7 +353,7 @@ async def import_quiz(
 async def import_quiz_file(
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
-    current_user = Depends(get_current_user)  # pylint: disable=unused-argument
+    current_user = Depends(get_current_user)
 ):
     """Import a quiz from uploaded JSON file."""
     try:
@@ -364,13 +383,15 @@ async def import_quiz_file(
                 detail="Invalid quiz data structure"
             )
 
-        quiz = quiz_service.import_quiz_from_dict(quiz_data)
+        quiz = quiz_service.import_quiz_from_dict(quiz_data, current_user.id)
 
         flashcards = quiz_service.get_quiz_flashcards(quiz.id)
         quiz_dict = {
             "id": quiz.id,
             "name": quiz.name,
             "subject": quiz.subject,
+                "category": quiz.category,
+                "level": quiz.level,
             "description": quiz.description,
             "created_at": quiz.created_at,
             "flashcard_count": len(flashcards)
@@ -415,6 +436,8 @@ async def export_quiz(
             "quiz": {
                 "name": quiz.name,
                 "subject": quiz.subject,
+                "category": quiz.category,
+                "level": quiz.level,
                 "description": quiz.description,
                 "created_at": quiz.created_at.isoformat() if quiz.created_at else None
             },
@@ -482,7 +505,10 @@ async def duplicate_quiz(
         duplicate_name = new_name or f"{original_quiz.name} (Copy)"
         new_quiz = quiz_service.create_quiz(
             name=duplicate_name,
+            user_id=current_user.id,
             subject=original_quiz.subject,
+            category=original_quiz.category,
+            level=original_quiz.level,
             description=original_quiz.description
         )
 
@@ -519,6 +545,8 @@ async def duplicate_quiz(
             "id": new_quiz.id,
             "name": new_quiz.name,
             "subject": new_quiz.subject,
+            "category": new_quiz.category,
+            "level": new_quiz.level,
             "description": new_quiz.description,
             "created_at": new_quiz.created_at,
             "flashcard_count": len(flashcard_data)
@@ -545,12 +573,12 @@ async def search_quizzes(
     subject: Optional[str] = Query(None, description="Filter by subject"),
     limit: int = Query(20, ge=1, le=100, description="Maximum results"),
     db: Session = Depends(get_db),
-    current_user = Depends(get_current_user)  # pylint: disable=unused-argument
+    current_user = Depends(get_current_user)
 ):
     """Search quizzes by name, subject, or description."""
     try:
         quiz_service = QuizService(db)
-        all_quizzes = quiz_service.get_all_quizzes()
+        all_quizzes = quiz_service.get_all_quizzes(user_id=current_user.id)
 
         # Filter by search query
         search_results = []
@@ -574,6 +602,8 @@ async def search_quizzes(
                     "id": quiz.id,
                     "name": quiz.name,
                     "subject": quiz.subject,
+                "category": quiz.category,
+                "level": quiz.level,
                     "description": quiz.description,
                     "created_at": quiz.created_at,
                     "flashcard_count": len(flashcards)
@@ -598,12 +628,12 @@ async def search_quizzes(
 @router.get("/subjects", response_model=dict)
 async def get_subjects(
     db: Session = Depends(get_db),
-    current_user = Depends(get_current_user)  # pylint: disable=unused-argument
+    current_user = Depends(get_current_user)
 ):
     """Get all unique subjects with quiz counts."""
     try:
         quiz_service = QuizService(db)
-        all_quizzes = quiz_service.get_all_quizzes()
+        all_quizzes = quiz_service.get_all_quizzes(user_id=current_user.id)
 
         subjects = {}
         for quiz in all_quizzes:
