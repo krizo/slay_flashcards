@@ -13,6 +13,16 @@ import pytest
 
 from core.db.crud.repository.quiz_repository import QuizRepository
 from core.db.crud.repository.flashcard_repository import FlashcardRepository
+from core.db.models import User
+
+
+def _create_test_user(db):
+    """Helper to create a test user for quiz ownership."""
+    user = User(name="testuser", email="test@example.com", password_hash="hash")
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+    return user
 
 
 # =============================================================================
@@ -21,10 +31,11 @@ from core.db.crud.repository.flashcard_repository import FlashcardRepository
 
 def test_create_flashcard_minimal(test_db):
     """Test creating flashcard with minimal required fields."""
+    user = _create_test_user(test_db)
     quiz_repo = QuizRepository(test_db)
     flashcard_repo = FlashcardRepository(test_db)
 
-    quiz = quiz_repo.create_quiz(name="Test Quiz")
+    quiz = quiz_repo.create_quiz(name="Test Quiz", user_id=user.id)
 
     flashcard = flashcard_repo.create_flashcard(
         quiz.id,
@@ -42,10 +53,11 @@ def test_create_flashcard_minimal(test_db):
 
 def test_create_flashcard_full(test_db):
     """Test creating flashcard with all fields."""
+    user = _create_test_user(test_db)
     quiz_repo = QuizRepository(test_db)
     flashcard_repo = FlashcardRepository(test_db)
 
-    quiz = quiz_repo.create_quiz(name="Test Quiz")
+    quiz = quiz_repo.create_quiz(name="Test Quiz", user_id=user.id)
 
     flashcard = flashcard_repo.create_flashcard(
         quiz.id,
@@ -74,10 +86,11 @@ def test_create_flashcard_full(test_db):
 
 def test_create_flashcard_with_integer_answer(test_db):
     """Test creating flashcard with integer answer type."""
+    user = _create_test_user(test_db)
     quiz_repo = QuizRepository(test_db)
     flashcard_repo = FlashcardRepository(test_db)
 
-    quiz = quiz_repo.create_quiz(name="Math Quiz")
+    quiz = quiz_repo.create_quiz(name="Math Quiz", user_id=user.id)
 
     flashcard = flashcard_repo.create_flashcard(
         quiz.id,
@@ -95,10 +108,11 @@ def test_create_flashcard_with_integer_answer(test_db):
 
 def test_create_flashcard_with_float_answer(test_db):
     """Test creating flashcard with float answer type."""
+    user = _create_test_user(test_db)
     quiz_repo = QuizRepository(test_db)
     flashcard_repo = FlashcardRepository(test_db)
 
-    quiz = quiz_repo.create_quiz(name="Math Quiz")
+    quiz = quiz_repo.create_quiz(name="Math Quiz", user_id=user.id)
 
     flashcard = flashcard_repo.create_flashcard(
         quiz.id,
@@ -116,10 +130,11 @@ def test_create_flashcard_with_float_answer(test_db):
 
 def test_create_flashcard_with_range_answer(test_db):
     """Test creating flashcard with range answer type."""
+    user = _create_test_user(test_db)
     quiz_repo = QuizRepository(test_db)
     flashcard_repo = FlashcardRepository(test_db)
 
-    quiz = quiz_repo.create_quiz(name="Estimation Quiz")
+    quiz = quiz_repo.create_quiz(name="Estimation Quiz", user_id=user.id)
 
     flashcard = flashcard_repo.create_flashcard(
         quiz.id,
@@ -138,10 +153,11 @@ def test_create_flashcard_with_range_answer(test_db):
 
 def test_create_flashcard_with_boolean_answer(test_db):
     """Test creating flashcard with boolean answer type."""
+    user = _create_test_user(test_db)
     quiz_repo = QuizRepository(test_db)
     flashcard_repo = FlashcardRepository(test_db)
 
-    quiz = quiz_repo.create_quiz(name="True/False Quiz")
+    quiz = quiz_repo.create_quiz(name="True/False Quiz", user_id=user.id)
 
     flashcard = flashcard_repo.create_flashcard(
         quiz.id,
@@ -158,10 +174,11 @@ def test_create_flashcard_with_boolean_answer(test_db):
 
 def test_create_flashcard_with_choice_answer(test_db):
     """Test creating flashcard with choice answer type."""
+    user = _create_test_user(test_db)
     quiz_repo = QuizRepository(test_db)
     flashcard_repo = FlashcardRepository(test_db)
 
-    quiz = quiz_repo.create_quiz(name="Multiple Choice")
+    quiz = quiz_repo.create_quiz(name="Multiple Choice", user_id=user.id)
 
     flashcard = flashcard_repo.create_flashcard(
         quiz.id,
@@ -180,10 +197,11 @@ def test_create_flashcard_with_choice_answer(test_db):
 
 def test_create_flashcard_with_multiple_choice_answer(test_db):
     """Test creating flashcard with multiple_choice answer type."""
+    user = _create_test_user(test_db)
     quiz_repo = QuizRepository(test_db)
     flashcard_repo = FlashcardRepository(test_db)
 
-    quiz = quiz_repo.create_quiz(name="Multiple Choice")
+    quiz = quiz_repo.create_quiz(name="Multiple Choice", user_id=user.id)
 
     flashcard = flashcard_repo.create_flashcard(
         quiz.id,
@@ -201,10 +219,11 @@ def test_create_flashcard_with_multiple_choice_answer(test_db):
 
 def test_create_flashcard_sets_default_tolerances(test_db):
     """Test that default tolerances are set for numeric types."""
+    user = _create_test_user(test_db)
     quiz_repo = QuizRepository(test_db)
     flashcard_repo = FlashcardRepository(test_db)
 
-    quiz = quiz_repo.create_quiz(name="Test")
+    quiz = quiz_repo.create_quiz(name="Test", user_id=user.id)
 
     # Integer without tolerance
     int_card = flashcard_repo.create_flashcard(
@@ -225,10 +244,11 @@ def test_create_flashcard_sets_default_tolerances(test_db):
 
 def test_create_flashcard_invalid_answer_type_defaults_to_text(test_db):
     """Test that invalid answer type defaults to 'text'."""
+    user = _create_test_user(test_db)
     quiz_repo = QuizRepository(test_db)
     flashcard_repo = FlashcardRepository(test_db)
 
-    quiz = quiz_repo.create_quiz(name="Test")
+    quiz = quiz_repo.create_quiz(name="Test", user_id=user.id)
 
     flashcard = flashcard_repo.create_flashcard(
         quiz.id,
@@ -245,10 +265,11 @@ def test_create_flashcard_invalid_answer_type_defaults_to_text(test_db):
 
 def test_bulk_create_flashcards(test_db):
     """Test bulk creating flashcards."""
+    user = _create_test_user(test_db)
     quiz_repo = QuizRepository(test_db)
     flashcard_repo = FlashcardRepository(test_db)
 
-    quiz = quiz_repo.create_quiz(name="Bulk Test")
+    quiz = quiz_repo.create_quiz(name="Bulk Test", user_id=user.id)
 
     flashcards_data = [
         {
@@ -275,10 +296,11 @@ def test_bulk_create_flashcards(test_db):
 
 def test_bulk_create_flashcards_with_mixed_types(test_db):
     """Test bulk creating flashcards with different answer types."""
+    user = _create_test_user(test_db)
     quiz_repo = QuizRepository(test_db)
     flashcard_repo = FlashcardRepository(test_db)
 
-    quiz = quiz_repo.create_quiz(name="Mixed Types")
+    quiz = quiz_repo.create_quiz(name="Mixed Types", user_id=user.id)
 
     flashcards_data = [
         {
@@ -318,10 +340,11 @@ def test_bulk_create_flashcards_with_mixed_types(test_db):
 
 def test_get_by_quiz_id(test_db):
     """Test getting flashcards by quiz ID."""
+    user = _create_test_user(test_db)
     quiz_repo = QuizRepository(test_db)
     flashcard_repo = FlashcardRepository(test_db)
 
-    quiz = quiz_repo.create_quiz(name="Test Quiz")
+    quiz = quiz_repo.create_quiz(name="Test Quiz", user_id=user.id)
 
     flashcard_repo.create_flashcard(
         quiz.id,
@@ -342,10 +365,11 @@ def test_get_by_quiz_id(test_db):
 
 def test_get_by_difficulty(test_db):
     """Test getting flashcards by difficulty level."""
+    user = _create_test_user(test_db)
     quiz_repo = QuizRepository(test_db)
     flashcard_repo = FlashcardRepository(test_db)
 
-    quiz = quiz_repo.create_quiz(name="Test Quiz")
+    quiz = quiz_repo.create_quiz(name="Test Quiz", user_id=user.id)
 
     flashcard_repo.create_flashcard(
         quiz.id,
@@ -369,10 +393,11 @@ def test_get_by_difficulty(test_db):
 
 def test_get_by_answer_type(test_db):
     """Test getting flashcards by answer type."""
+    user = _create_test_user(test_db)
     quiz_repo = QuizRepository(test_db)
     flashcard_repo = FlashcardRepository(test_db)
 
-    quiz = quiz_repo.create_quiz(name="Test Quiz")
+    quiz = quiz_repo.create_quiz(name="Test Quiz", user_id=user.id)
 
     flashcard_repo.create_flashcard(
         quiz.id,
@@ -396,10 +421,11 @@ def test_get_by_answer_type(test_db):
 
 def test_count_flashcards_by_quiz_id(test_db):
     """Test counting flashcards in a quiz using base repository method."""
+    user = _create_test_user(test_db)
     quiz_repo = QuizRepository(test_db)
     flashcard_repo = FlashcardRepository(test_db)
 
-    quiz = quiz_repo.create_quiz(name="Test Quiz")
+    quiz = quiz_repo.create_quiz(name="Test Quiz", user_id=user.id)
 
     flashcard_repo.create_flashcard(
         quiz.id,
@@ -422,10 +448,11 @@ def test_count_flashcards_by_quiz_id(test_db):
 
 def test_search_by_question_text(test_db):
     """Test searching flashcards by question text."""
+    user = _create_test_user(test_db)
     quiz_repo = QuizRepository(test_db)
     flashcard_repo = FlashcardRepository(test_db)
 
-    quiz = quiz_repo.create_quiz(name="Test Quiz")
+    quiz = quiz_repo.create_quiz(name="Test Quiz", user_id=user.id)
 
     flashcard_repo.create_flashcard(
         quiz.id,
@@ -446,10 +473,11 @@ def test_search_by_question_text(test_db):
 
 def test_search_by_question_text_case_insensitive(test_db):
     """Test that question text search is case-insensitive."""
+    user = _create_test_user(test_db)
     quiz_repo = QuizRepository(test_db)
     flashcard_repo = FlashcardRepository(test_db)
 
-    quiz = quiz_repo.create_quiz(name="Test Quiz")
+    quiz = quiz_repo.create_quiz(name="Test Quiz", user_id=user.id)
 
     flashcard_repo.create_flashcard(
         quiz.id,
@@ -468,10 +496,11 @@ def test_search_by_question_text_case_insensitive(test_db):
 
 def test_update_answer_type(test_db):
     """Test updating flashcard answer type."""
+    user = _create_test_user(test_db)
     quiz_repo = QuizRepository(test_db)
     flashcard_repo = FlashcardRepository(test_db)
 
-    quiz = quiz_repo.create_quiz(name="Test Quiz")
+    quiz = quiz_repo.create_quiz(name="Test Quiz", user_id=user.id)
 
     flashcard = flashcard_repo.create_flashcard(
         quiz.id,
@@ -491,10 +520,11 @@ def test_update_answer_type(test_db):
 
 def test_update_answer_type_invalid_fails(test_db):
     """Test that updating to invalid answer type fails."""
+    user = _create_test_user(test_db)
     quiz_repo = QuizRepository(test_db)
     flashcard_repo = FlashcardRepository(test_db)
 
-    quiz = quiz_repo.create_quiz(name="Test Quiz")
+    quiz = quiz_repo.create_quiz(name="Test Quiz", user_id=user.id)
 
     flashcard = flashcard_repo.create_flashcard(
         quiz.id,
@@ -508,10 +538,11 @@ def test_update_answer_type_invalid_fails(test_db):
 
 def test_answer_types_are_validated(test_db):
     """Test that answer types are validated during creation."""
+    user = _create_test_user(test_db)
     quiz_repo = QuizRepository(test_db)
     flashcard_repo = FlashcardRepository(test_db)
 
-    quiz = quiz_repo.create_quiz(name="Test")
+    quiz = quiz_repo.create_quiz(name="Test", user_id=user.id)
 
     # Valid answer types should work
     for answer_type in ["text", "integer", "float", "range", "boolean", "choice", "multiple_choice", "short_text"]:
@@ -545,10 +576,11 @@ def test_validate_answer_type(test_db):
 
 def test_count_by_answer_type_using_statistics(test_db):
     """Test counting flashcards by answer type using statistics."""
+    user = _create_test_user(test_db)
     quiz_repo = QuizRepository(test_db)
     flashcard_repo = FlashcardRepository(test_db)
 
-    quiz = quiz_repo.create_quiz(name="Test Quiz")
+    quiz = quiz_repo.create_quiz(name="Test Quiz", user_id=user.id)
 
     flashcard_repo.create_flashcard(
         quiz.id,
@@ -574,10 +606,11 @@ def test_count_by_answer_type_using_statistics(test_db):
 
 def test_get_answer_type_statistics(test_db):
     """Test getting answer type statistics for a quiz."""
+    user = _create_test_user(test_db)
     quiz_repo = QuizRepository(test_db)
     flashcard_repo = FlashcardRepository(test_db)
 
-    quiz = quiz_repo.create_quiz(name="Test Quiz")
+    quiz = quiz_repo.create_quiz(name="Test Quiz", user_id=user.id)
 
     flashcard_repo.create_flashcard(
         quiz.id,
@@ -614,10 +647,11 @@ def test_get_answer_type_statistics(test_db):
 
 def test_update_flashcard(test_db):
     """Test updating flashcard fields."""
+    user = _create_test_user(test_db)
     quiz_repo = QuizRepository(test_db)
     flashcard_repo = FlashcardRepository(test_db)
 
-    quiz = quiz_repo.create_quiz(name="Test Quiz")
+    quiz = quiz_repo.create_quiz(name="Test Quiz", user_id=user.id)
 
     flashcard = flashcard_repo.create_flashcard(
         quiz.id,
@@ -643,10 +677,11 @@ def test_update_flashcard(test_db):
 
 def test_delete_flashcard(test_db):
     """Test deleting a flashcard."""
+    user = _create_test_user(test_db)
     quiz_repo = QuizRepository(test_db)
     flashcard_repo = FlashcardRepository(test_db)
 
-    quiz = quiz_repo.create_quiz(name="Test Quiz")
+    quiz = quiz_repo.create_quiz(name="Test Quiz", user_id=user.id)
 
     flashcard = flashcard_repo.create_flashcard(
         quiz.id,
@@ -662,10 +697,11 @@ def test_delete_flashcard(test_db):
 
 def test_delete_by_id(test_db):
     """Test deleting flashcard by ID."""
+    user = _create_test_user(test_db)
     quiz_repo = QuizRepository(test_db)
     flashcard_repo = FlashcardRepository(test_db)
 
-    quiz = quiz_repo.create_quiz(name="Test Quiz")
+    quiz = quiz_repo.create_quiz(name="Test Quiz", user_id=user.id)
 
     flashcard = flashcard_repo.create_flashcard(
         quiz.id,

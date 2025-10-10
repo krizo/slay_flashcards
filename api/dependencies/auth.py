@@ -209,12 +209,11 @@ async def register(
         ) from e
 
 
-@router.get("/me", response_model=UserResponse)
-async def get_current_user(
+def get_current_user(
         token_data: dict = Depends(verify_token),
         db: Session = Depends(get_db)
 ):
-    """Get current user information."""
+    """Dependency to get current authenticated user."""
     try:
         user_service = UserService(db)
         user = user_service.get_user_by_name(token_data["username"])
@@ -225,12 +224,29 @@ async def get_current_user(
                 detail="User not found"
             )
 
+        return user
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to retrieve user information: {str(e)}"
+        ) from e
+
+
+@router.get("/me", response_model=UserResponse)
+async def get_current_user_info(
+        current_user = Depends(get_current_user)
+):
+    """Get current user information."""
+    try:
         # Safely construct user dict, handling missing email
         user_dict = {
-            "id": user.id,
-            "name": user.name,
-            "email": getattr(user, 'email', None),  # Handle missing email
-            "created_at": getattr(user, 'created_at', None)
+            "id": current_user.id,
+            "name": current_user.name,
+            "email": getattr(current_user, 'email', None),  # Handle missing email
+            "created_at": getattr(current_user, 'created_at', None)
         }
 
         return create_response(
