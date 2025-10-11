@@ -1,6 +1,13 @@
-import {useState} from 'react';
-import {UserStats, Session} from '../../types';
+import {UserStats, Session, ProgressDataPoint} from '../../types';
 import {capitalize} from '../../utils/textUtils';
+
+type TimePeriod = 'week' | 'month' | 'year' | 'all';
+
+interface SessionDataPoint {
+    date: string;
+    learn: number;
+    test: number;
+}
 
 interface StatsSummaryCardProps {
     stats: UserStats | null;
@@ -8,12 +15,13 @@ interface StatsSummaryCardProps {
     isLoading?: boolean;
     error?: Error | null;
     recentSessions?: Session[] | null;
+    timePeriod: TimePeriod;
+    onTimePeriodChange: (period: TimePeriod) => void;
+    progressData?: ProgressDataPoint[] | null;
+    sessionsData?: SessionDataPoint[] | null;
 }
 
-type TimePeriod = 'week' | 'month' | 'year' | 'all';
-
-const StatsSummaryCard = ({stats, userName = 'User', isLoading, error, recentSessions}: StatsSummaryCardProps) => {
-    const [timePeriod, setTimePeriod] = useState<TimePeriod>('all');
+const StatsSummaryCard = ({stats, userName = 'User', isLoading, error, recentSessions, timePeriod, onTimePeriodChange, progressData, sessionsData}: StatsSummaryCardProps) => {
 
     // Get latest test score from recent sessions
     const getLatestScore = (): number | null => {
@@ -24,18 +32,94 @@ const StatsSummaryCard = ({stats, userName = 'User', isLoading, error, recentSes
         return testSessions.length > 0 ? testSessions[0].score : null;
     };
 
-    // Calculate days active based on sessions_this_week and sessions_this_month
+    // Calculate days active from sessionsData (count days with any sessions)
     const getDaysActive = (): number => {
+        if (sessionsData && sessionsData.length > 0) {
+            // Count days that have at least one session
+            return sessionsData.filter(day => day.learn > 0 || day.test > 0).length;
+        }
+        // Fallback to old calculation if sessionsData not available
         if (!stats) return 0;
-        // Estimate days active: if you have sessions, you're active
-        // For simplicity, we'll use a heuristic based on sessions
         if (timePeriod === 'week') {
             return Math.min(stats.sessions_this_week, 7);
         } else if (timePeriod === 'month') {
             return Math.min(stats.sessions_this_month, 30);
         }
-        // For year and all time, we don't have exact data, so show study streak
         return stats.study_streak;
+    };
+
+    // Calculate total sessions for the selected period
+    const getPeriodSessions = (): number => {
+        if (sessionsData && sessionsData.length > 0) {
+            return sessionsData.reduce((total, day) => total + day.learn + day.test, 0);
+        }
+        // Fallback
+        if (!stats) return 0;
+        if (timePeriod === 'week') return stats.sessions_this_week;
+        if (timePeriod === 'month') return stats.sessions_this_month;
+        return stats.total_sessions;
+    };
+
+    // Calculate daily average for the selected period
+    const getDailyAverage = (): string => {
+        if (sessionsData && sessionsData.length > 0) {
+            const totalSessions = sessionsData.reduce((total, day) => total + day.learn + day.test, 0);
+            const daysWithSessions = sessionsData.filter(day => day.learn > 0 || day.test > 0).length;
+            if (daysWithSessions === 0) return '0.0';
+            return (totalSessions / daysWithSessions).toFixed(1);
+        }
+        // Fallback
+        if (!stats) return '0.0';
+        return stats.sessions_this_month > 0 ? (stats.sessions_this_month / 30).toFixed(1) : '0.0';
+    };
+
+    // Calculate learn sessions for the selected period
+    const getLearnSessions = (): number => {
+        if (sessionsData && sessionsData.length > 0) {
+            return sessionsData.reduce((total, day) => total + day.learn, 0);
+        }
+        // Fallback to all-time
+        return stats?.learn_sessions || 0;
+    };
+
+    // Calculate test sessions for the selected period
+    const getTestSessions = (): number => {
+        if (sessionsData && sessionsData.length > 0) {
+            return sessionsData.reduce((total, day) => total + day.test, 0);
+        }
+        // Fallback to all-time
+        return stats?.test_sessions || 0;
+    };
+
+    // Calculate average score for the selected period
+    const getAverageScore = (): number | null => {
+        if (progressData && progressData.length > 0) {
+            const totalScore = progressData.reduce((sum, point) => sum + point.score, 0);
+            return Math.round(totalScore / progressData.length);
+        }
+        // Fallback to all-time
+        return stats?.average_score ? Math.round(stats.average_score) : null;
+    };
+
+    // Calculate best score for the selected period
+    const getBestScore = (): number | null => {
+        if (progressData && progressData.length > 0) {
+            return Math.max(...progressData.map(point => point.score));
+        }
+        // Fallback to all-time
+        return stats?.best_score ? Math.round(stats.best_score) : null;
+    };
+
+    // Calculate minimum score for the selected period
+    const getMinScore = (): number | null => {
+        if (progressData && progressData.length > 0) {
+            return Math.min(...progressData.map(point => point.score));
+        }
+        // Fallback to estimated calculation
+        if (stats?.average_score && stats?.best_score) {
+            return Math.round(stats.best_score - (stats.best_score - stats.average_score) * 2);
+        }
+        return null;
     };
 
     const getTimePeriodLabel = (): string => {
@@ -100,25 +184,25 @@ const StatsSummaryCard = ({stats, userName = 'User', isLoading, error, recentSes
                     <div className="time-period-filter">
                         <button
                             className={`period-btn ${timePeriod === 'week' ? 'active' : ''}`}
-                            onClick={() => setTimePeriod('week')}
+                            onClick={() => onTimePeriodChange('week')}
                         >
                             Week
                         </button>
                         <button
                             className={`period-btn ${timePeriod === 'month' ? 'active' : ''}`}
-                            onClick={() => setTimePeriod('month')}
+                            onClick={() => onTimePeriodChange('month')}
                         >
                             Month
                         </button>
                         <button
                             className={`period-btn ${timePeriod === 'year' ? 'active' : ''}`}
-                            onClick={() => setTimePeriod('year')}
+                            onClick={() => onTimePeriodChange('year')}
                         >
                             Year
                         </button>
                         <button
                             className={`period-btn ${timePeriod === 'all' ? 'active' : ''}`}
-                            onClick={() => setTimePeriod('all')}
+                            onClick={() => onTimePeriodChange('all')}
                         >
                             All Time
                         </button>
@@ -131,27 +215,27 @@ const StatsSummaryCard = ({stats, userName = 'User', isLoading, error, recentSes
                 <div className="stat-item">
                     <div className="stat-icon">📚</div>
                     <div className="stat-content">
-                        <div className="stat-value">{stats.total_sessions}</div>
+                        <div className="stat-value">{getPeriodSessions()}</div>
                         <div className="stat-label">Total Sessions</div>
-                        <div className="stat-subtitle">all time activity</div>
+                        <div className="stat-subtitle">{getTimePeriodLabel().toLowerCase()}</div>
                     </div>
                 </div>
 
                 <div className="stat-item">
                     <div className="stat-icon">📖</div>
                     <div className="stat-content">
-                        <div className="stat-value">{stats.learn_sessions}</div>
+                        <div className="stat-value">{getLearnSessions()}</div>
                         <div className="stat-label">Learn Sessions</div>
-                        <div className="stat-subtitle">practice mode</div>
+                        <div className="stat-subtitle">{getTimePeriodLabel().toLowerCase()}</div>
                     </div>
                 </div>
 
                 <div className="stat-item">
                     <div className="stat-icon">✅</div>
                     <div className="stat-content">
-                        <div className="stat-value">{stats.test_sessions}</div>
+                        <div className="stat-value">{getTestSessions()}</div>
                         <div className="stat-label">Test Sessions</div>
-                        <div className="stat-subtitle">graded attempts</div>
+                        <div className="stat-subtitle">{getTimePeriodLabel().toLowerCase()}</div>
                     </div>
                 </div>
 
@@ -160,7 +244,7 @@ const StatsSummaryCard = ({stats, userName = 'User', isLoading, error, recentSes
                     <div className="stat-content">
                         <div className="stat-value">{stats.unique_quizzes}</div>
                         <div className="stat-label">Unique Quizzes</div>
-                        <div className="stat-subtitle">subjects studied</div>
+                        <div className="stat-subtitle">all time</div>
                     </div>
                 </div>
 
@@ -169,10 +253,10 @@ const StatsSummaryCard = ({stats, userName = 'User', isLoading, error, recentSes
                     <div className="stat-icon">⭐</div>
                     <div className="stat-content">
                         <div className="stat-value">
-                            {stats.average_score ? Math.round(stats.average_score) : '—'}%
+                            {getAverageScore() !== null ? `${getAverageScore()}%` : '—'}
                         </div>
                         <div className="stat-label">Average Score</div>
-                        <div className="stat-subtitle">across all tests</div>
+                        <div className="stat-subtitle">{getTimePeriodLabel().toLowerCase()}</div>
                     </div>
                 </div>
 
@@ -180,10 +264,10 @@ const StatsSummaryCard = ({stats, userName = 'User', isLoading, error, recentSes
                     <div className="stat-icon">🏆</div>
                     <div className="stat-content">
                         <div className="stat-value">
-                            {stats.best_score ? Math.round(stats.best_score) : '—'}%
+                            {getBestScore() !== null ? `${getBestScore()}%` : '—'}
                         </div>
                         <div className="stat-label">Best Score</div>
-                        <div className="stat-subtitle">personal record</div>
+                        <div className="stat-subtitle">{getTimePeriodLabel().toLowerCase()}</div>
                     </div>
                 </div>
 
@@ -221,34 +305,26 @@ const StatsSummaryCard = ({stats, userName = 'User', isLoading, error, recentSes
                     <div className="stat-icon">📉</div>
                     <div className="stat-content">
                         <div className="stat-value">
-                            {stats.average_score && stats.best_score
-                                ? `${Math.round(stats.best_score - (stats.best_score - stats.average_score) * 2)}%`
-                                : '—'
-                            }
+                            {getMinScore() !== null ? `${getMinScore()}%` : '—'}
                         </div>
                         <div className="stat-label">Min Score</div>
-                        <div className="stat-subtitle">lowest recorded</div>
+                        <div className="stat-subtitle">{getTimePeriodLabel().toLowerCase()}</div>
                     </div>
                 </div>
 
                 <div className="stat-item">
                     <div className="stat-icon">📆</div>
                     <div className="stat-content">
-                        <div className="stat-value">{stats.sessions_this_month}</div>
+                        <div className="stat-value">{getPeriodSessions()}</div>
                         <div className="stat-label">Recent Activity</div>
-                        <div className="stat-subtitle">last 30 days</div>
+                        <div className="stat-subtitle">{getTimePeriodLabel().toLowerCase()}</div>
                     </div>
                 </div>
 
                 <div className="stat-item">
                     <div className="stat-icon">⚡</div>
                     <div className="stat-content">
-                        <div className="stat-value">
-                            {stats.sessions_this_month > 0
-                                ? `${(stats.sessions_this_month / 30).toFixed(1)}`
-                                : '0.0'
-                            }
-                        </div>
+                        <div className="stat-value">{getDailyAverage()}</div>
                         <div className="stat-label">Daily Average</div>
                         <div className="stat-subtitle">sessions per day</div>
                     </div>

@@ -1,6 +1,6 @@
 import datetime
 
-from sqlalchemy import JSON, Column, DateTime, ForeignKey, Integer, String, Text, UniqueConstraint, \
+from sqlalchemy import JSON, Boolean, Column, DateTime, ForeignKey, Integer, LargeBinary, String, Text, UniqueConstraint, \
     func  # pylint: disable=import-error
 from sqlalchemy.orm import relationship  # pylint: disable=import-error
 
@@ -34,10 +34,12 @@ class Quiz(Base):
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
     name = Column(String, nullable=False)
     subject = Column(String)
-    category = Column(String, nullable=True)  # NEW: Category within subject (e.g., "Poland" within "Geography")
-    level = Column(String, nullable=True)     # NEW: Level of advancement (e.g., "Beginner", "Class 5")
+    category = Column(String, nullable=True)  # Category within subject (e.g., "Poland" within "Geography")
+    level = Column(String, nullable=True)     # Level of advancement (e.g., "Beginner", "Class 5")
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
     description = Column(Text)
+    favourite = Column(Boolean, default=False, nullable=False)  # User's favourite quiz marker
+    image = Column(LargeBinary, nullable=True)  # Small image/emoji as binary data
 
     user = relationship("User", back_populates="quizzes")
     flashcards = relationship("Flashcard", back_populates="quiz", cascade="all, delete-orphan")

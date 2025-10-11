@@ -46,7 +46,9 @@ QUIZZES = {
         {
             "file": "data/historia-praczłowiek.json",
             "category": "Prehistoria",
-            "level": "Klasa 1"
+            "level": "Klasa 1",
+            "favourite": True,
+            "image": "🏛️"
         },
         {
             "name": "Funkcje kwadratowe",
@@ -54,6 +56,8 @@ QUIZZES = {
             "category": "Funkcje",
             "level": "Klasa 2",
             "description": "Podstawy funkcji kwadratowych",
+            "favourite": True,
+            "image": "📐",
             "flashcards": [
                 {
                     "question": {"title": "Postać ogólna", "text": "Jaka jest postać ogólna funkcji kwadratowej?", "lang": "pl", "difficulty": 1, "emoji": "📐"},
@@ -95,6 +99,8 @@ QUIZZES = {
             "category": "Gramatyka",
             "level": "Klasa 2",
             "description": "Przegląd czasów gramatycznych w języku angielskim",
+            "favourite": False,
+            "image": "🇬🇧",
             "flashcards": [
                 {
                     "question": {"title": "Present Simple", "text": "Kiedy używamy Present Simple?", "lang": "pl", "difficulty": 1, "emoji": "⏰"},
@@ -128,6 +134,8 @@ QUIZZES = {
             "category": "Cytologia",
             "level": "Klasa 1",
             "description": "Podstawowe struktury komórkowe",
+            "favourite": False,
+            "image": "🧬",
             "flashcards": [
                 {
                     "question": {"title": "Jądro komórkowe", "text": "Co zawiera jądro komórkowe?", "lang": "pl", "difficulty": 1, "emoji": "🧬"},
@@ -156,7 +164,9 @@ QUIZZES = {
         {
             "file": "data/french1.json",
             "category": "Podstawy",
-            "level": "Klasa 1"
+            "level": "Klasa 1",
+            "favourite": False,
+            "image": "🇫🇷"
         },
         {
             "name": "Ruch i siły",
@@ -164,6 +174,8 @@ QUIZZES = {
             "category": "Mechanika",
             "level": "Klasa 1",
             "description": "Podstawy dynamiki i kinematyki",
+            "favourite": True,
+            "image": "⚛️",
             "flashcards": [
                 {
                     "question": {"title": "Prędkość", "text": "Jaki jest wzór na prędkość?", "lang": "pl", "difficulty": 1, "emoji": "🏃"},
@@ -201,6 +213,8 @@ QUIZZES = {
             "category": "Chemia ogólna",
             "level": "Klasa 1",
             "description": "Podstawy układu okresowego",
+            "favourite": True,
+            "image": "🧪",
             "flashcards": [
                 {
                     "question": {"title": "Liczba atomowa", "text": "Co oznacza liczba atomowa pierwiastka?", "lang": "pl", "difficulty": 1, "emoji": "🔢"},
@@ -234,6 +248,8 @@ QUIZZES = {
             "category": "Algorytmika",
             "level": "Klasa 2",
             "description": "Podstawowe algorytmy i struktury danych",
+            "favourite": False,
+            "image": "💻",
             "flashcards": [
                 {
                     "question": {"title": "Sortowanie bąbelkowe", "text": "Jaka jest złożoność obliczeniowa sortowania bąbelkowego?", "lang": "pl", "difficulty": 2, "emoji": "🫧"},
@@ -289,7 +305,7 @@ def create_users(db):
     return created_users
 
 
-def import_quiz_from_file(db, file_path, user_id, category=None, level=None):
+def import_quiz_from_file(db, file_path, user_id, category=None, level=None, favourite=False, image=None):
     """Import quiz from JSON file."""
     quiz_service = QuizService(db)
 
@@ -306,6 +322,15 @@ def import_quiz_from_file(db, file_path, user_id, category=None, level=None):
 
     # Import quiz
     quiz = quiz_service.import_quiz_from_dict(data, user_id)
+
+    # Update favourite and image fields
+    if favourite or image:
+        quiz.favourite = favourite
+        if image:
+            quiz.image = image.encode('utf-8')  # Store emoji as bytes
+        db.commit()
+        db.refresh(quiz)
+
     return quiz
 
 
@@ -322,6 +347,13 @@ def create_quiz_from_data(db, quiz_data, user_id):
         level=quiz_data.get("level"),
         description=quiz_data.get("description")
     )
+
+    # Update favourite and image fields
+    quiz.favourite = quiz_data.get("favourite", False)
+    if quiz_data.get("image"):
+        quiz.image = quiz_data["image"].encode('utf-8')  # Store emoji as bytes
+    db.commit()
+    db.refresh(quiz)
 
     # Add flashcards
     flashcard_repo = FlashcardRepository(db)
@@ -351,13 +383,19 @@ def create_quizzes(db, users):
                         file_path,
                         user.id,
                         quiz_data.get("category"),
-                        quiz_data.get("level")
+                        quiz_data.get("level"),
+                        quiz_data.get("favourite", False),
+                        quiz_data.get("image")
                     )
-                    print(f"      ✅ Imported: {quiz.name} (from {quiz_data['file']})")
+                    fav_marker = "⭐" if quiz.favourite else ""
+                    img_marker = quiz_data.get("image", "")
+                    print(f"      ✅ Imported: {quiz.name} {img_marker} {fav_marker} (from {quiz_data['file']})")
                 else:
                     # Create from data
                     quiz = create_quiz_from_data(db, quiz_data, user.id)
-                    print(f"      ✅ Created: {quiz.name}")
+                    fav_marker = "⭐" if quiz.favourite else ""
+                    img_marker = quiz_data.get("image", "")
+                    print(f"      ✅ Created: {quiz.name} {img_marker} {fav_marker}")
 
                 user_quizzes[username].append(quiz)
             except Exception as e:
@@ -389,19 +427,28 @@ def create_learning_history(db, users, user_quizzes):
             if flashcard_count == 0:
                 continue
 
-            # Create 8-15 sessions for each quiz over the past 60 days
-            num_sessions = random.randint(8, 15)
+            # Create more sessions spread over the past year for better time period filtering
+            # Favourite quizzes get more sessions
+            if quiz.favourite:
+                num_sessions = random.randint(30, 50)  # More sessions for favourites
+            else:
+                num_sessions = random.randint(15, 30)
 
             for i in range(num_sessions):
-                # Create more sessions in recent weeks for better stats
-                # 40% in last 7 days, 30% in last 30 days, 30% in 30-60 days
+                # Distribution across time periods:
+                # 20% in last 7 days (week)
+                # 30% in last 30 days (month)
+                # 30% in 30-180 days (half year)
+                # 20% in 180-365 days (rest of year)
                 rand_val = random.random()
-                if rand_val < 0.4:
+                if rand_val < 0.2:
                     days_ago = random.randint(0, 7)
-                elif rand_val < 0.7:
+                elif rand_val < 0.5:
                     days_ago = random.randint(8, 30)
+                elif rand_val < 0.8:
+                    days_ago = random.randint(31, 180)
                 else:
-                    days_ago = random.randint(31, 60)
+                    days_ago = random.randint(181, 365)
 
                 hours_ago = random.randint(0, 23)
                 session_date = now - timedelta(days=days_ago, hours=hours_ago)
@@ -431,7 +478,7 @@ def create_learning_history(db, users, user_quizzes):
                 session_count += 1
 
         db.commit()
-        print(f"      ✅ Created {session_count} learning sessions")
+        print(f"      ✅ Created {session_count} learning sessions spanning 1 year")
 
 
 def reset_database():

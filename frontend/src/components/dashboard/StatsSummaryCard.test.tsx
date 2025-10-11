@@ -1,8 +1,10 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import StatsSummaryCard from './StatsSummaryCard';
 import { UserStats, Session } from '../../types';
+
+type TimePeriod = 'week' | 'month' | 'year' | 'all';
 
 // Helper function to render with user event
 const renderWithUser = (component: React.ReactElement) => {
@@ -13,6 +15,7 @@ const renderWithUser = (component: React.ReactElement) => {
 };
 
 describe('StatsSummaryCard', () => {
+    const mockOnTimePeriodChange = vi.fn();
     const mockStats: UserStats = {
         total_sessions: 58,
         learn_sessions: 41,
@@ -49,28 +52,48 @@ describe('StatsSummaryCard', () => {
         },
     ];
 
+    const mockSessionsData = [
+        { date: '2025-10-04', learn: 2, test: 1 },
+        { date: '2025-10-05', learn: 1, test: 0 },
+        { date: '2025-10-06', learn: 3, test: 2 },
+        { date: '2025-10-07', learn: 0, test: 1 },
+        { date: '2025-10-08', learn: 2, test: 0 },
+        { date: '2025-10-09', learn: 1, test: 1 },
+        { date: '2025-10-10', learn: 2, test: 3 },
+    ];
+
+    const mockProgressData = [
+        { date: '2025-10-02', score: 75 },
+        { date: '2025-10-03', score: 78 },
+        { date: '2025-10-04', score: 80 },
+        { date: '2025-10-05', score: 82 },
+        { date: '2025-10-06', score: 79 },
+        { date: '2025-10-07', score: 85 },
+        { date: '2025-10-08', score: 88 },
+    ];
+
     it('renders loading state', () => {
-        render(<StatsSummaryCard stats={null} isLoading={true} />);
+        render(<StatsSummaryCard stats={null} isLoading={true} timePeriod="all" onTimePeriodChange={mockOnTimePeriodChange} />);
 
         expect(screen.getByText('Loading statistics...')).toBeInTheDocument();
     });
 
     it('renders error state', () => {
         const error = new Error('API connection failed');
-        render(<StatsSummaryCard stats={null} error={error} />);
+        render(<StatsSummaryCard stats={null} error={error} timePeriod="all" onTimePeriodChange={mockOnTimePeriodChange} />);
 
         expect(screen.getByText('Failed to load statistics')).toBeInTheDocument();
         expect(screen.getByText('API connection failed')).toBeInTheDocument();
     });
 
     it('renders empty state when no stats provided', () => {
-        render(<StatsSummaryCard stats={null} />);
+        render(<StatsSummaryCard stats={null} timePeriod="all" onTimePeriodChange={mockOnTimePeriodChange} />);
 
         expect(screen.getByText('No statistics available')).toBeInTheDocument();
     });
 
     it('renders user statistics correctly', () => {
-        render(<StatsSummaryCard stats={mockStats} userName="Emila" recentSessions={mockSessions} />);
+        render(<StatsSummaryCard stats={mockStats} userName="Emila" recentSessions={mockSessions} timePeriod="all" onTimePeriodChange={mockOnTimePeriodChange} />);
 
         // Check welcome message
         expect(screen.getByText('Welcome back, Emila! 👋')).toBeInTheDocument();
@@ -97,21 +120,23 @@ describe('StatsSummaryCard', () => {
     });
 
     it('renders with default user name when not provided', () => {
-        render(<StatsSummaryCard stats={mockStats} />);
+        render(<StatsSummaryCard stats={mockStats} timePeriod="all" onTimePeriodChange={mockOnTimePeriodChange} />);
 
         expect(screen.getByText('Welcome back, User! 👋')).toBeInTheDocument();
     });
 
     it('displays — for null average score', () => {
         const statsWithNullAverage = { ...mockStats, average_score: null };
-        render(<StatsSummaryCard stats={statsWithNullAverage} recentSessions={mockSessions} />);
+        render(<StatsSummaryCard stats={statsWithNullAverage} recentSessions={mockSessions} timePeriod="all" onTimePeriodChange={mockOnTimePeriodChange} />);
 
-        expect(screen.getByText('—%')).toBeInTheDocument();
+        // Now displays just "—" without "%" when value is null
+        const dashElements = screen.getAllByText('—');
+        expect(dashElements.length).toBeGreaterThan(0);
     });
 
     it('displays — for null best score', () => {
         const statsWithNullBest = { ...mockStats, best_score: null };
-        render(<StatsSummaryCard stats={statsWithNullBest} recentSessions={mockSessions} />);
+        render(<StatsSummaryCard stats={statsWithNullBest} recentSessions={mockSessions} timePeriod="all" onTimePeriodChange={mockOnTimePeriodChange} />);
 
         // Should have "—%" for best score and min score (which depends on best score)
         const dashElements = screen.getAllByText('—');
@@ -119,7 +144,7 @@ describe('StatsSummaryCard', () => {
     });
 
     it('renders all stat labels correctly', () => {
-        render(<StatsSummaryCard stats={mockStats} recentSessions={mockSessions} />);
+        render(<StatsSummaryCard stats={mockStats} recentSessions={mockSessions} timePeriod="all" onTimePeriodChange={mockOnTimePeriodChange} />);
 
         // Row 1: Session Overview
         expect(screen.getByText('Total Sessions')).toBeInTheDocument();
@@ -141,7 +166,7 @@ describe('StatsSummaryCard', () => {
     });
 
     it('renders quick actions section', () => {
-        render(<StatsSummaryCard stats={mockStats} recentSessions={mockSessions} />);
+        render(<StatsSummaryCard stats={mockStats} recentSessions={mockSessions} timePeriod="all" onTimePeriodChange={mockOnTimePeriodChange} />);
 
         expect(screen.getByText('Quick Actions')).toBeInTheDocument();
         expect(screen.getByText('Start Learning')).toBeInTheDocument();
@@ -155,7 +180,7 @@ describe('StatsSummaryCard', () => {
             average_score: 85.67,
             best_score: 92.34,
         };
-        render(<StatsSummaryCard stats={statsWithDecimals} recentSessions={mockSessions} />);
+        render(<StatsSummaryCard stats={statsWithDecimals} recentSessions={mockSessions} timePeriod="all" onTimePeriodChange={mockOnTimePeriodChange} />);
 
         // Should round 85.67 to 86
         expect(screen.getByText('86%')).toBeInTheDocument();
@@ -164,7 +189,7 @@ describe('StatsSummaryCard', () => {
     });
 
     it('displays — for latest score when no recent sessions', () => {
-        render(<StatsSummaryCard stats={mockStats} recentSessions={null} />);
+        render(<StatsSummaryCard stats={mockStats} recentSessions={null} timePeriod="all" onTimePeriodChange={mockOnTimePeriodChange} />);
 
         // Should show — for latest score
         const latestScoreValue = screen.getAllByText('—');
@@ -184,7 +209,7 @@ describe('StatsSummaryCard', () => {
                 quiz_name: 'Python Fundamentals',
             },
         ];
-        render(<StatsSummaryCard stats={mockStats} recentSessions={learnOnlySessions} />);
+        render(<StatsSummaryCard stats={mockStats} recentSessions={learnOnlySessions} timePeriod="all" onTimePeriodChange={mockOnTimePeriodChange} />);
 
         // Should show — for latest score since there are no test sessions
         const latestScoreValue = screen.getAllByText('—');
@@ -193,7 +218,7 @@ describe('StatsSummaryCard', () => {
 
     describe('Time Period Filter', () => {
         it('renders all time period filter buttons', () => {
-            render(<StatsSummaryCard stats={mockStats} recentSessions={mockSessions} />);
+            render(<StatsSummaryCard stats={mockStats} recentSessions={mockSessions} timePeriod="all" onTimePeriodChange={mockOnTimePeriodChange} />);
 
             expect(screen.getByText('Week')).toBeInTheDocument();
             expect(screen.getByText('Month')).toBeInTheDocument();
@@ -202,131 +227,114 @@ describe('StatsSummaryCard', () => {
         });
 
         it('defaults to "All Time" period', () => {
-            render(<StatsSummaryCard stats={mockStats} recentSessions={mockSessions} />);
+            render(<StatsSummaryCard stats={mockStats} recentSessions={mockSessions} timePeriod="all" onTimePeriodChange={mockOnTimePeriodChange} />);
 
             const allTimeButton = screen.getByText('All Time');
             expect(allTimeButton).toHaveClass('active');
         });
 
-        it('changes active button when clicked', async () => {
-            const { user } = renderWithUser(<StatsSummaryCard stats={mockStats} recentSessions={mockSessions} />);
+        it('calls onTimePeriodChange when button is clicked', async () => {
+            const mockCallback = vi.fn();
+            const { user } = renderWithUser(<StatsSummaryCard stats={mockStats} recentSessions={mockSessions} timePeriod="all" onTimePeriodChange={mockCallback} />);
 
             const weekButton = screen.getByText('Week');
-            const allTimeButton = screen.getByText('All Time');
-
-            // Initially All Time is active
-            expect(allTimeButton).toHaveClass('active');
-            expect(weekButton).not.toHaveClass('active');
 
             // Click Week button
             await user.click(weekButton);
 
-            // Now Week is active
-            expect(weekButton).toHaveClass('active');
-            expect(allTimeButton).not.toHaveClass('active');
+            // Should call callback with 'week'
+            expect(mockCallback).toHaveBeenCalledWith('week');
         });
 
-        it('updates Days Active subtitle when period changes', async () => {
-            const { user } = renderWithUser(<StatsSummaryCard stats={mockStats} recentSessions={mockSessions} />);
+        it('displays correct subtitle for each period', () => {
+            // Test 'all' period - shows "all time"
+            const { rerender } = render(<StatsSummaryCard stats={mockStats} recentSessions={mockSessions} sessionsData={mockSessionsData} progressData={mockProgressData} timePeriod="all" onTimePeriodChange={mockOnTimePeriodChange} />);
+            const allTimeElements = screen.getAllByText('all time');
+            expect(allTimeElements.length).toBeGreaterThanOrEqual(1);
 
-            // Initially shows "all time"
-            expect(screen.getByText('all time')).toBeInTheDocument();
+            // Test 'week' period
+            rerender(<StatsSummaryCard stats={mockStats} recentSessions={mockSessions} sessionsData={mockSessionsData} progressData={mockProgressData} timePeriod="week" onTimePeriodChange={mockOnTimePeriodChange} />);
+            const lastWeekElements = screen.getAllByText('last week');
+            expect(lastWeekElements.length).toBeGreaterThanOrEqual(1);
 
-            // Click Week button
-            await user.click(screen.getByText('Week'));
-            expect(screen.getByText('last week')).toBeInTheDocument();
+            // Test 'month' period
+            rerender(<StatsSummaryCard stats={mockStats} recentSessions={mockSessions} sessionsData={mockSessionsData} progressData={mockProgressData} timePeriod="month" onTimePeriodChange={mockOnTimePeriodChange} />);
+            const lastMonthElements = screen.getAllByText('last month');
+            expect(lastMonthElements.length).toBeGreaterThanOrEqual(1);
 
-            // Click Month button
-            await user.click(screen.getByText('Month'));
-            expect(screen.getByText('last month')).toBeInTheDocument();
-
-            // Click Year button
-            await user.click(screen.getByText('Year'));
-            expect(screen.getByText('last year')).toBeInTheDocument();
+            // Test 'year' period
+            rerender(<StatsSummaryCard stats={mockStats} recentSessions={mockSessions} sessionsData={mockSessionsData} progressData={mockProgressData} timePeriod="year" onTimePeriodChange={mockOnTimePeriodChange} />);
+            const yearElements = screen.getAllByText('last year');
+            expect(yearElements.length).toBeGreaterThanOrEqual(1);
         });
 
-        it('calculates Days Active correctly for week period', async () => {
-            const { user } = renderWithUser(<StatsSummaryCard stats={mockStats} recentSessions={mockSessions} />);
-
-            // Click Week button
-            await user.click(screen.getByText('Week'));
+        it('calculates Days Active correctly for week period', () => {
+            render(<StatsSummaryCard stats={mockStats} recentSessions={mockSessions} timePeriod="week" onTimePeriodChange={mockOnTimePeriodChange} />);
 
             // Should show min(sessions_this_week, 7) = min(29, 7) = 7
             const daysActiveElements = screen.getAllByText('7');
             expect(daysActiveElements.length).toBeGreaterThanOrEqual(1);
         });
 
-        it('calculates Days Active correctly for month period', async () => {
-            const { user } = renderWithUser(<StatsSummaryCard stats={mockStats} recentSessions={mockSessions} />);
-
-            // Click Month button
-            await user.click(screen.getByText('Month'));
+        it('calculates Days Active correctly for month period', () => {
+            render(<StatsSummaryCard stats={mockStats} recentSessions={mockSessions} timePeriod="month" onTimePeriodChange={mockOnTimePeriodChange} />);
 
             // Should show min(sessions_this_month, 30) = min(58, 30) = 30
             expect(screen.getByText('30')).toBeInTheDocument();
         });
 
-        it('calculates Days Active correctly for year and all time periods', async () => {
-            const { user } = renderWithUser(<StatsSummaryCard stats={mockStats} recentSessions={mockSessions} />);
-
+        it('calculates Days Active correctly for year and all time periods', () => {
             // Year should show study_streak
-            await user.click(screen.getByText('Year'));
+            render(<StatsSummaryCard stats={mockStats} recentSessions={mockSessions} timePeriod="year" onTimePeriodChange={mockOnTimePeriodChange} />);
             const yearElements = screen.getAllByText('15');
             expect(yearElements.length).toBe(2); // Study Streak and Days Active both show 15
-
-            // All Time should also show study_streak
-            await user.click(screen.getByText('All Time'));
-            const allTimeElements = screen.getAllByText('15');
-            expect(allTimeElements.length).toBe(2);
         });
 
-        it('handles week period with fewer sessions than days', async () => {
+        it('handles week period with fewer sessions than days', () => {
             const statsWithFewSessions = {
                 ...mockStats,
                 sessions_this_week: 3,
             };
-            const { user } = renderWithUser(
-                <StatsSummaryCard stats={statsWithFewSessions} recentSessions={mockSessions} />
+            render(
+                <StatsSummaryCard stats={statsWithFewSessions} recentSessions={mockSessions} timePeriod="week" onTimePeriodChange={mockOnTimePeriodChange} />
             );
 
-            await user.click(screen.getByText('Week'));
-
-            // Should show min(3, 7) = 3
-            expect(screen.getByText('3')).toBeInTheDocument();
+            // Should show min(3, 7) = 3 (may appear multiple times)
+            const threeElements = screen.getAllByText('3');
+            expect(threeElements.length).toBeGreaterThanOrEqual(1);
         });
 
-        it('handles month period with fewer sessions than days', async () => {
+        it('handles month period with fewer sessions than days', () => {
             const statsWithFewSessions = {
                 ...mockStats,
                 sessions_this_month: 15,
             };
-            const { user } = renderWithUser(
-                <StatsSummaryCard stats={statsWithFewSessions} recentSessions={mockSessions} />
+            render(
+                <StatsSummaryCard stats={statsWithFewSessions} recentSessions={mockSessions} timePeriod="month" onTimePeriodChange={mockOnTimePeriodChange} />
             );
-
-            await user.click(screen.getByText('Month'));
 
             // Should show min(15, 30) = 15
             const fifteenElements = screen.getAllByText('15');
             expect(fifteenElements.length).toBeGreaterThanOrEqual(1);
         });
 
-        it('switches between all time periods correctly', async () => {
-            const { user } = renderWithUser(<StatsSummaryCard stats={mockStats} recentSessions={mockSessions} />);
-
-            // Click through all periods
-            await user.click(screen.getByText('Week'));
+        it('renders correct active button based on timePeriod prop', () => {
+            // Test with 'week'
+            const { rerender } = render(<StatsSummaryCard stats={mockStats} recentSessions={mockSessions} timePeriod="week" onTimePeriodChange={mockOnTimePeriodChange} />);
             expect(screen.getByText('Week')).toHaveClass('active');
 
-            await user.click(screen.getByText('Month'));
+            // Test with 'month'
+            rerender(<StatsSummaryCard stats={mockStats} recentSessions={mockSessions} timePeriod="month" onTimePeriodChange={mockOnTimePeriodChange} />);
             expect(screen.getByText('Month')).toHaveClass('active');
             expect(screen.getByText('Week')).not.toHaveClass('active');
 
-            await user.click(screen.getByText('Year'));
+            // Test with 'year'
+            rerender(<StatsSummaryCard stats={mockStats} recentSessions={mockSessions} timePeriod="year" onTimePeriodChange={mockOnTimePeriodChange} />);
             expect(screen.getByText('Year')).toHaveClass('active');
             expect(screen.getByText('Month')).not.toHaveClass('active');
 
-            await user.click(screen.getByText('All Time'));
+            // Test with 'all'
+            rerender(<StatsSummaryCard stats={mockStats} recentSessions={mockSessions} timePeriod="all" onTimePeriodChange={mockOnTimePeriodChange} />);
             expect(screen.getByText('All Time')).toHaveClass('active');
             expect(screen.getByText('Year')).not.toHaveClass('active');
         });

@@ -176,6 +176,8 @@ class QuizBase(BaseModel):
     category: Optional[str] = Field(None, max_length=100, description="Category within subject (e.g., Poland)")
     level: Optional[str] = Field(None, max_length=50, description="Level of advancement (e.g., Beginner, Class 5)")
     description: Optional[str] = Field(None, max_length=1000, description="Quiz description")
+    favourite: bool = Field(default=False, description="User's favourite quiz marker")
+    image: Optional[str] = Field(None, description="Base64 encoded image data")
 
 
 class QuizCreate(QuizBase):
@@ -190,6 +192,8 @@ class QuizUpdate(BaseModel):
     category: Optional[str] = Field(None, max_length=100)
     level: Optional[str] = Field(None, max_length=50)
     description: Optional[str] = Field(None, max_length=1000)
+    favourite: Optional[bool] = None
+    image: Optional[str] = None
 
 
 class Quiz(QuizBase):

@@ -192,8 +192,8 @@ describe('DashboardPage', () => {
         expect(useDashboardData.useCurrentUser).toHaveBeenCalledTimes(1);
         expect(useDashboardData.useUserStats).toHaveBeenCalledWith(1); // userId = 1
         expect(useDashboardData.useRecentSessions).toHaveBeenCalledWith(1, 5); // userId = 1, limit = 5
-        expect(useDashboardData.useProgressData).toHaveBeenCalledWith(1, 30); // userId = 1, days = 30 (default)
-        expect(useDashboardData.useSessionsData).toHaveBeenCalledWith(1, 7); // userId = 1, days = 7
+        expect(useDashboardData.useProgressData).toHaveBeenCalledWith(1, 365); // userId = 1, days = 365 (default 'all')
+        expect(useDashboardData.useSessionsData).toHaveBeenCalledWith(1, 365); // userId = 1, days = 365 (default 'all')
     });
 
     it('handles error state in StatsSummaryCard', () => {
@@ -253,10 +253,13 @@ describe('DashboardPage', () => {
     it('displays all dashboard data when all hooks return successfully', () => {
         render(<DashboardPage />);
 
-        // Check StatsSummaryCard data (using getAllByText for duplicates)
-        const sessionsElements = screen.getAllByText('58');
-        expect(sessionsElements.length).toBeGreaterThanOrEqual(1); // total_sessions and sessions_this_month
-        expect(screen.getByText('83%')).toBeInTheDocument(); // average_score rounded
+        // Check StatsSummaryCard data
+        // Total sessions now calculated from sessionsData: 2+1+3+0+2+1+2 learn + 1+0+2+1+0+1+3 test = 12+8 = 19 (was 58)
+        const sessionsElements = screen.getAllByText('19');
+        expect(sessionsElements.length).toBeGreaterThanOrEqual(1); // total sessions and recent activity both show 19
+
+        // Average score is now calculated from progressData: (75+78+80+82+79+85+88)/7 = 81 (was 83)
+        expect(screen.getByText('81%')).toBeInTheDocument(); // average_score from progressData
 
         // Check ActivitySidebar data
         expect(screen.getByText('JavaScript Basics')).toBeInTheDocument();
@@ -400,10 +403,10 @@ describe('DashboardPage', () => {
         it('displays stat subtitles for better context', () => {
             render(<DashboardPage />);
 
-            // Check for some key subtitles
-            expect(screen.getByText('all time activity')).toBeInTheDocument();
-            expect(screen.getByText('across all tests')).toBeInTheDocument();
-            expect(screen.getByText('personal record')).toBeInTheDocument();
+            // Check for some key subtitles (now period-specific)
+            // Default period is 'all' which shows "all time"
+            const allTimeSubtitles = screen.getAllByText('all time');
+            expect(allTimeSubtitles.length).toBeGreaterThanOrEqual(1);
             expect(screen.getByText('most recent test')).toBeInTheDocument();
             expect(screen.getByText('consecutive days')).toBeInTheDocument();
         });
@@ -411,15 +414,13 @@ describe('DashboardPage', () => {
         it('calculates and displays derived metrics correctly', () => {
             render(<DashboardPage />);
 
-            // Latest Score: 75% (from most recent test session) - appears in stats and activity sidebar
-            const latestScoreElements = screen.getAllByText('75%');
-            expect(latestScoreElements.length).toBeGreaterThanOrEqual(1);
+            // Latest Score and Min Score: both 75% (Latest is from most recent test, Min is from progressData min)
+            // 75% appears multiple times: Latest Score stat, Min Score stat, and activity sidebar
+            const scoreElements = screen.getAllByText('75%');
+            expect(scoreElements.length).toBeGreaterThanOrEqual(2); // At least Latest Score and Min Score
 
-            // Min Score: 69% (calculated as best - (best-avg)*2 = 97 - (97-83)*2 = 69)
-            expect(screen.getByText('69%')).toBeInTheDocument();
-
-            // Daily Average: 1.9 (58/30)
-            expect(screen.getByText('1.9')).toBeInTheDocument();
+            // Daily Average: 19 sessions / 7 days active = 2.7
+            expect(screen.getByText('2.7')).toBeInTheDocument();
         });
 
         it('displays emoji icons for all stats', () => {

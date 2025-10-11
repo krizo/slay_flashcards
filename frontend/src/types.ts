@@ -83,6 +83,8 @@ export interface Quiz {
     flashcard_count?: number;
     created_at?: string;
     updated_at?: string;
+    favourite: boolean;
+    image?: string | null;  // Base64 encoded image data
 }
 
 // Request/Response types for Quiz operations
@@ -90,12 +92,16 @@ export interface QuizCreateRequest {
     name: string;
     subject: string;
     description?: string | null;
+    favourite?: boolean;
+    image?: string | null;
 }
 
 export interface QuizUpdateRequest {
     name?: string;
     subject?: string;
     description?: string | null;
+    favourite?: boolean;
+    image?: string | null;
 }
 
 export interface QuizListResponse {
