@@ -9,10 +9,10 @@ interface ProgressChartCardProps {
     onDateRangeChange?: (days: number) => void;
 }
 
-type DateRange = 7 | 30 | 90;
+type DateRange = 7 | 30 | 90 | 365;
 
 const ProgressChartCard = ({ data, isLoading, error, onDateRangeChange }: ProgressChartCardProps) => {
-    const [selectedRange, setSelectedRange] = useState<DateRange>(7);
+    const [selectedRange, setSelectedRange] = useState<DateRange>(30);
 
     const handleRangeChange = (days: DateRange) => {
         setSelectedRange(days);
@@ -24,11 +24,13 @@ const ProgressChartCard = ({ data, isLoading, error, onDateRangeChange }: Progre
     const getRangeLabel = () => {
         switch (selectedRange) {
             case 7:
-                return 'last 7 days';
+                return 'last week';
             case 30:
-                return 'last 30 days';
+                return 'last month';
             case 90:
-                return 'last 90 days';
+                return 'last 3 months';
+            case 365:
+                return 'all time';
         }
     };
     // Loading state
@@ -45,19 +47,25 @@ const ProgressChartCard = ({ data, isLoading, error, onDateRangeChange }: Progre
                             className={`range-btn ${selectedRange === 7 ? 'active' : ''}`}
                             onClick={() => handleRangeChange(7)}
                         >
-                            7D
+                            Last Week
                         </button>
                         <button
                             className={`range-btn ${selectedRange === 30 ? 'active' : ''}`}
                             onClick={() => handleRangeChange(30)}
                         >
-                            30D
+                            Last Month
                         </button>
                         <button
                             className={`range-btn ${selectedRange === 90 ? 'active' : ''}`}
                             onClick={() => handleRangeChange(90)}
                         >
-                            90D
+                            Last 3 Months
+                        </button>
+                        <button
+                            className={`range-btn ${selectedRange === 365 ? 'active' : ''}`}
+                            onClick={() => handleRangeChange(365)}
+                        >
+                            All Time
                         </button>
                     </div>
                 </div>
@@ -83,19 +91,25 @@ const ProgressChartCard = ({ data, isLoading, error, onDateRangeChange }: Progre
                             className={`range-btn ${selectedRange === 7 ? 'active' : ''}`}
                             onClick={() => handleRangeChange(7)}
                         >
-                            7D
+                            Last Week
                         </button>
                         <button
                             className={`range-btn ${selectedRange === 30 ? 'active' : ''}`}
                             onClick={() => handleRangeChange(30)}
                         >
-                            30D
+                            Last Month
                         </button>
                         <button
                             className={`range-btn ${selectedRange === 90 ? 'active' : ''}`}
                             onClick={() => handleRangeChange(90)}
                         >
-                            90D
+                            Last 3 Months
+                        </button>
+                        <button
+                            className={`range-btn ${selectedRange === 365 ? 'active' : ''}`}
+                            onClick={() => handleRangeChange(365)}
+                        >
+                            All Time
                         </button>
                     </div>
                 </div>
@@ -122,19 +136,25 @@ const ProgressChartCard = ({ data, isLoading, error, onDateRangeChange }: Progre
                             className={`range-btn ${selectedRange === 7 ? 'active' : ''}`}
                             onClick={() => handleRangeChange(7)}
                         >
-                            7D
+                            Last Week
                         </button>
                         <button
                             className={`range-btn ${selectedRange === 30 ? 'active' : ''}`}
                             onClick={() => handleRangeChange(30)}
                         >
-                            30D
+                            Last Month
                         </button>
                         <button
                             className={`range-btn ${selectedRange === 90 ? 'active' : ''}`}
                             onClick={() => handleRangeChange(90)}
                         >
-                            90D
+                            Last 3 Months
+                        </button>
+                        <button
+                            className={`range-btn ${selectedRange === 365 ? 'active' : ''}`}
+                            onClick={() => handleRangeChange(365)}
+                        >
+                            All Time
                         </button>
                     </div>
                 </div>
@@ -159,19 +179,25 @@ const ProgressChartCard = ({ data, isLoading, error, onDateRangeChange }: Progre
                         className={`range-btn ${selectedRange === 7 ? 'active' : ''}`}
                         onClick={() => handleRangeChange(7)}
                     >
-                        7D
+                        Last Week
                     </button>
                     <button
                         className={`range-btn ${selectedRange === 30 ? 'active' : ''}`}
                         onClick={() => handleRangeChange(30)}
                     >
-                        30D
+                        Last Month
                     </button>
                     <button
                         className={`range-btn ${selectedRange === 90 ? 'active' : ''}`}
                         onClick={() => handleRangeChange(90)}
                     >
-                        90D
+                        Last 3 Months
+                    </button>
+                    <button
+                        className={`range-btn ${selectedRange === 365 ? 'active' : ''}`}
+                        onClick={() => handleRangeChange(365)}
+                    >
+                        All Time
                     </button>
                 </div>
             </div>

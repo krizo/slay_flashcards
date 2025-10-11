@@ -47,7 +47,7 @@ describe('ProgressChartCard', () => {
         render(<ProgressChartCard data={mockProgressData} />);
 
         expect(screen.getByText('Progress Over Time')).toBeInTheDocument();
-        expect(screen.getByText('Your average scores over the last 7 days')).toBeInTheDocument();
+        expect(screen.getByText(/Your average scores over/i)).toBeInTheDocument();
 
         // Check that chart container is rendered
         const chartContainer = document.querySelector('.chart-container');
@@ -58,7 +58,7 @@ describe('ProgressChartCard', () => {
         render(<ProgressChartCard data={mockProgressData} />);
 
         expect(screen.getByText('Progress Over Time')).toBeInTheDocument();
-        expect(screen.getByText('Your average scores over the last 7 days')).toBeInTheDocument();
+        expect(screen.getByText(/Your average scores over/i)).toBeInTheDocument();
     });
 
     it('renders chart even with single data point', () => {
