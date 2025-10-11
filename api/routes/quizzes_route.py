@@ -89,6 +89,92 @@ async def get_quizzes(
         ) from e
 
 
+@router.get("/subjects", response_model=dict)
+async def get_subjects(
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    """Get all unique subjects with quiz counts."""
+    try:
+        quiz_service = QuizService(db)
+        all_quizzes = quiz_service.get_all_quizzes(user_id=current_user.id)
+
+        subjects = {}
+        for quiz in all_quizzes:
+            if quiz.subject:
+                subjects[quiz.subject] = subjects.get(quiz.subject, 0) + 1
+
+        return {
+            "success": True,
+            "data": subjects,
+            "message": f"Found {len(subjects)} unique subjects"
+        }
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to retrieve subjects: {str(e)}"
+        ) from e
+
+
+@router.get("/search", response_model=QuizzesResponse)
+async def search_quizzes(
+    q: str = Query(..., min_length=1, description="Search query"),
+    subject: Optional[str] = Query(None, description="Filter by subject"),
+    limit: int = Query(20, ge=1, le=100, description="Maximum results"),
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    """Search quizzes by name, subject, or description."""
+    try:
+        quiz_service = QuizService(db)
+        all_quizzes = quiz_service.get_all_quizzes(user_id=current_user.id)
+
+        # Filter by search query
+        search_results = []
+        q_lower = q.lower()
+
+        for quiz in all_quizzes:
+            # Check if query matches name, subject, or description
+            matches = (
+                q_lower in quiz.name.lower() or
+                (quiz.subject and q_lower in quiz.subject.lower()) or
+                (quiz.description and q_lower in quiz.description.lower())
+            )
+
+            # Apply subject filter if specified
+            if subject and quiz.subject != subject:
+                matches = False
+
+            if matches:
+                flashcards = quiz_service.get_quiz_flashcards(quiz.id)
+                quiz_dict = {
+                    "id": quiz.id,
+                    "name": quiz.name,
+                    "subject": quiz.subject,
+                "category": quiz.category,
+                "level": quiz.level,
+                    "description": quiz.description,
+                    "created_at": quiz.created_at,
+                    "flashcard_count": len(flashcards)
+                }
+                search_results.append(Quiz(**quiz_dict))
+
+        # Limit results
+        search_results = search_results[:limit]
+
+        return create_response(
+            data=search_results,
+            message=f"Found {len(search_results)} quizzes matching '{q}'"
+        )
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to search quizzes: {str(e)}"
+        ) from e
+
+
 @router.get("/{quiz_id}", response_model=QuizResponse)
 async def get_quiz(
     quiz_id: int,
@@ -564,90 +650,4 @@ async def duplicate_quiz(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to duplicate quiz: {str(e)}"
-        ) from e
-
-
-@router.get("/search", response_model=QuizzesResponse)
-async def search_quizzes(
-    q: str = Query(..., min_length=1, description="Search query"),
-    subject: Optional[str] = Query(None, description="Filter by subject"),
-    limit: int = Query(20, ge=1, le=100, description="Maximum results"),
-    db: Session = Depends(get_db),
-    current_user = Depends(get_current_user)
-):
-    """Search quizzes by name, subject, or description."""
-    try:
-        quiz_service = QuizService(db)
-        all_quizzes = quiz_service.get_all_quizzes(user_id=current_user.id)
-
-        # Filter by search query
-        search_results = []
-        q_lower = q.lower()
-
-        for quiz in all_quizzes:
-            # Check if query matches name, subject, or description
-            matches = (
-                q_lower in quiz.name.lower() or
-                (quiz.subject and q_lower in quiz.subject.lower()) or
-                (quiz.description and q_lower in quiz.description.lower())
-            )
-
-            # Apply subject filter if specified
-            if subject and quiz.subject != subject:
-                matches = False
-
-            if matches:
-                flashcards = quiz_service.get_quiz_flashcards(quiz.id)
-                quiz_dict = {
-                    "id": quiz.id,
-                    "name": quiz.name,
-                    "subject": quiz.subject,
-                "category": quiz.category,
-                "level": quiz.level,
-                    "description": quiz.description,
-                    "created_at": quiz.created_at,
-                    "flashcard_count": len(flashcards)
-                }
-                search_results.append(Quiz(**quiz_dict))
-
-        # Limit results
-        search_results = search_results[:limit]
-
-        return create_response(
-            data=search_results,
-            message=f"Found {len(search_results)} quizzes matching '{q}'"
-        )
-
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to search quizzes: {str(e)}"
-        ) from e
-
-
-@router.get("/subjects", response_model=dict)
-async def get_subjects(
-    db: Session = Depends(get_db),
-    current_user = Depends(get_current_user)
-):
-    """Get all unique subjects with quiz counts."""
-    try:
-        quiz_service = QuizService(db)
-        all_quizzes = quiz_service.get_all_quizzes(user_id=current_user.id)
-
-        subjects = {}
-        for quiz in all_quizzes:
-            if quiz.subject:
-                subjects[quiz.subject] = subjects.get(quiz.subject, 0) + 1
-
-        return {
-            "success": True,
-            "data": subjects,
-            "message": f"Found {len(subjects)} unique subjects"
-        }
-
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to retrieve subjects: {str(e)}"
         ) from e

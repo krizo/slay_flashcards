@@ -4,12 +4,14 @@ import { BrowserRouter } from 'react-router-dom';
 import QuizzesPage from './QuizzesPage';
 import * as useQuizHook from '../hooks/useQuiz';
 import * as useQuizListHook from '../hooks/useQuizList';
+import * as useQuizFiltersHook from '../hooks/useQuizFilters';
 import { Quiz } from '../types';
 import * as apiClient from '../services/apiClient';
 
 // Mock the hooks
 vi.mock('../hooks/useQuiz');
 vi.mock('../hooks/useQuizList');
+vi.mock('../hooks/useQuizFilters');
 
 // Mock the AuthContext
 vi.mock('../context/AuthContext', () => ({
@@ -36,11 +38,8 @@ vi.mock('react-router-dom', async () => {
 
 // Mock child components
 vi.mock('../components/quizzes/QuizListPanel', () => ({
-    default: ({ selectedQuizId, onSelectQuiz, onNewQuizClick }: any) => (
+    default: ({ selectedQuizId, onSelectQuiz }: any) => (
         <div data-testid="quiz-list-panel">
-            <button onClick={onNewQuizClick} data-testid="new-quiz-button">
-                New Quiz
-            </button>
             <div data-testid="selected-quiz-id">{selectedQuizId || 'none'}</div>
             <button onClick={() => onSelectQuiz(1)} data-testid="select-quiz-1">
                 Select Quiz 1
@@ -134,6 +133,14 @@ describe('QuizzesPage', () => {
             refetch: vi.fn(),
         });
 
+        vi.mocked(useQuizFiltersHook.useQuizFilters).mockReturnValue({
+            subjects: ['Mathematics', 'Science'],
+            categories: ['Algebra', 'Geometry'],
+            levels: ['Beginner', 'Intermediate'],
+            isLoading: false,
+            error: null,
+        });
+
         // Mock window.confirm
         window.confirm = vi.fn(() => true);
     });
@@ -197,7 +204,7 @@ describe('QuizzesPage', () => {
             renderWithRouter(<QuizzesPage />);
 
             // First, enter create mode
-            fireEvent.click(screen.getByTestId('new-quiz-button'));
+            fireEvent.click(screen.getByRole('button', { name: /new quiz/i }));
             expect(screen.getByTestId('quiz-create-form')).toBeInTheDocument();
 
             // Then select a quiz
@@ -213,7 +220,7 @@ describe('QuizzesPage', () => {
         it('shows create form when new quiz button is clicked', () => {
             renderWithRouter(<QuizzesPage />);
 
-            fireEvent.click(screen.getByTestId('new-quiz-button'));
+            fireEvent.click(screen.getByRole('button', { name: /new quiz/i }));
 
             expect(screen.getByTestId('quiz-create-form')).toBeInTheDocument();
             expect(screen.queryByTestId('quiz-details-panel')).not.toBeInTheDocument();
@@ -222,7 +229,7 @@ describe('QuizzesPage', () => {
         it('hides details panel when in create mode', () => {
             renderWithRouter(<QuizzesPage />);
 
-            fireEvent.click(screen.getByTestId('new-quiz-button'));
+            fireEvent.click(screen.getByRole('button', { name: /new quiz/i }));
 
             expect(screen.queryByTestId('quiz-details-panel')).not.toBeInTheDocument();
         });
@@ -235,7 +242,7 @@ describe('QuizzesPage', () => {
             expect(screen.getByTestId('selected-quiz-id')).toHaveTextContent('1');
 
             // Enter create mode
-            fireEvent.click(screen.getByTestId('new-quiz-button'));
+            fireEvent.click(screen.getByRole('button', { name: /new quiz/i }));
 
             // Selection should be cleared
             expect(screen.getByTestId('selected-quiz-id')).toHaveTextContent('none');
@@ -244,7 +251,7 @@ describe('QuizzesPage', () => {
         it('refetches quiz list after successful creation', () => {
             renderWithRouter(<QuizzesPage />);
 
-            fireEvent.click(screen.getByTestId('new-quiz-button'));
+            fireEvent.click(screen.getByRole('button', { name: /new quiz/i }));
             fireEvent.click(screen.getByTestId('create-success-button'));
 
             expect(mockRefetch).toHaveBeenCalledTimes(1);
@@ -253,7 +260,7 @@ describe('QuizzesPage', () => {
         it('returns to details panel after successful creation', () => {
             renderWithRouter(<QuizzesPage />);
 
-            fireEvent.click(screen.getByTestId('new-quiz-button'));
+            fireEvent.click(screen.getByRole('button', { name: /new quiz/i }));
             fireEvent.click(screen.getByTestId('create-success-button'));
 
             expect(screen.queryByTestId('quiz-create-form')).not.toBeInTheDocument();
@@ -263,7 +270,7 @@ describe('QuizzesPage', () => {
         it('returns to details panel when creation is cancelled', () => {
             renderWithRouter(<QuizzesPage />);
 
-            fireEvent.click(screen.getByTestId('new-quiz-button'));
+            fireEvent.click(screen.getByRole('button', { name: /new quiz/i }));
             fireEvent.click(screen.getByTestId('create-cancel-button'));
 
             expect(screen.queryByTestId('quiz-create-form')).not.toBeInTheDocument();
@@ -273,7 +280,7 @@ describe('QuizzesPage', () => {
         it('does not refetch quiz list when creation is cancelled', () => {
             renderWithRouter(<QuizzesPage />);
 
-            fireEvent.click(screen.getByTestId('new-quiz-button'));
+            fireEvent.click(screen.getByRole('button', { name: /new quiz/i }));
             fireEvent.click(screen.getByTestId('create-cancel-button'));
 
             expect(mockRefetch).not.toHaveBeenCalled();
@@ -532,7 +539,7 @@ describe('QuizzesPage', () => {
             expect(screen.getByTestId('quiz-details-panel')).toBeInTheDocument();
 
             // Go to create
-            fireEvent.click(screen.getByTestId('new-quiz-button'));
+            fireEvent.click(screen.getByRole('button', { name: /new quiz/i }));
             expect(screen.getByTestId('quiz-create-form')).toBeInTheDocument();
 
             // Cancel back to details
@@ -579,7 +586,7 @@ describe('QuizzesPage', () => {
             expect(screen.getByTestId('quiz-update-form')).toBeInTheDocument();
 
             // Start creating new quiz
-            fireEvent.click(screen.getByTestId('new-quiz-button'));
+            fireEvent.click(screen.getByRole('button', { name: /new quiz/i }));
             expect(screen.getByTestId('quiz-create-form')).toBeInTheDocument();
             expect(screen.queryByTestId('quiz-update-form')).not.toBeInTheDocument();
         });
