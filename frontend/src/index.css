@@ -2584,3 +2584,559 @@ body {
     justify-content: flex-end;
     margin-top: var(--spacing-md);
 }
+
+/* ==========================================
+   LEARNING SESSION STYLES
+   ========================================== */
+
+/* Session Page Layout */
+.session-page {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #f0f2f5;
+    overflow: hidden;
+}
+
+/* Session Header */
+.session-header {
+    width: 100%;
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #fff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    flex-shrink: 0;
+}
+
+.session-title-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.session-quiz-image {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    object-fit: cover;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.session-quiz-icon {
+    font-size: 2rem;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.session-title {
+    font-weight: 600;
+    font-size: 1.2em;
+    color: var(--color-text-dark);
+}
+
+.session-close-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.5em;
+    color: #666;
+    padding: 0;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.session-close-button:hover {
+    background-color: #f0f0f0;
+    color: var(--color-danger);
+}
+
+/* Session Content Wrapper */
+.session-content-wrapper {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 20px;
+}
+
+/* Flashcard Card */
+.flashcard-card {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(106, 63, 251, 0.15);
+    padding: 30px;
+    width: 70%;
+    max-width: 1400px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    border: 1px solid rgba(106, 63, 251, 0.1);
+}
+
+@media (max-width: 1600px) {
+    .flashcard-card {
+        width: 75%;
+    }
+}
+
+@media (max-width: 1200px) {
+    .flashcard-card {
+        width: 85%;
+    }
+}
+
+/* Header Row with Quiz Info and Progress Dots */
+.flashcard-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0 25px 0;
+    border-bottom: 2px solid rgba(106, 63, 251, 0.15);
+}
+
+.flashcard-quiz-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.flashcard-mode-badge {
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 25px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(106, 63, 251, 0.3);
+}
+
+.flashcard-quiz-name {
+    font-size: 1.3rem;
+    font-weight: 600;
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Progress Dots */
+.flashcard-progress-dots {
+    display: flex;
+    gap: 6px;
+}
+
+.progress-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: rgba(106, 63, 251, 0.2);
+    transition: all 0.3s ease;
+}
+
+.progress-dot--active {
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+    box-shadow: 0 0 8px rgba(106, 63, 251, 0.5);
+    transform: scale(1.1);
+}
+
+/* Progress Counter */
+.flashcard-progress-counter {
+    font-size: 0.95rem;
+    color: var(--color-primary);
+    font-weight: 600;
+    text-align: left;
+    background: rgba(106, 63, 251, 0.08);
+    padding: 8px 12px;
+    border-radius: 8px;
+    display: inline-block;
+}
+
+/* Question Section */
+.flashcard-question-section {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    background: linear-gradient(135deg, rgba(106, 63, 251, 0.03) 0%, rgba(139, 92, 246, 0.03) 100%);
+    padding: 20px;
+    padding-top: 25px;
+    border-radius: 12px;
+    border: 1px solid rgba(106, 63, 251, 0.1);
+}
+
+.flashcard-question-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+}
+
+.flashcard-emoji {
+    font-size: 2.5rem;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+    margin-top: -4px;
+}
+
+.flashcard-question-title {
+    font-size: 1.6em;
+    font-weight: 700;
+    background: linear-gradient(135deg, #2C3E50 0%, #5C33A1 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin: 0 16px 0 0;
+    text-align: left;
+    padding-top: 4px;
+}
+
+.flashcard-question-text {
+    font-size: 1.5em;
+    color: #2c3e50;
+    line-height: 1.8;
+    text-align: left;
+    margin: 0;
+    padding: 22px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 10px;
+    border: 1px solid rgba(106, 63, 251, 0.12);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+    font-weight: 400;
+    font-family: 'Nunito', 'Quicksand', 'Rounded', -apple-system, BlinkMacSystemFont, sans-serif;
+    letter-spacing: 0.3px;
+}
+
+.speaker-icon {
+    background: linear-gradient(135deg, rgba(106, 63, 251, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+    border: 1px solid rgba(106, 63, 251, 0.2);
+    cursor: pointer;
+    color: var(--color-primary);
+    font-size: 1.5rem;
+    padding: 6px 12px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.speaker-icon:hover {
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(106, 63, 251, 0.3);
+}
+
+/* Smaller speaker icon for answer sections - now same size as main */
+.speaker-icon--small {
+    font-size: 1.5rem;
+    padding: 6px 12px;
+    border-radius: 8px;
+}
+
+/* Speaker text label */
+.speaker-text {
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-left: 6px;
+}
+
+/* Answer Input */
+.flashcard-answer-input {
+    width: 100%;
+    min-height: 100px;
+    padding: 15px;
+    border: 2px solid rgba(106, 63, 251, 0.2);
+    border-radius: 10px;
+    font-size: 1.1em;
+    font-family: 'Inter', sans-serif;
+    resize: vertical;
+    transition: all 0.2s ease;
+    background: rgba(255, 255, 255, 0.8);
+}
+
+.flashcard-answer-input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    background: white;
+    box-shadow: 0 0 0 4px rgba(106, 63, 251, 0.1);
+}
+
+/* Feedback Display */
+.flashcard-correct-answer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 20px;
+    background-color: rgba(125, 211, 192, 0.1);
+    border-radius: 8px;
+    border: 2px solid var(--color-success);
+}
+
+.flashcard-incorrect-answer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 20px;
+    background-color: rgba(239, 68, 68, 0.1);
+    border-radius: 8px;
+    border: 2px solid var(--color-danger);
+}
+
+.feedback-icon {
+    font-size: 3rem;
+    font-weight: bold;
+}
+
+.flashcard-correct-answer .feedback-icon {
+    color: var(--color-success);
+}
+
+.flashcard-incorrect-answer .feedback-icon {
+    color: var(--color-danger);
+}
+
+.feedback-text {
+    text-align: center;
+}
+
+.feedback-text strong {
+    font-size: 1.2em;
+    display: block;
+    margin-bottom: 8px;
+}
+
+.correct-answer-with-speaker {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 10px;
+}
+
+.correct-answer-display {
+    flex: 1;
+    padding: 10px;
+    background-color: rgba(255,255,255,0.5);
+    border-radius: 6px;
+    font-weight: 600;
+    margin: 0;
+}
+
+/* Revealed Answer */
+.flashcard-revealed-answer {
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    border: 2px solid #e0e0e0;
+}
+
+.revealed-answer-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.flashcard-revealed-answer strong {
+    font-size: 1.1em;
+    color: var(--color-text-dark);
+    margin: 0;
+}
+
+.flashcard-revealed-answer p {
+    font-size: 1.2em;
+    color: #555;
+    margin: 0;
+}
+
+/* Flashcard Controls (inside the card) */
+.flashcard-controls {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 2px solid rgba(106, 63, 251, 0.1);
+    flex-wrap: wrap;
+}
+
+/* Session Controls (deprecated - now using flashcard-controls) */
+.session-controls {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    padding: 20px;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+}
+
+.control-button {
+    padding: 14px 28px;
+    border-radius: 12px;
+    font-size: 1em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 2px solid transparent;
+    min-width: 140px;
+    position: relative;
+    overflow: hidden;
+}
+
+.control-button::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.control-button:active::before {
+    width: 300px;
+    height: 300px;
+}
+
+.control-button--primary {
+    background: linear-gradient(135deg, #5C33A1 0%, #8B5CF6 100%);
+    color: white;
+    border-color: transparent;
+    box-shadow: 0 4px 15px rgba(92, 51, 161, 0.3);
+}
+
+.control-button--primary:hover:not(:disabled) {
+    background: linear-gradient(135deg, #7C4FD1 0%, #A77BF6 100%);
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 8px 25px rgba(92, 51, 161, 0.4);
+}
+
+.control-button--secondary {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    color: #5C33A1;
+    border: 2px solid rgba(92, 51, 161, 0.3);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.control-button--secondary:hover:not(:disabled) {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    border-color: #5C33A1;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(92, 51, 161, 0.2);
+    color: #4a2980;
+}
+
+.control-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+/* Loading and Error States */
+.session-loading-overlay {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    gap: 20px;
+}
+
+.session-loading-overlay p {
+    font-size: 1.1em;
+    color: var(--color-text-light);
+}
+
+.session-error-message {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    padding: 40px;
+    text-align: center;
+    gap: 20px;
+}
+
+.session-error-message .error-icon {
+    font-size: 4rem;
+}
+
+.session-error-message h2 {
+    color: var(--color-text-dark);
+    margin: 0;
+}
+
+.session-error-message p {
+    color: var(--color-text-light);
+    margin: 0;
+}
+
+/* Completion Message */
+.session-completion-message {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    padding: 40px;
+    text-align: center;
+    gap: 20px;
+}
+
+.completion-icon {
+    font-size: 5rem;
+}
+
+.session-completion-message h2 {
+    color: var(--color-text-dark);
+    margin: 0;
+}
+
+.session-completion-message p {
+    font-size: 1.2em;
+    color: var(--color-text-light);
+    margin: 0;
+}
+
+/* Responsive Design for Sessions */
+@media (max-width: 768px) {
+    .flashcard-card {
+        padding: 25px;
+        width: 95%;
+    }
+
+    .flashcard-question {
+        font-size: 1.3em;
+    }
+
+    .session-controls {
+        flex-direction: column;
+        width: 100%;
+        padding: 15px;
+    }
+
+    .control-button {
+        width: 100%;
+    }
+
+    .session-header {
+        padding: 12px 20px;
+    }
+
+    .session-title {
+        font-size: 1em;
+    }
+}
