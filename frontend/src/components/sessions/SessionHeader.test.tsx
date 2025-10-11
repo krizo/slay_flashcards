@@ -144,4 +144,240 @@ describe('SessionHeader', () => {
 
         expect(screen.getByText(specialQuizName)).toBeInTheDocument();
     });
+
+    describe('Statistics Metrics', () => {
+        it('displays "Your Best" metric with percentage when value provided', () => {
+            render(
+                <SessionHeader
+                    quizName={quizName}
+                    yourBest={95.5}
+                    onCloseSession={mockOnCloseSession}
+                />
+            );
+
+            expect(screen.getByText('96%')).toBeInTheDocument(); // Rounded
+            expect(screen.getByText('Your Best')).toBeInTheDocument();
+        });
+
+        it('displays "—" for "Your Best" when null', () => {
+            render(
+                <SessionHeader
+                    quizName={quizName}
+                    yourBest={null}
+                    onCloseSession={mockOnCloseSession}
+                />
+            );
+
+            const metrics = screen.getAllByText('—');
+            expect(metrics.length).toBeGreaterThan(0);
+        });
+
+        it('displays "Your Avg" metric with percentage when value provided', () => {
+            render(
+                <SessionHeader
+                    quizName={quizName}
+                    yourAverage={82.3}
+                    onCloseSession={mockOnCloseSession}
+                />
+            );
+
+            expect(screen.getByText('82%')).toBeInTheDocument(); // Rounded
+            expect(screen.getByText('Your Avg')).toBeInTheDocument();
+        });
+
+        it('displays "—" for "Your Avg" when null', () => {
+            render(
+                <SessionHeader
+                    quizName={quizName}
+                    yourAverage={null}
+                    onCloseSession={mockOnCloseSession}
+                />
+            );
+
+            const metrics = screen.getAllByText('—');
+            expect(metrics.length).toBeGreaterThan(0);
+        });
+
+        it('displays "Test Sessions" count when value provided', () => {
+            render(
+                <SessionHeader
+                    quizName={quizName}
+                    testSessions={15}
+                    onCloseSession={mockOnCloseSession}
+                />
+            );
+
+            expect(screen.getByText('15')).toBeInTheDocument();
+            expect(screen.getByText('Test Sessions')).toBeInTheDocument();
+        });
+
+        it('displays "—" for "Test Sessions" when zero', () => {
+            render(
+                <SessionHeader
+                    quizName={quizName}
+                    testSessions={0}
+                    onCloseSession={mockOnCloseSession}
+                />
+            );
+
+            const metrics = screen.getAllByText('—');
+            expect(metrics.length).toBeGreaterThan(0);
+        });
+
+        it('displays all metrics with proper icons', () => {
+            const { container } = render(
+                <SessionHeader
+                    quizName={quizName}
+                    yourBest={95}
+                    yourAverage={85}
+                    testSessions={10}
+                    onCloseSession={mockOnCloseSession}
+                />
+            );
+
+            expect(screen.getByText('⭐')).toBeInTheDocument(); // Your Best icon
+            expect(screen.getByText('📊')).toBeInTheDocument(); // Your Avg icon
+            expect(screen.getByText('🎯')).toBeInTheDocument(); // Test Sessions icon
+            expect(screen.getByText('🕒')).toBeInTheDocument(); // Last Session icon
+        });
+    });
+
+    describe('Last Session Time Formatting', () => {
+        const now = new Date('2025-10-11T12:00:00.000Z');
+
+        beforeEach(() => {
+            vi.useFakeTimers();
+            vi.setSystemTime(now);
+        });
+
+        afterEach(() => {
+            vi.useRealTimers();
+        });
+
+        it('displays "First time!" when no lastSessionDate provided', () => {
+            render(
+                <SessionHeader
+                    quizName={quizName}
+                    lastSessionDate={null}
+                    onCloseSession={mockOnCloseSession}
+                />
+            );
+
+            expect(screen.getByText('First time!')).toBeInTheDocument();
+        });
+
+        it('displays "Just now" for sessions less than 30 seconds ago', () => {
+            const recentDate = new Date(now.getTime() - 20 * 1000).toISOString(); // 20 seconds ago
+
+            render(
+                <SessionHeader
+                    quizName={quizName}
+                    lastSessionDate={recentDate}
+                    onCloseSession={mockOnCloseSession}
+                />
+            );
+
+            expect(screen.getByText('Just now')).toBeInTheDocument();
+        });
+
+        it('displays seconds for sessions less than 1 minute ago', () => {
+            const recentDate = new Date(now.getTime() - 45 * 1000).toISOString(); // 45 seconds ago
+
+            render(
+                <SessionHeader
+                    quizName={quizName}
+                    lastSessionDate={recentDate}
+                    onCloseSession={mockOnCloseSession}
+                />
+            );
+
+            expect(screen.getByText('45 sec ago')).toBeInTheDocument();
+        });
+
+        it('displays minutes for sessions less than 1 hour ago', () => {
+            const recentDate = new Date(now.getTime() - 30 * 60 * 1000).toISOString(); // 30 minutes ago
+
+            render(
+                <SessionHeader
+                    quizName={quizName}
+                    lastSessionDate={recentDate}
+                    onCloseSession={mockOnCloseSession}
+                />
+            );
+
+            expect(screen.getByText('30 min ago')).toBeInTheDocument();
+        });
+
+        it('displays hours for sessions less than 24 hours ago', () => {
+            const recentDate = new Date(now.getTime() - 5 * 60 * 60 * 1000).toISOString(); // 5 hours ago
+
+            render(
+                <SessionHeader
+                    quizName={quizName}
+                    lastSessionDate={recentDate}
+                    onCloseSession={mockOnCloseSession}
+                />
+            );
+
+            expect(screen.getByText('5h ago')).toBeInTheDocument();
+        });
+
+        it('displays "Yesterday" for sessions exactly 1 day ago', () => {
+            const yesterdayDate = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString();
+
+            render(
+                <SessionHeader
+                    quizName={quizName}
+                    lastSessionDate={yesterdayDate}
+                    onCloseSession={mockOnCloseSession}
+                />
+            );
+
+            expect(screen.getByText('Yesterday')).toBeInTheDocument();
+        });
+
+        it('displays days for sessions less than 7 days ago', () => {
+            const daysAgoDate = new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000).toISOString(); // 3 days ago
+
+            render(
+                <SessionHeader
+                    quizName={quizName}
+                    lastSessionDate={daysAgoDate}
+                    onCloseSession={mockOnCloseSession}
+                />
+            );
+
+            expect(screen.getByText('3 days ago')).toBeInTheDocument();
+        });
+
+        it('displays weeks for sessions less than 30 days ago', () => {
+            const weeksAgoDate = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000).toISOString(); // 14 days ago
+
+            render(
+                <SessionHeader
+                    quizName={quizName}
+                    lastSessionDate={weeksAgoDate}
+                    onCloseSession={mockOnCloseSession}
+                />
+            );
+
+            expect(screen.getByText('2 weeks ago')).toBeInTheDocument();
+        });
+
+        it('displays formatted date for sessions older than 30 days', () => {
+            const oldDate = new Date('2025-08-15T12:00:00.000Z').toISOString(); // About 2 months ago
+
+            render(
+                <SessionHeader
+                    quizName={quizName}
+                    lastSessionDate={oldDate}
+                    onCloseSession={mockOnCloseSession}
+                />
+            );
+
+            // Should display a formatted date like "8/15/2025"
+            const dateElement = screen.getByText(/\d+\/\d+\/\d+/);
+            expect(dateElement).toBeInTheDocument();
+        });
+    });
 });
