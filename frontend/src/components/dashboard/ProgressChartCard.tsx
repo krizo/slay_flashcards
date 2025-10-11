@@ -1,35 +1,35 @@
-import { useState } from 'react';
+import { useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { ProgressDataPoint } from '../../types';
+
+type TimePeriod = 'week' | 'month' | 'year' | 'all';
 
 interface ProgressChartCardProps {
     data: ProgressDataPoint[] | null;
     isLoading?: boolean;
     error?: Error | null;
-    onDateRangeChange?: (days: number) => void;
+    timePeriod: TimePeriod;
 }
 
-type DateRange = 7 | 30 | 90 | 365;
-
-const ProgressChartCard = ({ data, isLoading, error, onDateRangeChange }: ProgressChartCardProps) => {
-    const [selectedRange, setSelectedRange] = useState<DateRange>(30);
-
-    const handleRangeChange = (days: DateRange) => {
-        setSelectedRange(days);
-        if (onDateRangeChange) {
-            onDateRangeChange(days);
-        }
-    };
+const ProgressChartCard = ({ data, isLoading, error, timePeriod }: ProgressChartCardProps) => {
+    useEffect(() => {
+        console.log(`📈 ProgressChartCard - ${timePeriod}:`, {
+            totalPoints: data?.length,
+            firstDate: data?.[0]?.date,
+            lastDate: data?.[data.length - 1]?.date,
+            allDates: data?.map(d => d.date)
+        });
+    }, [data, timePeriod]);
 
     const getRangeLabel = () => {
-        switch (selectedRange) {
-            case 7:
+        switch (timePeriod) {
+            case 'week':
                 return 'last week';
-            case 30:
+            case 'month':
                 return 'last month';
-            case 90:
-                return 'last 3 months';
-            case 365:
+            case 'year':
+                return 'last year';
+            case 'all':
                 return 'all time';
         }
     };
@@ -37,37 +37,9 @@ const ProgressChartCard = ({ data, isLoading, error, onDateRangeChange }: Progre
     if (isLoading) {
         return (
             <div className="dashboard-card progress-chart-card">
-                <div className="card-header-with-controls">
-                    <div className="card-header">
-                        <h3 className="card-title">Progress Over Time</h3>
-                        <p className="card-subtitle">Your average scores over the {getRangeLabel()}</p>
-                    </div>
-                    <div className="date-range-switcher">
-                        <button
-                            className={`range-btn ${selectedRange === 7 ? 'active' : ''}`}
-                            onClick={() => handleRangeChange(7)}
-                        >
-                            Last Week
-                        </button>
-                        <button
-                            className={`range-btn ${selectedRange === 30 ? 'active' : ''}`}
-                            onClick={() => handleRangeChange(30)}
-                        >
-                            Last Month
-                        </button>
-                        <button
-                            className={`range-btn ${selectedRange === 90 ? 'active' : ''}`}
-                            onClick={() => handleRangeChange(90)}
-                        >
-                            Last 3 Months
-                        </button>
-                        <button
-                            className={`range-btn ${selectedRange === 365 ? 'active' : ''}`}
-                            onClick={() => handleRangeChange(365)}
-                        >
-                            All Time
-                        </button>
-                    </div>
+                <div className="card-header">
+                    <h3 className="card-title">Progress Over Time</h3>
+                    <p className="card-subtitle">Your average scores over the {getRangeLabel()}</p>
                 </div>
                 <div className="loading-state">
                     <div className="loading-spinner"></div>
@@ -81,37 +53,9 @@ const ProgressChartCard = ({ data, isLoading, error, onDateRangeChange }: Progre
     if (error) {
         return (
             <div className="dashboard-card progress-chart-card">
-                <div className="card-header-with-controls">
-                    <div className="card-header">
-                        <h3 className="card-title">Progress Over Time</h3>
-                        <p className="card-subtitle">Your average scores over the {getRangeLabel()}</p>
-                    </div>
-                    <div className="date-range-switcher">
-                        <button
-                            className={`range-btn ${selectedRange === 7 ? 'active' : ''}`}
-                            onClick={() => handleRangeChange(7)}
-                        >
-                            Last Week
-                        </button>
-                        <button
-                            className={`range-btn ${selectedRange === 30 ? 'active' : ''}`}
-                            onClick={() => handleRangeChange(30)}
-                        >
-                            Last Month
-                        </button>
-                        <button
-                            className={`range-btn ${selectedRange === 90 ? 'active' : ''}`}
-                            onClick={() => handleRangeChange(90)}
-                        >
-                            Last 3 Months
-                        </button>
-                        <button
-                            className={`range-btn ${selectedRange === 365 ? 'active' : ''}`}
-                            onClick={() => handleRangeChange(365)}
-                        >
-                            All Time
-                        </button>
-                    </div>
+                <div className="card-header">
+                    <h3 className="card-title">Progress Over Time</h3>
+                    <p className="card-subtitle">Your average scores over the {getRangeLabel()}</p>
                 </div>
                 <div className="error-state">
                     <span className="error-icon">⚠️</span>
@@ -126,37 +70,9 @@ const ProgressChartCard = ({ data, isLoading, error, onDateRangeChange }: Progre
     if (!data || data.length === 0) {
         return (
             <div className="dashboard-card progress-chart-card">
-                <div className="card-header-with-controls">
-                    <div className="card-header">
-                        <h3 className="card-title">Progress Over Time</h3>
-                        <p className="card-subtitle">Your average scores over the {getRangeLabel()}</p>
-                    </div>
-                    <div className="date-range-switcher">
-                        <button
-                            className={`range-btn ${selectedRange === 7 ? 'active' : ''}`}
-                            onClick={() => handleRangeChange(7)}
-                        >
-                            Last Week
-                        </button>
-                        <button
-                            className={`range-btn ${selectedRange === 30 ? 'active' : ''}`}
-                            onClick={() => handleRangeChange(30)}
-                        >
-                            Last Month
-                        </button>
-                        <button
-                            className={`range-btn ${selectedRange === 90 ? 'active' : ''}`}
-                            onClick={() => handleRangeChange(90)}
-                        >
-                            Last 3 Months
-                        </button>
-                        <button
-                            className={`range-btn ${selectedRange === 365 ? 'active' : ''}`}
-                            onClick={() => handleRangeChange(365)}
-                        >
-                            All Time
-                        </button>
-                    </div>
+                <div className="card-header">
+                    <h3 className="card-title">Progress Over Time</h3>
+                    <p className="card-subtitle">Your average scores over the {getRangeLabel()}</p>
                 </div>
                 <div className="empty-state">
                     <span className="empty-icon">📈</span>
@@ -169,37 +85,9 @@ const ProgressChartCard = ({ data, isLoading, error, onDateRangeChange }: Progre
 
     return (
         <div className="dashboard-card progress-chart-card">
-            <div className="card-header-with-controls">
-                <div className="card-header">
-                    <h3 className="card-title">Progress Over Time</h3>
-                    <p className="card-subtitle">Your average scores over the {getRangeLabel()}</p>
-                </div>
-                <div className="date-range-switcher">
-                    <button
-                        className={`range-btn ${selectedRange === 7 ? 'active' : ''}`}
-                        onClick={() => handleRangeChange(7)}
-                    >
-                        Last Week
-                    </button>
-                    <button
-                        className={`range-btn ${selectedRange === 30 ? 'active' : ''}`}
-                        onClick={() => handleRangeChange(30)}
-                    >
-                        Last Month
-                    </button>
-                    <button
-                        className={`range-btn ${selectedRange === 90 ? 'active' : ''}`}
-                        onClick={() => handleRangeChange(90)}
-                    >
-                        Last 3 Months
-                    </button>
-                    <button
-                        className={`range-btn ${selectedRange === 365 ? 'active' : ''}`}
-                        onClick={() => handleRangeChange(365)}
-                    >
-                        All Time
-                    </button>
-                </div>
+            <div className="card-header">
+                <h3 className="card-title">Progress Over Time</h3>
+                <p className="card-subtitle">Your average scores over the {getRangeLabel()} ({data?.length || 0} data points)</p>
             </div>
 
             <div className="chart-container">

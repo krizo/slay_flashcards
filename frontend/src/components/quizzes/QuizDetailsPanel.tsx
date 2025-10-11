@@ -4,6 +4,23 @@ import { useQuizPerformance } from '../../hooks/useQuizPerformance';
 import { useQuizSessions } from '../../hooks/useQuizSessions';
 import { useAuth } from '../../context/AuthContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+
+// Helper function to decode base64-encoded UTF-8 emoji
+const decodeImage = (base64: string): string => {
+    try {
+        // Decode base64 to binary string
+        const binaryString = atob(base64);
+        // Convert binary string to UTF-8
+        const bytes = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+            bytes[i] = binaryString.charCodeAt(i);
+        }
+        return new TextDecoder('utf-8').decode(bytes);
+    } catch (e) {
+        console.error('Failed to decode image:', e);
+        return '📚';
+    }
+};
 import {
     faGraduationCap,
     faClipboardCheck,
@@ -219,7 +236,7 @@ function QuizDetailsPanel({
             <div className="quiz-compact-header">
                 <div className="quiz-compact-title-row">
                     <div className="quiz-compact-title-left">
-                        <div className="quiz-compact-icon">📚</div>
+                        <div className="quiz-compact-icon">{quiz.image ? decodeImage(quiz.image) : '📚'}</div>
                         <h1 className="quiz-compact-name">{quiz.name}</h1>
                     </div>
                     {quiz.created_at && (

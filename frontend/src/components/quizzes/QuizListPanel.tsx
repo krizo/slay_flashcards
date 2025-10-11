@@ -1,6 +1,23 @@
 import { useState, useEffect } from 'react';
 import { useQuizList } from '../../hooks/useQuizList';
 
+// Helper function to decode base64-encoded UTF-8 emoji
+const decodeImage = (base64: string): string => {
+    try {
+        // Decode base64 to binary string
+        const binaryString = atob(base64);
+        // Convert binary string to UTF-8
+        const bytes = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+            bytes[i] = binaryString.charCodeAt(i);
+        }
+        return new TextDecoder('utf-8').decode(bytes);
+    } catch (e) {
+        console.error('Failed to decode image:', e);
+        return '📚';
+    }
+};
+
 interface QuizListPanelProps {
     selectedQuizId: number | null;
     onSelectQuiz: (quizId: number) => void;
@@ -69,7 +86,7 @@ function QuizListPanel({
                                     onClick={() => onSelectQuiz(quiz.id)}
                                 >
                                     <div className="quiz-list-item-icon">
-                                        📚
+                                        {quiz.image ? decodeImage(quiz.image) : '📚'}
                                     </div>
                                     <div className="quiz-list-item-content">
                                         <div className="quiz-list-item-header">

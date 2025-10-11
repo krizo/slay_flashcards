@@ -1,6 +1,7 @@
 """
 Quiz API routes
 """
+import base64
 import json
 from typing import Optional
 
@@ -20,6 +21,22 @@ from core.db.database import get_db
 from core.services.quiz_service import QuizService
 
 router = APIRouter()
+
+
+def quiz_to_dict(quiz, flashcard_count=None):
+    """Convert quiz model to dictionary with base64 encoded image."""
+    return {
+        "id": quiz.id,
+        "name": quiz.name,
+        "subject": quiz.subject,
+        "category": quiz.category,
+        "level": quiz.level,
+        "description": quiz.description,
+        "created_at": quiz.created_at,
+        "favourite": quiz.favourite if hasattr(quiz, 'favourite') else False,
+        "image": base64.b64encode(quiz.image).decode('utf-8') if quiz.image else None,
+        "flashcard_count": flashcard_count
+    }
 
 
 @router.get("/", response_model=QuizzesResponse)
@@ -60,16 +77,7 @@ async def get_quizzes(
         quiz_data = []
         for quiz in quizzes_query:
             flashcards = quiz_service.get_quiz_flashcards(quiz.id)
-            quiz_dict = {
-                "id": quiz.id,
-                "name": quiz.name,
-                "subject": quiz.subject,
-                "category": quiz.category,
-                "level": quiz.level,
-                "description": quiz.description,
-                "created_at": quiz.created_at,
-                "flashcard_count": len(flashcards)
-            }
+            quiz_dict = quiz_to_dict(quiz, flashcard_count=len(flashcards))
             quiz_data.append(Quiz(**quiz_dict))
 
         # Apply pagination
@@ -148,16 +156,7 @@ async def search_quizzes(
 
             if matches:
                 flashcards = quiz_service.get_quiz_flashcards(quiz.id)
-                quiz_dict = {
-                    "id": quiz.id,
-                    "name": quiz.name,
-                    "subject": quiz.subject,
-                "category": quiz.category,
-                "level": quiz.level,
-                    "description": quiz.description,
-                    "created_at": quiz.created_at,
-                    "flashcard_count": len(flashcards)
-                }
+                quiz_dict = quiz_to_dict(quiz, flashcard_count=len(flashcards))
                 search_results.append(Quiz(**quiz_dict))
 
         # Limit results
@@ -194,16 +193,7 @@ async def get_quiz(
 
         # Get flashcard count
         flashcards = quiz_service.get_quiz_flashcards(quiz.id)
-        quiz_dict = {
-            "id": quiz.id,
-            "name": quiz.name,
-            "subject": quiz.subject,
-                "category": quiz.category,
-                "level": quiz.level,
-            "description": quiz.description,
-            "created_at": quiz.created_at,
-            "flashcard_count": len(flashcards)
-        }
+        quiz_dict = quiz_to_dict(quiz, flashcard_count=len(flashcards))
 
         return create_response(
             data=Quiz(**quiz_dict),
@@ -237,16 +227,7 @@ async def create_quiz(
             description=quiz_data.description
         )
 
-        quiz_dict = {
-            "id": quiz.id,
-            "name": quiz.name,
-            "subject": quiz.subject,
-                "category": quiz.category,
-                "level": quiz.level,
-            "description": quiz.description,
-            "created_at": quiz.created_at,
-            "flashcard_count": 0
-        }
+        quiz_dict = quiz_to_dict(quiz, flashcard_count=0)
 
         return create_response(
             data=Quiz(**quiz_dict),
@@ -288,16 +269,7 @@ async def update_quiz(
         # For now, we'll assume the quiz service handles this
 
         flashcards = quiz_service.get_quiz_flashcards(quiz.id)
-        quiz_dict = {
-            "id": quiz.id,
-            "name": quiz.name,
-            "subject": quiz.subject,
-                "category": quiz.category,
-                "level": quiz.level,
-            "description": quiz.description,
-            "created_at": quiz.created_at,
-            "flashcard_count": len(flashcards)
-        }
+        quiz_dict = quiz_to_dict(quiz, flashcard_count=len(flashcards))
 
         return create_response(
             data=Quiz(**quiz_dict),
@@ -409,16 +381,7 @@ async def import_quiz(
         quiz = quiz_service.import_quiz_from_dict(quiz_data.model_dump(), current_user.id)
 
         flashcards = quiz_service.get_quiz_flashcards(quiz.id)
-        quiz_dict = {
-            "id": quiz.id,
-            "name": quiz.name,
-            "subject": quiz.subject,
-                "category": quiz.category,
-                "level": quiz.level,
-            "description": quiz.description,
-            "created_at": quiz.created_at,
-            "flashcard_count": len(flashcards)
-        }
+        quiz_dict = quiz_to_dict(quiz, flashcard_count=len(flashcards))
 
         return create_response(
             data=Quiz(**quiz_dict),
@@ -472,16 +435,7 @@ async def import_quiz_file(
         quiz = quiz_service.import_quiz_from_dict(quiz_data, current_user.id)
 
         flashcards = quiz_service.get_quiz_flashcards(quiz.id)
-        quiz_dict = {
-            "id": quiz.id,
-            "name": quiz.name,
-            "subject": quiz.subject,
-                "category": quiz.category,
-                "level": quiz.level,
-            "description": quiz.description,
-            "created_at": quiz.created_at,
-            "flashcard_count": len(flashcards)
-        }
+        quiz_dict = quiz_to_dict(quiz, flashcard_count=len(flashcards))
 
         return create_response(
             data=Quiz(**quiz_dict),
@@ -627,16 +581,7 @@ async def duplicate_quiz(
         flashcard_repo = FlashcardRepository(db)
         flashcard_repo.bulk_create_flashcards(new_quiz.id, flashcard_data)
 
-        quiz_dict = {
-            "id": new_quiz.id,
-            "name": new_quiz.name,
-            "subject": new_quiz.subject,
-            "category": new_quiz.category,
-            "level": new_quiz.level,
-            "description": new_quiz.description,
-            "created_at": new_quiz.created_at,
-            "flashcard_count": len(flashcard_data)
-        }
+        quiz_dict = quiz_to_dict(new_quiz, flashcard_count=len(flashcard_data))
 
         return create_response(
             data=Quiz(**quiz_dict),

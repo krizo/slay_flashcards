@@ -1,5 +1,7 @@
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
+type TimePeriod = 'week' | 'month' | 'year' | 'all';
+
 interface SessionDataPoint {
     date: string;
     learn: number;
@@ -10,16 +12,29 @@ interface SessionsChartCardProps {
     data: SessionDataPoint[] | null;
     isLoading?: boolean;
     error?: Error | null;
+    timePeriod: TimePeriod;
 }
 
-const SessionsChartCard = ({ data, isLoading, error }: SessionsChartCardProps) => {
+const SessionsChartCard = ({ data, isLoading, error, timePeriod }: SessionsChartCardProps) => {
+    const getRangeLabel = () => {
+        switch (timePeriod) {
+            case 'week':
+                return 'last week';
+            case 'month':
+                return 'last month';
+            case 'year':
+                return 'last year';
+            case 'all':
+                return 'all time';
+        }
+    };
     // Error state - check first to prioritize errors over loading
     if (error) {
         return (
             <div className="dashboard-card sessions-chart-card">
                 <div className="card-header">
                     <h3 className="card-title">Sessions Over Time</h3>
-                    <p className="card-subtitle">Your learning and test activity over the last 7 days</p>
+                    <p className="card-subtitle">Your learning and test activity over the {getRangeLabel()}</p>
                 </div>
                 <div className="error-state">
                     <span className="error-icon">⚠️</span>
@@ -36,7 +51,7 @@ const SessionsChartCard = ({ data, isLoading, error }: SessionsChartCardProps) =
             <div className="dashboard-card sessions-chart-card">
                 <div className="card-header">
                     <h3 className="card-title">Sessions Over Time</h3>
-                    <p className="card-subtitle">Your learning and test activity over the last 7 days</p>
+                    <p className="card-subtitle">Your learning and test activity over the {getRangeLabel()}</p>
                 </div>
                 <div className="loading-state">
                     <div className="loading-spinner" role="status"></div>
@@ -52,7 +67,7 @@ const SessionsChartCard = ({ data, isLoading, error }: SessionsChartCardProps) =
             <div className="dashboard-card sessions-chart-card">
                 <div className="card-header">
                     <h3 className="card-title">Sessions Over Time</h3>
-                    <p className="card-subtitle">Your learning and test activity over the last 7 days</p>
+                    <p className="card-subtitle">Your learning and test activity over the {getRangeLabel()}</p>
                 </div>
                 <div className="empty-state">
                     <span className="empty-icon">📊</span>
@@ -66,7 +81,7 @@ const SessionsChartCard = ({ data, isLoading, error }: SessionsChartCardProps) =
         <div className="dashboard-card sessions-chart-card">
             <div className="card-header">
                 <h3 className="card-title">Sessions Over Time</h3>
-                <p className="card-subtitle">Your learning and test activity over the last 7 days</p>
+                <p className="card-subtitle">Your learning and test activity over the {getRangeLabel()} ({data?.length || 0} data points)</p>
             </div>
 
             <div className="chart-container">

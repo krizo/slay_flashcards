@@ -176,7 +176,9 @@ export function useProgressData(userId: number, days: number = 7): UseApiResult<
             try {
                 setIsLoading(true);
                 setError(null);
+                console.log(`📊 Fetching progress: /users/${userId}/progress?days=${days}`);
                 const data = await apiClient<ProgressApiResponse>(`/users/${userId}/progress?days=${days}`, undefined, accessToken);
+                console.log('📊 Response - total sessions:', data.total_sessions, 'test sessions:', data.test_sessions);
 
                 // Transform the API response into chart data format
                 // Only include days with actual test scores (where average_score exists and scores array is not empty)
