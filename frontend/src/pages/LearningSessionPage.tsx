@@ -1,6 +1,8 @@
 import { useSearchParams } from 'react-router-dom';
 import { useSession } from '../hooks/useSession';
 import { useQuiz } from '../hooks/useQuiz';
+import { useQuizPerformance } from '../hooks/useQuizPerformance';
+import { useQuizSessions } from '../hooks/useQuizSessions';
 import SessionHeader from '../components/sessions/SessionHeader';
 import FlashcardDisplay from '../components/sessions/FlashcardDisplay';
 import { SessionMode } from '../types';
@@ -14,6 +16,18 @@ function LearningSessionPage() {
 
     // Get quiz details for header
     const { quiz } = useQuiz(quizIdNumber);
+
+    // Get quiz-specific performance stats for header metrics (all-time data)
+    const { performance } = useQuizPerformance(quizIdNumber, 365); // Get full year of data
+
+    // Get recent sessions to find the last session date
+    const { sessions } = useQuizSessions(quizIdNumber, 50);
+
+    // Calculate last session date (skip current session which is index 0)
+    const sortedSessions = sessions ? [...sessions].sort((a, b) =>
+        new Date(b.started_at).getTime() - new Date(a.started_at).getTime()
+    ) : [];
+    const lastSessionDate = sortedSessions.length > 1 ? sortedSessions[1].started_at : null;
 
     // Use session hook for all session logic
     const {
@@ -131,6 +145,10 @@ function LearningSessionPage() {
             <SessionHeader
                 quizName={quiz?.name || 'Loading...'}
                 quizImage={quiz?.image}
+                yourBest={performance?.scores.highest ?? null}
+                yourAverage={performance?.scores.average ?? null}
+                testSessions={performance?.test_sessions ?? 0}
+                lastSessionDate={lastSessionDate}
                 onCloseSession={endSession}
             />
 
