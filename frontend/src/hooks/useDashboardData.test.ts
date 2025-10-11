@@ -215,7 +215,7 @@ describe('useDashboardData hooks', () => {
             expect(result.current.error).toBe(null);
         });
 
-        it('should handle null average_score in progress data', async () => {
+        it('should filter out days with null or empty scores', async () => {
             const mockApiResponse = {
                 total_sessions: 2,
                 learn_sessions: 2,
@@ -240,7 +240,8 @@ describe('useDashboardData hooks', () => {
                 expect(result.current.isLoading).toBe(false);
             });
 
-            expect(result.current.data).toEqual([{ date: '2025-10-08', score: 0 }]);
+            // Days with no test scores should be filtered out
+            expect(result.current.data).toEqual([]);
         });
     });
 });

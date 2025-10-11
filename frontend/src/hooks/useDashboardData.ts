@@ -179,10 +179,12 @@ export function useProgressData(userId: number, days: number = 7): UseApiResult<
                 const data = await apiClient<ProgressApiResponse>(`/users/${userId}/progress?days=${days}`, undefined, accessToken);
 
                 // Transform the API response into chart data format
+                // Only include days with actual test scores (where average_score exists and scores array is not empty)
                 const chartData: ProgressDataPoint[] = Object.entries(data.daily_activity)
+                    .filter(([_, activity]) => activity.scores && activity.scores.length > 0 && activity.average_score !== null)
                     .map(([date, activity]) => ({
                         date,
-                        score: Math.round(activity.average_score || 0)
+                        score: Math.round(activity.average_score)
                     }))
                     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { ProgressDataPoint } from '../../types';
 
@@ -5,16 +6,60 @@ interface ProgressChartCardProps {
     data: ProgressDataPoint[] | null;
     isLoading?: boolean;
     error?: Error | null;
+    onDateRangeChange?: (days: number) => void;
 }
 
-const ProgressChartCard = ({ data, isLoading, error }: ProgressChartCardProps) => {
+type DateRange = 7 | 30 | 90;
+
+const ProgressChartCard = ({ data, isLoading, error, onDateRangeChange }: ProgressChartCardProps) => {
+    const [selectedRange, setSelectedRange] = useState<DateRange>(7);
+
+    const handleRangeChange = (days: DateRange) => {
+        setSelectedRange(days);
+        if (onDateRangeChange) {
+            onDateRangeChange(days);
+        }
+    };
+
+    const getRangeLabel = () => {
+        switch (selectedRange) {
+            case 7:
+                return 'last 7 days';
+            case 30:
+                return 'last 30 days';
+            case 90:
+                return 'last 90 days';
+        }
+    };
     // Loading state
     if (isLoading) {
         return (
             <div className="dashboard-card progress-chart-card">
-                <div className="card-header">
-                    <h3 className="card-title">Progress Over Time</h3>
-                    <p className="card-subtitle">Your average scores over the last 7 days</p>
+                <div className="card-header-with-controls">
+                    <div className="card-header">
+                        <h3 className="card-title">Progress Over Time</h3>
+                        <p className="card-subtitle">Your average scores over the {getRangeLabel()}</p>
+                    </div>
+                    <div className="date-range-switcher">
+                        <button
+                            className={`range-btn ${selectedRange === 7 ? 'active' : ''}`}
+                            onClick={() => handleRangeChange(7)}
+                        >
+                            7D
+                        </button>
+                        <button
+                            className={`range-btn ${selectedRange === 30 ? 'active' : ''}`}
+                            onClick={() => handleRangeChange(30)}
+                        >
+                            30D
+                        </button>
+                        <button
+                            className={`range-btn ${selectedRange === 90 ? 'active' : ''}`}
+                            onClick={() => handleRangeChange(90)}
+                        >
+                            90D
+                        </button>
+                    </div>
                 </div>
                 <div className="loading-state">
                     <div className="loading-spinner"></div>
@@ -28,9 +73,31 @@ const ProgressChartCard = ({ data, isLoading, error }: ProgressChartCardProps) =
     if (error) {
         return (
             <div className="dashboard-card progress-chart-card">
-                <div className="card-header">
-                    <h3 className="card-title">Progress Over Time</h3>
-                    <p className="card-subtitle">Your average scores over the last 7 days</p>
+                <div className="card-header-with-controls">
+                    <div className="card-header">
+                        <h3 className="card-title">Progress Over Time</h3>
+                        <p className="card-subtitle">Your average scores over the {getRangeLabel()}</p>
+                    </div>
+                    <div className="date-range-switcher">
+                        <button
+                            className={`range-btn ${selectedRange === 7 ? 'active' : ''}`}
+                            onClick={() => handleRangeChange(7)}
+                        >
+                            7D
+                        </button>
+                        <button
+                            className={`range-btn ${selectedRange === 30 ? 'active' : ''}`}
+                            onClick={() => handleRangeChange(30)}
+                        >
+                            30D
+                        </button>
+                        <button
+                            className={`range-btn ${selectedRange === 90 ? 'active' : ''}`}
+                            onClick={() => handleRangeChange(90)}
+                        >
+                            90D
+                        </button>
+                    </div>
                 </div>
                 <div className="error-state">
                     <span className="error-icon">⚠️</span>
@@ -45,13 +112,36 @@ const ProgressChartCard = ({ data, isLoading, error }: ProgressChartCardProps) =
     if (!data || data.length === 0) {
         return (
             <div className="dashboard-card progress-chart-card">
-                <div className="card-header">
-                    <h3 className="card-title">Progress Over Time</h3>
-                    <p className="card-subtitle">Your average scores over the last 7 days</p>
+                <div className="card-header-with-controls">
+                    <div className="card-header">
+                        <h3 className="card-title">Progress Over Time</h3>
+                        <p className="card-subtitle">Your average scores over the {getRangeLabel()}</p>
+                    </div>
+                    <div className="date-range-switcher">
+                        <button
+                            className={`range-btn ${selectedRange === 7 ? 'active' : ''}`}
+                            onClick={() => handleRangeChange(7)}
+                        >
+                            7D
+                        </button>
+                        <button
+                            className={`range-btn ${selectedRange === 30 ? 'active' : ''}`}
+                            onClick={() => handleRangeChange(30)}
+                        >
+                            30D
+                        </button>
+                        <button
+                            className={`range-btn ${selectedRange === 90 ? 'active' : ''}`}
+                            onClick={() => handleRangeChange(90)}
+                        >
+                            90D
+                        </button>
+                    </div>
                 </div>
                 <div className="empty-state">
                     <span className="empty-icon">📈</span>
-                    <p>No progress data available</p>
+                    <p>No progress data available for this period</p>
+                    <p className="empty-hint">Complete some test sessions to see your progress</p>
                 </div>
             </div>
         );
@@ -59,19 +149,41 @@ const ProgressChartCard = ({ data, isLoading, error }: ProgressChartCardProps) =
 
     return (
         <div className="dashboard-card progress-chart-card">
-            <div className="card-header">
-                <h3 className="card-title">Progress Over Time</h3>
-                <p className="card-subtitle">Your average scores over the last 7 days</p>
+            <div className="card-header-with-controls">
+                <div className="card-header">
+                    <h3 className="card-title">Progress Over Time</h3>
+                    <p className="card-subtitle">Your average scores over the {getRangeLabel()}</p>
+                </div>
+                <div className="date-range-switcher">
+                    <button
+                        className={`range-btn ${selectedRange === 7 ? 'active' : ''}`}
+                        onClick={() => handleRangeChange(7)}
+                    >
+                        7D
+                    </button>
+                    <button
+                        className={`range-btn ${selectedRange === 30 ? 'active' : ''}`}
+                        onClick={() => handleRangeChange(30)}
+                    >
+                        30D
+                    </button>
+                    <button
+                        className={`range-btn ${selectedRange === 90 ? 'active' : ''}`}
+                        onClick={() => handleRangeChange(90)}
+                    >
+                        90D
+                    </button>
+                </div>
             </div>
 
             <div className="chart-container">
                 <ResponsiveContainer width="100%" height={250}>
-                    <LineChart data={data} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                    <LineChart data={data} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
                         <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
                         <XAxis
                             dataKey="date"
                             stroke="#5B6D83"
-                            tick={{ fontSize: 12 }}
+                            tick={{ fontSize: 11 }}
                             tickFormatter={(value) => {
                                 const date = new Date(value);
                                 return `${date.getMonth() + 1}/${date.getDate()}`;
@@ -79,30 +191,31 @@ const ProgressChartCard = ({ data, isLoading, error }: ProgressChartCardProps) =
                         />
                         <YAxis
                             stroke="#5B6D83"
-                            tick={{ fontSize: 12 }}
+                            tick={{ fontSize: 11 }}
                             domain={[0, 100]}
-                            label={{ value: 'Score (%)', angle: -90, position: 'insideLeft', style: { fontSize: 12, fill: '#5B6D83' } }}
+                            width={35}
                         />
                         <Tooltip
                             contentStyle={{
                                 backgroundColor: '#FFFFFF',
                                 border: '1px solid #E5E7EB',
                                 borderRadius: '8px',
-                                padding: '10px'
+                                padding: '10px',
+                                fontSize: '12px'
                             }}
                             labelFormatter={(value) => {
                                 const date = new Date(value);
                                 return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
                             }}
-                            formatter={(value: number) => [`${Math.round(value)}%`, 'Score']}
+                            formatter={(value: number) => [`${Math.round(value)}%`, 'Avg Score']}
                         />
                         <Line
                             type="monotone"
                             dataKey="score"
                             stroke="#6A3FFB"
-                            strokeWidth={3}
-                            dot={{ fill: '#6A3FFB', r: 5 }}
-                            activeDot={{ r: 7 }}
+                            strokeWidth={2}
+                            dot={{ fill: '#6A3FFB', r: 3 }}
+                            activeDot={{ r: 5 }}
                         />
                     </LineChart>
                 </ResponsiveContainer>
