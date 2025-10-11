@@ -303,7 +303,11 @@ def test_user_statistics(authenticated_client):
         "quiz_id": quiz_id,
         "mode": "learn"
     }
-    authenticated_client.post("/api/v1/sessions/", json=session_data)
+    session_response = authenticated_client.post("/api/v1/sessions/", json=session_data)
+    session_id = session_response.json()["data"]["id"]
+
+    # Mark session as completed
+    authenticated_client.post(f"/api/v1/sessions/{session_id}/complete")
 
     # Get user statistics
     stats_response = authenticated_client.get(f"/api/v1/users/{user_id}/statistics")

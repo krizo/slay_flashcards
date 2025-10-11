@@ -140,7 +140,10 @@ class SessionRepository(BaseRepository[models.Session]):
         """Get comprehensive session statistics for a user."""
         all_sessions = self.get_by_user_id(user_id)
 
-        if not all_sessions:
+        # Only count completed sessions
+        completed_sessions = [s for s in all_sessions if getattr(s, 'completed', False)]
+
+        if not completed_sessions:
             return {
                 "total_sessions": 0,
                 "learn_sessions": 0,
@@ -154,8 +157,8 @@ class SessionRepository(BaseRepository[models.Session]):
                 "sessions_this_month": 0,
             }
 
-        learn_sessions = [s for s in all_sessions if s.mode == "learn"]
-        test_sessions = [s for s in all_sessions if s.mode == "test"]
+        learn_sessions = [s for s in completed_sessions if s.mode == "learn"]
+        test_sessions = [s for s in completed_sessions if s.mode == "test"]
 
         # Calculate scores
         test_scores = [s.score for s in test_sessions if s.score is not None]
@@ -163,24 +166,24 @@ class SessionRepository(BaseRepository[models.Session]):
         best_score = max(test_scores) if test_scores else None
 
         # Unique quizzes
-        unique_quizzes = len(set(s.quiz_id for s in all_sessions))
+        unique_quizzes = len(set(s.quiz_id for s in completed_sessions))
 
         # Recent activity counts
         now = datetime.now()
         week_ago = now - timedelta(days=7)
         month_ago = now - timedelta(days=30)
 
-        sessions_this_week = len([s for s in all_sessions if s.started_at >= week_ago])
-        sessions_this_month = len([s for s in all_sessions if s.started_at >= month_ago])
+        sessions_this_week = len([s for s in completed_sessions if s.started_at >= week_ago])
+        sessions_this_month = len([s for s in completed_sessions if s.started_at >= month_ago])
 
-        # Calculate study streak (consecutive days with sessions)
-        study_streak = self._calculate_study_streak(all_sessions)
+        # Calculate study streak (consecutive days with completed sessions)
+        study_streak = self._calculate_study_streak(completed_sessions)
 
         # Calculate favorite subjects (most practiced quizzes)
-        favorite_subjects = self._calculate_favorite_subjects(all_sessions)
+        favorite_subjects = self._calculate_favorite_subjects(completed_sessions)
 
         return {
-            "total_sessions": len(all_sessions),
+            "total_sessions": len(completed_sessions),
             "learn_sessions": len(learn_sessions),
             "test_sessions": len(test_sessions),
             "average_score": avg_score,

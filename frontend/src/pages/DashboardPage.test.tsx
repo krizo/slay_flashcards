@@ -192,8 +192,8 @@ describe('DashboardPage', () => {
         expect(useDashboardData.useCurrentUser).toHaveBeenCalledTimes(1);
         expect(useDashboardData.useUserStats).toHaveBeenCalledWith(1); // userId = 1
         expect(useDashboardData.useRecentSessions).toHaveBeenCalledWith(1, 5); // userId = 1, limit = 5
-        expect(useDashboardData.useProgressData).toHaveBeenCalledWith(1, 365); // userId = 1, days = 365 (default 'all')
-        expect(useDashboardData.useSessionsData).toHaveBeenCalledWith(1, 365); // userId = 1, days = 365 (default 'all')
+        expect(useDashboardData.useProgressData).toHaveBeenCalledWith(1, 7); // userId = 1, days = 7 (default 'week')
+        expect(useDashboardData.useSessionsData).toHaveBeenCalledWith(1, 7); // userId = 1, days = 7 (default 'week')
     });
 
     it('handles error state in StatsSummaryCard', () => {
@@ -392,12 +392,12 @@ describe('DashboardPage', () => {
             expect(allTimeButtons.length).toBeGreaterThanOrEqual(1);
         });
 
-        it('has All Time filter active by default in stats card', () => {
+        it('has Week filter active by default in stats card', () => {
             const { container } = render(<DashboardPage />);
 
             const timePeriodFilter = container.querySelector('.time-period-filter');
             const activeButton = timePeriodFilter?.querySelector('.period-btn.active');
-            expect(activeButton).toHaveTextContent('All Time');
+            expect(activeButton).toHaveTextContent('Week');
         });
 
         it('displays stat subtitles for better context', () => {

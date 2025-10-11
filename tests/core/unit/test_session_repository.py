@@ -362,9 +362,14 @@ def test_get_average_score_from_statistics(test_db):
     user = user_repo.create_user(name="user", email="user@example.com")
     quiz = quiz_repo.create_quiz(name="Quiz", user_id=user.id)
 
-    session_repo.create_session(user.id, quiz.id, "test", score=70)
-    session_repo.create_session(user.id, quiz.id, "test", score=80)
-    session_repo.create_session(user.id, quiz.id, "test", score=90)
+    s1 = session_repo.create_session(user.id, quiz.id, "test", score=70)
+    s2 = session_repo.create_session(user.id, quiz.id, "test", score=80)
+    s3 = session_repo.create_session(user.id, quiz.id, "test", score=90)
+
+    # Mark sessions as completed
+    session_repo.update(s1, completed=True)
+    session_repo.update(s2, completed=True)
+    session_repo.update(s3, completed=True)
 
     stats = session_repo.get_session_statistics(user.id)
 
@@ -382,9 +387,14 @@ def test_get_user_statistics(test_db):
     user = user_repo.create_user(name="user", email="user@example.com")
     quiz = quiz_repo.create_quiz(name="Quiz", user_id=user.id)
 
-    session_repo.create_session(user.id, quiz.id, "learn")
-    session_repo.create_session(user.id, quiz.id, "test", score=85)
-    session_repo.create_session(user.id, quiz.id, "test", score=95)
+    s1 = session_repo.create_session(user.id, quiz.id, "learn")
+    s2 = session_repo.create_session(user.id, quiz.id, "test", score=85)
+    s3 = session_repo.create_session(user.id, quiz.id, "test", score=95)
+
+    # Mark sessions as completed
+    session_repo.update(s1, completed=True)
+    session_repo.update(s2, completed=True)
+    session_repo.update(s3, completed=True)
 
     stats = session_repo.get_session_statistics(user.id)
 
@@ -466,9 +476,10 @@ def test_get_session_activity(test_db):
     user = user_repo.create_user(name="user", email="user@example.com")
     quiz = quiz_repo.create_quiz(name="Quiz", user_id=user.id)
 
-    # Create multiple sessions
+    # Create multiple sessions and mark them as completed
     for _ in range(5):
-        session_repo.create_session(user.id, quiz.id, "learn")
+        session = session_repo.create_session(user.id, quiz.id, "learn")
+        session_repo.update(session, completed=True)
 
     stats = session_repo.get_session_statistics(user.id)
 

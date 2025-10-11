@@ -59,6 +59,7 @@ export interface Session {
     started_at: string;
     score: number | null;  // Float value to match API
     completed_at: string | null;
+    completed: boolean;  // Session completion status
     // Quiz details for display in Dashboard
     quiz_name?: string;
     quiz_category?: string | null;
@@ -109,4 +110,34 @@ export interface QuizListResponse {
     total: number;
     page: number;
     limit: number;
+}
+
+// Session-related types for learning/test sessions
+export interface SessionProgress {
+    flashcard_id: number;
+    user_answer: string;
+    is_correct?: boolean;
+    feedback?: string;
+}
+
+export interface SessionFeedback {
+    is_correct: boolean;
+    correct_answer: string;
+    feedback: string;
+}
+
+export interface SessionCreateRequest {
+    quiz_id: number;
+    mode: SessionMode;
+}
+
+export interface SessionCreateResponse {
+    id: number;
+    user_id: number;
+    quiz_id: number;
+    mode: SessionMode;
+    started_at: string;
+    score: number | null;
+    completed_at: string | null;
+    completed: boolean;
 }
