@@ -41,28 +41,31 @@ def create_demo_sessions(db, user_id: int):
 
     sessions_created = 0
 
-    # Create varied sessions over the past 30 days
+    # Create varied sessions over the past 60 days
     # More recent days have more sessions (simulating active learning)
-    for days_ago in range(30):
+    for days_ago in range(60):
         # More activity in recent days
         if days_ago < 7:
-            num_sessions = random.randint(2, 5)  # Very active last week
-        elif days_ago < 14:
-            num_sessions = random.randint(1, 3)  # Active
+            num_sessions = random.randint(3, 6)  # Very active last week
+        elif days_ago < 30:
+            num_sessions = random.randint(2, 4)  # Active last month
         else:
             num_sessions = random.randint(0, 2)  # Less active in the past
 
         for _ in range(num_sessions):
             quiz = random.choice(quizzes)
 
-            # 70% learn mode, 30% test mode (realistic ratio)
-            mode = 'learn' if random.random() < 0.7 else 'test'
+            # 65% learn mode, 35% test mode (realistic ratio)
+            mode = 'learn' if random.random() < 0.65 else 'test'
 
-            # Generate realistic scores
+            # Generate realistic scores with progressive improvement
             if mode == 'test':
-                # Test scores: improving over time
-                base_score = 70 + (30 - days_ago) * 0.5  # Better scores as we go forward
-                score = min(100, max(60, int(base_score + random.uniform(-10, 15))))
+                # Test scores: improving over time with variation
+                # Older sessions (higher days_ago) have lower base scores
+                progress_factor = (60 - days_ago) / 60  # 0 to 1
+                base_score = 55 + (progress_factor * 35)  # 55-90 range
+                variation = random.uniform(-15, 15)
+                score = int(max(30, min(100, base_score + variation)))
             else:
                 score = None  # Learn mode doesn't have scores
 

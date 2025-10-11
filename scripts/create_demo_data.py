@@ -49,7 +49,7 @@ QUIZZES = {
             "level": "Klasa 1"
         },
         {
-            "name": "Matematyka - Funkcje kwadratowe",
+            "name": "Funkcje kwadratowe",
             "subject": "Matematyka",
             "category": "Funkcje",
             "level": "Klasa 2",
@@ -90,11 +90,11 @@ QUIZZES = {
             ]
         },
         {
-            "name": "Angielski - Czasy gramatyczne",
+            "name": "Czasy gramatyczne",
             "subject": "Język angielski",
             "category": "Gramatyka",
             "level": "Klasa 2",
-            "description": "Przegląd czasów gramatycznych",
+            "description": "Przegląd czasów gramatycznych w języku angielskim",
             "flashcards": [
                 {
                     "question": {"title": "Present Simple", "text": "Kiedy używamy Present Simple?", "lang": "pl", "difficulty": 1, "emoji": "⏰"},
@@ -123,7 +123,7 @@ QUIZZES = {
             ]
         },
         {
-            "name": "Biologia - Budowa komórki",
+            "name": "Budowa komórki",
             "subject": "Biologia",
             "category": "Cytologia",
             "level": "Klasa 1",
@@ -159,7 +159,7 @@ QUIZZES = {
             "level": "Klasa 1"
         },
         {
-            "name": "Fizyka - Ruch i siły",
+            "name": "Ruch i siły",
             "subject": "Fizyka",
             "category": "Mechanika",
             "level": "Klasa 1",
@@ -196,11 +196,11 @@ QUIZZES = {
             ]
         },
         {
-            "name": "Chemia - Układ okresowy",
+            "name": "Układ okresowy pierwiastków",
             "subject": "Chemia",
             "category": "Chemia ogólna",
             "level": "Klasa 1",
-            "description": "Podstawy układu okresowego pierwiastków",
+            "description": "Podstawy układu okresowego",
             "flashcards": [
                 {
                     "question": {"title": "Liczba atomowa", "text": "Co oznacza liczba atomowa pierwiastka?", "lang": "pl", "difficulty": 1, "emoji": "🔢"},
@@ -229,7 +229,7 @@ QUIZZES = {
             ]
         },
         {
-            "name": "Informatyka - Algorytmy",
+            "name": "Algorytmy i struktury danych",
             "subject": "Informatyka",
             "category": "Algorytmika",
             "level": "Klasa 2",
@@ -389,25 +389,34 @@ def create_learning_history(db, users, user_quizzes):
             if flashcard_count == 0:
                 continue
 
-            # Create 3-8 sessions for each quiz over the past 30 days
-            num_sessions = random.randint(3, 8)
+            # Create 8-15 sessions for each quiz over the past 60 days
+            num_sessions = random.randint(8, 15)
 
             for i in range(num_sessions):
-                # Random date within last 30 days
-                days_ago = random.randint(0, 30)
+                # Create more sessions in recent weeks for better stats
+                # 40% in last 7 days, 30% in last 30 days, 30% in 30-60 days
+                rand_val = random.random()
+                if rand_val < 0.4:
+                    days_ago = random.randint(0, 7)
+                elif rand_val < 0.7:
+                    days_ago = random.randint(8, 30)
+                else:
+                    days_ago = random.randint(31, 60)
+
                 hours_ago = random.randint(0, 23)
                 session_date = now - timedelta(days=days_ago, hours=hours_ago)
 
-                # Determine session mode (70% learn, 30% test)
-                mode = "learn" if random.random() < 0.7 else "test"
+                # Determine session mode (65% learn, 35% test)
+                mode = "learn" if random.random() < 0.65 else "test"
 
-                # Calculate score for test sessions (improve over time)
+                # Calculate score for test sessions (improve over time with variation)
                 score = None
                 if mode == "test":
-                    # Start with lower scores, improve over time
-                    base_score = 60 + (i / num_sessions) * 25  # 60-85 range
-                    variation = random.uniform(-10, 10)
-                    score = max(0, min(100, base_score + variation))
+                    # Progressive improvement: older sessions have lower scores
+                    progress_factor = i / num_sessions  # 0 to 1
+                    base_score = 55 + (progress_factor * 35)  # 55-90 range
+                    variation = random.uniform(-15, 15)
+                    score = max(30, min(100, base_score + variation))
 
                 # Create session
                 session = SessionModel(
