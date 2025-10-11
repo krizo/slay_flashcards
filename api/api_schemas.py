@@ -345,6 +345,7 @@ class SessionUpdate(BaseModel):
 
     score: Optional[float] = Field(None, ge=0, le=100)
     completed_at: Optional[datetime] = None
+    completed: Optional[bool] = None
 
 
 class Session(SessionBase):
@@ -356,6 +357,7 @@ class Session(SessionBase):
     started_at: datetime
     score: Optional[float]
     completed_at: Optional[datetime] = None
+    completed: bool = False
 
 
 class SessionStats(BaseModel):

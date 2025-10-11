@@ -82,7 +82,8 @@ async def get_sessions(
                 "mode": session.mode,
                 "started_at": session.started_at,
                 "score": session.score,
-                "completed_at": getattr(session, 'completed_at', None)
+                "completed_at": getattr(session, 'completed_at', None),
+                "completed": getattr(session, 'completed', False)
             }
             session_data.append(Session(**session_dict))
 
@@ -121,9 +122,9 @@ async def get_session_statistics(  # pylint: disable=too-many-locals
                 detail="user_id parameter is required"
             )
 
-        # Filter by date range
+        # Filter by date range and only include completed sessions
         since_date = datetime.datetime.now() - datetime.timedelta(days=days)
-        recent_sessions = [s for s in sessions if s.started_at >= since_date]
+        recent_sessions = [s for s in sessions if s.started_at >= since_date and getattr(s, 'completed', False)]
 
         # Filter by quiz if specified
         if quiz_id:
@@ -192,7 +193,8 @@ async def get_session(
             "mode": session.mode,
             "started_at": session.started_at,
             "score": session.score,
-            "completed_at": getattr(session, 'completed_at', None)
+            "completed_at": getattr(session, 'completed_at', None),
+            "completed": getattr(session, 'completed', False)
         }
 
         return create_response(
@@ -254,7 +256,8 @@ async def create_session(
             "mode": session.mode,
             "started_at": session.started_at,
             "score": session.score,
-            "completed_at": getattr(session, 'completed_at', None)
+            "completed_at": getattr(session, 'completed_at', None),
+            "completed": getattr(session, 'completed', False)
         }
 
         return create_response(
@@ -300,7 +303,8 @@ async def update_session(
             "mode": updated_session.mode,
             "started_at": updated_session.started_at,
             "score": updated_session.score,
-            "completed_at": getattr(updated_session, 'completed_at', None)
+            "completed_at": getattr(updated_session, 'completed_at', None),
+            "completed": getattr(updated_session, 'completed', False)
         }
 
         return create_response(
@@ -426,8 +430,8 @@ async def submit_test(  # pylint: disable=too-many-locals
         # Calculate final score
         final_score = int((total_score / len(test_data.answers)) * 100) if test_data.answers else 0
 
-        # Update session with score
-        session_repo.update(session, score=final_score, completed_at=datetime.datetime.now())
+        # Update session with score and mark as completed
+        session_repo.update(session, score=final_score, completed_at=datetime.datetime.now(), completed=True)
 
         # Calculate total time
         total_time = sum(r.time_taken for r in results if r.time_taken) if any(r.time_taken for r in results) else None
@@ -486,7 +490,7 @@ async def update_learning_progress(
         completed_count = len([p for p in progress_data.progress if p.reviewed])
 
         # You could store more detailed progress data here
-        session_repo.update(session, completed_at=datetime.datetime.now())
+        session_repo.update(session, completed_at=datetime.datetime.now(), completed=True)
 
         session_dict = {
             "id": session.id,
@@ -495,7 +499,8 @@ async def update_learning_progress(
             "mode": session.mode,
             "started_at": session.started_at,
             "score": session.score,
-            "completed_at": getattr(session, 'completed_at', None)
+            "completed_at": getattr(session, 'completed_at', None),
+            "completed": getattr(session, 'completed', False)
         }
 
         return create_response(
@@ -511,6 +516,54 @@ async def update_learning_progress(
             detail=f"Failed to update learning progress: {str(e)}"
         ) from e
 
+
+
+@router.post("/{session_id}/complete", response_model=SessionResponse)
+async def complete_session(
+    session_id: int,
+    db: DBSession = Depends(get_db),
+):
+    """Mark a session as completed."""
+    try:
+        session_repo = SessionRepository(db)
+
+        session = session_repo.get_by_id(session_id)
+        if not session:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Session with ID {session_id} not found"
+            )
+
+        # Mark session as completed
+        session_repo.update(
+            session,
+            completed=True,
+            completed_at=datetime.datetime.now()
+        )
+
+        session_dict = {
+            "id": session.id,
+            "user_id": session.user_id,
+            "quiz_id": session.quiz_id,
+            "mode": session.mode,
+            "started_at": session.started_at,
+            "score": session.score,
+            "completed_at": session.completed_at,
+            "completed": True
+        }
+
+        return create_response(
+            data=Session(**session_dict),
+            message="Session marked as completed"
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to complete session: {str(e)}"
+        ) from e
 
 
 @router.get("/user/{user_id}/recent", response_model=SessionsResponse)
@@ -553,7 +606,8 @@ async def get_user_recent_sessions(
                 "mode": session.mode,
                 "started_at": session.started_at,
                 "score": session.score,
-                "completed_at": getattr(session, 'completed_at', None)
+                "completed_at": getattr(session, 'completed_at', None),
+                "completed": getattr(session, 'completed', False)
             }
             session_data.append(Session(**session_dict))
 
@@ -594,7 +648,8 @@ async def get_quiz_performance_stats(  # pylint: disable=too-many-locals,too-man
 
         since_date = datetime.datetime.now() - datetime.timedelta(days=days)
         all_quiz_sessions = session_repo.get_by_quiz_id(quiz_id)
-        recent_sessions = [s for s in all_quiz_sessions if s.started_at >= since_date]
+        # Only include completed sessions
+        recent_sessions = [s for s in all_quiz_sessions if s.started_at >= since_date and getattr(s, 'completed', False)]
 
         # Analyze performance
         test_sessions = [s for s in recent_sessions if s.mode == "test" and s.score is not None]

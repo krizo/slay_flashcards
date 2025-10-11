@@ -193,14 +193,14 @@ export function useSession(quizId: number | null, mode: SessionMode): UseSession
     const endSession = async () => {
         if (sessionId && accessToken) {
             try {
-                // Mark session as completed
-                await api.put(
-                    `/sessions/${sessionId}`,
-                    { completed_at: new Date().toISOString() },
+                // Mark session as completed using the new complete endpoint
+                await api.post(
+                    `/sessions/${sessionId}/complete`,
+                    {},
                     accessToken
                 );
             } catch (err) {
-                console.error('Failed to end session:', err);
+                console.error('Failed to complete session:', err);
             }
         }
 

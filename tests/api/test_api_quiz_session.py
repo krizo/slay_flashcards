@@ -69,11 +69,17 @@ def test_session_statistics(authenticated_client):
     quiz_id = quiz_response.json()["data"]["id"]
 
     # Step 3: Create sessions for the user and quiz
-    authenticated_client.post("/api/v1/sessions/", json={"user_id": user_id, "quiz_id": quiz_id, "mode": "learn"})
-    authenticated_client.post("/api/v1/sessions/", json={"user_id": user_id,
+    session1_response = authenticated_client.post("/api/v1/sessions/", json={"user_id": user_id, "quiz_id": quiz_id, "mode": "learn"})
+    session1_id = session1_response.json()["data"]["id"]
+    session2_response = authenticated_client.post("/api/v1/sessions/", json={"user_id": user_id,
                                                          "quiz_id": quiz_id,
                                                          "mode": "test",
                                                          "score": 85})
+    session2_id = session2_response.json()["data"]["id"]
+
+    # Mark sessions as completed
+    authenticated_client.post(f"/api/v1/sessions/{session1_id}/complete")
+    authenticated_client.post(f"/api/v1/sessions/{session2_id}/complete")
 
     # Step 4: Call the statistics endpoint with the correct user_id as a query parameter
     response = authenticated_client.get(f"/api/v1/sessions/statistics?user_id={user_id}")
