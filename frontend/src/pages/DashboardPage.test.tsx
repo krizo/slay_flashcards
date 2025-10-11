@@ -190,7 +190,7 @@ describe('DashboardPage', () => {
         expect(useDashboardData.useCurrentUser).toHaveBeenCalledTimes(1);
         expect(useDashboardData.useUserStats).toHaveBeenCalledWith(1); // userId = 1
         expect(useDashboardData.useRecentSessions).toHaveBeenCalledWith(1, 5); // userId = 1, limit = 5
-        expect(useDashboardData.useProgressData).toHaveBeenCalledWith(1, 7); // userId = 1, days = 7
+        expect(useDashboardData.useProgressData).toHaveBeenCalledWith(1, 30); // userId = 1, days = 30 (default)
         expect(useDashboardData.useSessionsData).toHaveBeenCalledWith(1, 7); // userId = 1, days = 7
     });
 

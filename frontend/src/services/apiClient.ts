@@ -25,11 +25,25 @@ const BASE_URL = '/api/v1';
 export async function apiClient<T>(
     endpoint: string,
     options?: RequestInit,
-    accessToken?: string | null
+    accessToken?: string | null,
+    queryParams?: Record<string, string | number | boolean | undefined>
 ): Promise<T> {
 
-    // Build full URL
-    const url = `${BASE_URL}${endpoint}`;
+    // Build full URL with query params
+    let url = `${BASE_URL}${endpoint}`;
+
+    if (queryParams) {
+        const params = new URLSearchParams();
+        Object.entries(queryParams).forEach(([key, value]) => {
+            if (value !== undefined && value !== null) {
+                params.append(key, String(value));
+            }
+        });
+        const queryString = params.toString();
+        if (queryString) {
+            url += `?${queryString}`;
+        }
+    }
 
     // Prepare headers
     const headers: Record<string, string> = {
@@ -92,3 +106,26 @@ export async function apiClient<T>(
     // Return only the data property
     return responseData.data;
 }
+
+/**
+ * Helper functions for common HTTP methods
+ */
+export const api = {
+    get: <T>(endpoint: string, accessToken?: string | null, queryParams?: Record<string, string | number | boolean | undefined>) =>
+        apiClient<T>(endpoint, { method: 'GET' }, accessToken, queryParams),
+
+    post: <T>(endpoint: string, data: any, accessToken?: string | null) =>
+        apiClient<T>(endpoint, {
+            method: 'POST',
+            body: JSON.stringify(data),
+        }, accessToken),
+
+    put: <T>(endpoint: string, data: any, accessToken?: string | null) =>
+        apiClient<T>(endpoint, {
+            method: 'PUT',
+            body: JSON.stringify(data),
+        }, accessToken),
+
+    delete: <T>(endpoint: string, accessToken?: string | null) =>
+        apiClient<T>(endpoint, { method: 'DELETE' }, accessToken),
+};

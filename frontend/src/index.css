@@ -803,6 +803,62 @@ body {
 
 .chart-container {
     margin-top: var(--spacing-sm);
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+}
+
+/* Date Range Switcher */
+.card-header-with-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: var(--spacing-sm);
+    gap: var(--spacing-md);
+}
+
+.date-range-switcher {
+    display: flex;
+    gap: 4px;
+    background-color: var(--color-background);
+    border-radius: 6px;
+    padding: 3px;
+    border: 1px solid var(--color-border);
+}
+
+.range-btn {
+    padding: 6px 12px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--color-text);
+    background-color: transparent;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.range-btn:hover {
+    background-color: var(--color-background-card);
+    color: var(--color-text-dark);
+}
+
+.range-btn.active {
+    background-color: var(--color-primary);
+    color: white;
+    box-shadow: 0 1px 3px rgba(106, 63, 251, 0.3);
+}
+
+.range-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.empty-hint {
+    font-size: var(--font-size-small);
+    color: var(--color-text-light);
+    margin-top: 8px;
 }
 
 /* Activity Sidebar */

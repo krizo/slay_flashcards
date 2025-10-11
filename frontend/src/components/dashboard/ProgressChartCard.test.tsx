@@ -34,13 +34,13 @@ describe('ProgressChartCard', () => {
         render(<ProgressChartCard data={null} />);
 
         expect(screen.getByText('Progress Over Time')).toBeInTheDocument();
-        expect(screen.getByText('No progress data available')).toBeInTheDocument();
+        expect(screen.getByText('No progress data available for this period')).toBeInTheDocument();
     });
 
     it('renders empty state when data array is empty', () => {
         render(<ProgressChartCard data={[]} />);
 
-        expect(screen.getByText('No progress data available')).toBeInTheDocument();
+        expect(screen.getByText('No progress data available for this period')).toBeInTheDocument();
     });
 
     it('renders chart with data', () => {
