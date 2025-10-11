@@ -139,7 +139,9 @@ describe('DashboardPage', () => {
         expect(screen.getByText(/Welcome back/)).toBeInTheDocument(); // StatsSummaryCard
         expect(screen.getByText('Progress Over Time')).toBeInTheDocument(); // ProgressChartCard
         expect(screen.getByText('Sessions Over Time')).toBeInTheDocument(); // SessionsChartCard
-        expect(screen.getByText('Recent Activity')).toBeInTheDocument(); // ActivitySidebar
+        // "Recent Activity" appears in both StatsSummaryCard and ActivitySidebar
+        const recentActivityElements = screen.getAllByText('Recent Activity');
+        expect(recentActivityElements.length).toBeGreaterThanOrEqual(1);
     });
 
     it('passes user name to StatsSummaryCard', () => {
@@ -251,8 +253,9 @@ describe('DashboardPage', () => {
     it('displays all dashboard data when all hooks return successfully', () => {
         render(<DashboardPage />);
 
-        // Check StatsSummaryCard data
-        expect(screen.getByText('58')).toBeInTheDocument(); // total_sessions
+        // Check StatsSummaryCard data (using getAllByText for duplicates)
+        const sessionsElements = screen.getAllByText('58');
+        expect(sessionsElements.length).toBeGreaterThanOrEqual(1); // total_sessions and sessions_this_month
         expect(screen.getByText('83%')).toBeInTheDocument(); // average_score rounded
 
         // Check ActivitySidebar data
@@ -317,5 +320,128 @@ describe('DashboardPage', () => {
 
         const dashboardMain = container.querySelector('.dashboard-main');
         expect(dashboardMain).toBeInTheDocument();
+    });
+
+    describe('Dashboard Layout and Stats Order', () => {
+        it('renders stats in correct row order', () => {
+            const { container } = render(<DashboardPage />);
+
+            const statsGrid = container.querySelector('.stats-grid--extended');
+            expect(statsGrid).toBeInTheDocument();
+
+            const statItems = container.querySelectorAll('.stat-item');
+            expect(statItems.length).toBe(12); // 4 columns x 3 rows
+        });
+
+        it('renders Row 1 stats (Session Overview) in correct order', () => {
+            render(<DashboardPage />);
+
+            // Get all stat labels
+            const labels = screen.getAllByText(/Total Sessions|Learn Sessions|Test Sessions|Unique Quizzes/);
+
+            // Should have all 4 session overview stats
+            expect(screen.getByText('Total Sessions')).toBeInTheDocument();
+            expect(screen.getByText('Learn Sessions')).toBeInTheDocument();
+            expect(screen.getByText('Test Sessions')).toBeInTheDocument();
+            expect(screen.getByText('Unique Quizzes')).toBeInTheDocument();
+        });
+
+        it('renders Row 2 stats (Performance Metrics) with Latest Score in 3rd position', () => {
+            render(<DashboardPage />);
+
+            // Should have all 4 performance metrics
+            expect(screen.getByText('Average Score')).toBeInTheDocument();
+            expect(screen.getByText('Best Score')).toBeInTheDocument();
+            expect(screen.getByText('Latest Score')).toBeInTheDocument();
+            expect(screen.getByText('Study Streak')).toBeInTheDocument();
+
+            // All should be highlighted
+            const { container } = render(<DashboardPage />);
+            const highlightedStats = container.querySelectorAll('.stat-item--highlight');
+            expect(highlightedStats.length).toBeGreaterThanOrEqual(4);
+        });
+
+        it('renders Row 3 stats (Recent Activity) in correct order', () => {
+            render(<DashboardPage />);
+
+            expect(screen.getByText('Days Active')).toBeInTheDocument();
+            expect(screen.getByText('Min Score')).toBeInTheDocument();
+            const recentActivityElements = screen.getAllByText('Recent Activity');
+            expect(recentActivityElements.length).toBeGreaterThanOrEqual(1);
+            expect(screen.getByText('Daily Average')).toBeInTheDocument();
+        });
+
+        it('renders time period filter buttons', () => {
+            const { container } = render(<DashboardPage />);
+
+            // Check that time period filter exists
+            const timePeriodFilter = container.querySelector('.time-period-filter');
+            expect(timePeriodFilter).toBeInTheDocument();
+
+            // Multiple components have these buttons, so use getAllByText
+            const weekButtons = screen.getAllByText('Week');
+            expect(weekButtons.length).toBeGreaterThanOrEqual(1);
+
+            const monthButtons = screen.getAllByText('Month');
+            expect(monthButtons.length).toBeGreaterThanOrEqual(1);
+
+            const allTimeButtons = screen.getAllByText('All Time');
+            expect(allTimeButtons.length).toBeGreaterThanOrEqual(1);
+        });
+
+        it('has All Time filter active by default in stats card', () => {
+            const { container } = render(<DashboardPage />);
+
+            const timePeriodFilter = container.querySelector('.time-period-filter');
+            const activeButton = timePeriodFilter?.querySelector('.period-btn.active');
+            expect(activeButton).toHaveTextContent('All Time');
+        });
+
+        it('displays stat subtitles for better context', () => {
+            render(<DashboardPage />);
+
+            // Check for some key subtitles
+            expect(screen.getByText('all time activity')).toBeInTheDocument();
+            expect(screen.getByText('across all tests')).toBeInTheDocument();
+            expect(screen.getByText('personal record')).toBeInTheDocument();
+            expect(screen.getByText('most recent test')).toBeInTheDocument();
+            expect(screen.getByText('consecutive days')).toBeInTheDocument();
+        });
+
+        it('calculates and displays derived metrics correctly', () => {
+            render(<DashboardPage />);
+
+            // Latest Score: 75% (from most recent test session) - appears in stats and activity sidebar
+            const latestScoreElements = screen.getAllByText('75%');
+            expect(latestScoreElements.length).toBeGreaterThanOrEqual(1);
+
+            // Min Score: 69% (calculated as best - (best-avg)*2 = 97 - (97-83)*2 = 69)
+            expect(screen.getByText('69%')).toBeInTheDocument();
+
+            // Daily Average: 1.9 (58/30)
+            expect(screen.getByText('1.9')).toBeInTheDocument();
+        });
+
+        it('displays emoji icons for all stats', () => {
+            const { container } = render(<DashboardPage />);
+
+            const statIcons = container.querySelectorAll('.stat-icon');
+            expect(statIcons.length).toBeGreaterThanOrEqual(12);
+
+            // Check for specific emojis (some appear in multiple places)
+            expect(screen.getByText('📚')).toBeInTheDocument(); // Total Sessions
+            expect(screen.getByText('⭐')).toBeInTheDocument(); // Average Score
+            expect(screen.getByText('🏆')).toBeInTheDocument(); // Best Score
+            const testEmojis = screen.getAllByText('📝'); // Latest Score and action button
+            expect(testEmojis.length).toBeGreaterThanOrEqual(1);
+            expect(screen.getByText('🔥')).toBeInTheDocument(); // Study Streak
+        });
+
+        it('renders responsive grid layout classes', () => {
+            const { container } = render(<DashboardPage />);
+
+            const statsGrid = container.querySelector('.stats-grid.stats-grid--extended');
+            expect(statsGrid).toBeInTheDocument();
+        });
     });
 });

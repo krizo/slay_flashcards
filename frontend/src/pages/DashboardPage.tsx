@@ -37,6 +37,7 @@ function DashboardPage() {
                         userName={user?.name}
                         isLoading={statsLoading}
                         error={statsError}
+                        recentSessions={sessions}
                     />
                     <ProgressChartCard
                         data={progress}
