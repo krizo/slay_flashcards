@@ -17,8 +17,6 @@ function LearningSessionPage() {
 
     const quizIdNumber = quizId ? parseInt(quizId, 10) : null;
 
-    console.log('[LearningSessionPage] Rendering with mode:', mode, 'quizId:', quizIdNumber);
-
     // Get quiz details for header
     const { quiz } = useQuiz(quizIdNumber);
 
@@ -105,18 +103,8 @@ function LearningSessionPage() {
         }
     };
 
-    console.log('[LearningSessionPage] State:', {
-        isLoading,
-        currentFlashcard: !!currentFlashcard,
-        error: !!error,
-        testResults: !!testResults,
-        isSessionCompleted,
-        mode
-    });
-
     // Show loading state during initialization
     if (isLoading && !currentFlashcard) {
-        console.log('[LearningSessionPage] Rendering loading view');
         return (
             <div className="session-page">
                 <div className="session-loading-overlay">
@@ -129,7 +117,6 @@ function LearningSessionPage() {
 
     // Show error state
     if (error) {
-        console.log('[LearningSessionPage] Rendering error view');
         return (
             <div className="session-page">
                 <div className="session-error-message">
@@ -149,7 +136,6 @@ function LearningSessionPage() {
 
     // Show test results (for test mode only)
     if (testResults && mode === 'test') {
-        console.log('[LearningSessionPage] Rendering test results view');
         // Get last test score from sessions (filter by test mode and exclude the current session)
         // Sort by completed_at or started_at descending
         const testSessions = sessions
@@ -204,7 +190,6 @@ function LearningSessionPage() {
     }
 
     // Main session view
-    console.log('[LearningSessionPage] Rendering main session view');
     return (
         <div className="session-page">
             <SessionHeader

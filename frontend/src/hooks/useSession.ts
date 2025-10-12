@@ -61,7 +61,6 @@ export function useSession(quizId: number | null, mode: SessionMode): UseSession
 
     // Detect mode change and reset immediately
     if (mode !== currentMode) {
-        console.log('[useSession] Mode changed from', currentMode, 'to', mode, '- resetting state');
         setCurrentMode(mode);
         setIsSessionStarted(false);
         setIsSessionCompleted(false);
@@ -88,7 +87,6 @@ export function useSession(quizId: number | null, mode: SessionMode): UseSession
         if (!quizId || !accessToken || !user) return;
 
         // Reset session state when mode or quiz changes
-        console.log('[useSession] Initializing new session with mode:', mode, 'quizId:', quizId);
         setIsSessionStarted(false);
         setIsSessionCompleted(false);
         setTestResults(null);
@@ -106,7 +104,6 @@ export function useSession(quizId: number | null, mode: SessionMode): UseSession
 
         const initializeSession = async () => {
             try {
-                console.log('[useSession] Creating session...');
 
                 // Create session
                 const session = await api.post<SessionCreateResponse>(
