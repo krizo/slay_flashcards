@@ -1,4 +1,4 @@
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useSession } from '../hooks/useSession';
 import { useQuiz } from '../hooks/useQuiz';
 import { useQuizPerformance } from '../hooks/useQuizPerformance';
@@ -6,14 +6,18 @@ import { useQuizSessions } from '../hooks/useQuizSessions';
 import SessionHeader from '../components/sessions/SessionHeader';
 import FlashcardDisplay from '../components/sessions/FlashcardDisplay';
 import FlashcardTimeline from '../components/sessions/FlashcardTimeline';
+import TestResultsPage from '../components/sessions/TestResultsPage';
 import { SessionMode } from '../types';
 
 function LearningSessionPage() {
     const [searchParams] = useSearchParams();
+    const navigate = useNavigate();
     const quizId = searchParams.get('quizId');
     const mode = (searchParams.get('mode') as SessionMode) || 'learn';
 
     const quizIdNumber = quizId ? parseInt(quizId, 10) : null;
+
+    console.log('[LearningSessionPage] Rendering with mode:', mode, 'quizId:', quizIdNumber);
 
     // Get quiz details for header
     const { quiz } = useQuiz(quizIdNumber);
@@ -53,12 +57,14 @@ function LearningSessionPage() {
         allFlashcards,
         currentFlashcardIndex,
         seenIndices,
+        testResults,
         setUserAnswer,
         submitAnswer,
         revealAnswer,
         goToNextFlashcard,
         goToFlashcard,
         endSession,
+        submitTestSession,
     } = useSession(quizIdNumber, mode);
 
     // Text-to-speech function
@@ -99,8 +105,18 @@ function LearningSessionPage() {
         }
     };
 
+    console.log('[LearningSessionPage] State:', {
+        isLoading,
+        currentFlashcard: !!currentFlashcard,
+        error: !!error,
+        testResults: !!testResults,
+        isSessionCompleted,
+        mode
+    });
+
     // Show loading state during initialization
     if (isLoading && !currentFlashcard) {
+        console.log('[LearningSessionPage] Rendering loading view');
         return (
             <div className="session-page">
                 <div className="session-loading-overlay">
@@ -113,6 +129,7 @@ function LearningSessionPage() {
 
     // Show error state
     if (error) {
+        console.log('[LearningSessionPage] Rendering error view');
         return (
             <div className="session-page">
                 <div className="session-error-message">
@@ -130,8 +147,42 @@ function LearningSessionPage() {
         );
     }
 
-    // Show completion state
-    if (isSessionCompleted) {
+    // Show test results (for test mode only)
+    if (testResults && mode === 'test') {
+        console.log('[LearningSessionPage] Rendering test results view');
+        // Get last test score from sessions (filter by test mode and exclude the current session)
+        // Sort by completed_at or started_at descending
+        const testSessions = sessions
+            ?.filter(s => s.mode === 'test' && s.score !== null && s.completed)
+            .sort((a, b) => {
+                const dateA = a.completed_at ? new Date(a.completed_at) : new Date(a.started_at);
+                const dateB = b.completed_at ? new Date(b.completed_at) : new Date(b.started_at);
+                return dateB.getTime() - dateA.getTime();
+            }) || [];
+
+        // Skip the first session (current one we just completed) and get the second one (previous test)
+        const lastTestScore = testSessions.length > 1 ? testSessions[1].score : null;
+
+        return (
+            <TestResultsPage
+                testResults={testResults}
+                lastScore={lastTestScore}
+                averageScore={performance?.scores.average ?? null}
+                onGoToQuizzes={endSession}
+                onRetry={() => {
+                    // Navigate to test mode with timestamp to force remount
+                    navigate(`/learning-session?quizId=${quizIdNumber}&mode=test&t=${Date.now()}`);
+                }}
+                onLearn={() => {
+                    // Navigate to learn mode with timestamp to force remount
+                    navigate(`/learning-session?quizId=${quizIdNumber}&mode=learn&t=${Date.now()}`);
+                }}
+            />
+        );
+    }
+
+    // Show completion state (for learn mode only)
+    if (isSessionCompleted && mode === 'learn') {
         return (
             <div className="session-page">
                 <div className="session-completion-message">
@@ -153,6 +204,7 @@ function LearningSessionPage() {
     }
 
     // Main session view
+    console.log('[LearningSessionPage] Rendering main session view');
     return (
         <div className="session-page">
             <SessionHeader

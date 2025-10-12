@@ -141,3 +141,30 @@ export interface SessionCreateResponse {
     completed_at: string | null;
     completed: boolean;
 }
+
+// Test mode result types
+export interface TestAnswerBreakdown {
+    flashcard_id: number;
+    question: string;
+    user_answer: string;
+    correct_answer: string;
+    evaluation: 'correct' | 'incorrect';
+}
+
+export interface TestResult {
+    final_score: number;
+    correct: number;
+    total: number;
+    breakdown: TestAnswerBreakdown[];
+    duration?: number; // Total test duration in seconds
+}
+
+export interface TestSubmitRequest {
+    session_id: number;
+    answers: {
+        flashcard_id: number;
+        user_answer: string;
+        time_taken?: number;
+    }[];
+    duration?: number; // Total test duration in seconds
+}

@@ -69,6 +69,65 @@ function FlashcardDisplay({
         ? Math.round((flashcardsCompleted / totalFlashcards) * 100)
         : 0;
 
+    // Generate answer format hint from analyzing the answer
+    const getAnswerHint = () => {
+        const { answer } = flashcard;
+        const metadata = answer.metadata || {};
+
+        // If there's a custom hint, use it
+        if (metadata.hint) {
+            return metadata.hint;
+        }
+
+        // Build hint from analyzing the actual answer
+        const hints: string[] = [];
+        const answerTypeDisplay = answer.type.replace(/_/g, ' ');
+
+        // Analyze the answer text for word/letter count
+        const answerText = answer.text.trim();
+        const words = answerText.split(/\s+/).filter(w => w.length > 0);
+        const wordCount = words.length;
+
+        if (wordCount === 1) {
+            // Single word - show letter count
+            const letterCount = answerText.length;
+            hints.push(`${letterCount} ${letterCount === 1 ? 'letter' : 'letters'}`);
+        } else if (wordCount > 1) {
+            // Multiple words - show word count
+            hints.push(`${wordCount} words`);
+        }
+
+        // Add type information
+        hints.push(`type: ${answerTypeDisplay}`);
+
+        // Add specific constraints based on metadata
+        if (metadata.range) {
+            if (Array.isArray(metadata.range) && metadata.range.length === 2) {
+                hints.push(`between ${metadata.range[0]} and ${metadata.range[1]}`);
+            } else if (typeof metadata.range === 'string') {
+                hints.push(metadata.range);
+            }
+        }
+
+        if (metadata.format) {
+            hints.push(metadata.format);
+        }
+
+        if (metadata.decimal_places !== undefined) {
+            hints.push(`${metadata.decimal_places} decimal places`);
+        }
+
+        if (metadata.case_sensitive) {
+            hints.push('case sensitive');
+        }
+
+        if (metadata.example) {
+            hints.push(`e.g., "${metadata.example}"`);
+        }
+
+        return hints.join(' • ');
+    };
+
     return (
         <div className="flashcard-card">
             {/* Header with Quiz Info and Progress */}
@@ -113,8 +172,19 @@ function FlashcardDisplay({
                 <p className="flashcard-question-text">{flashcard.question.text}</p>
             </div>
 
+            {/* Answer Format Hint */}
+            {!feedback && !showAnswer && (
+                <div className="flashcard-answer-hint">
+                    <span className="hint-icon">💡</span>
+                    <span className="hint-text">
+                        <strong>Expected format:</strong> {getAnswerHint()}
+                    </span>
+                </div>
+            )}
+
             {/* Input/Answer Area */}
             <div className="flashcard-answer-area">
+                {/* Show input unless there's feedback or answer is revealed */}
                 {!feedback && !showAnswer && (
                     <textarea
                         className="flashcard-answer-input"
@@ -124,7 +194,8 @@ function FlashcardDisplay({
                     />
                 )}
 
-                {feedback && (
+                {/* Show feedback in both modes after submitting */}
+                {feedback && !showAnswer && (
                     <div
                         className={
                             feedback.is_correct
@@ -137,26 +208,12 @@ function FlashcardDisplay({
                         </div>
                         <div className="feedback-text">
                             <strong>{feedback.feedback}</strong>
-                            {!feedback.is_correct && (
-                                <div className="correct-answer-with-speaker">
-                                    <p className="correct-answer-display">
-                                        Correct answer: {feedback.correct_answer}
-                                    </p>
-                                    <button
-                                        className="speaker-icon speaker-icon--small"
-                                        onClick={() => onSpeak(feedback.correct_answer, flashcard.answer.lang)}
-                                        aria-label="Read correct answer aloud"
-                                        title={`Click to listen in ${flashcard.answer.lang || 'English'}`}
-                                    >
-                                        🔊 {getLanguageFlag(flashcard.answer.lang)} <span className="speaker-text">Listen</span>
-                                    </button>
-                                </div>
-                            )}
                         </div>
                     </div>
                 )}
 
-                {showAnswer && !feedback && (
+                {/* Show revealed answer in both modes when "Show Answer" is clicked */}
+                {showAnswer && (
                     <div className="flashcard-revealed-answer">
                         <div className="revealed-answer-header">
                             <strong>Answer:</strong>
@@ -176,39 +233,92 @@ function FlashcardDisplay({
 
             {/* Control Buttons */}
             <div className="flashcard-controls">
-                {feedback || showAnswer ? (
-                    <button
-                        className="control-button control-button--primary"
-                        onClick={onNextFlashcard}
-                    >
-                        Next Flashcard →
-                    </button>
-                ) : (
-                    <>
+                {mode === 'test' ? (
+                    /* Test mode: Show different buttons based on state */
+                    showAnswer ? (
+                        /* After showing answer: only Next button */
                         <button
-                            className="control-button control-button--secondary"
-                            onClick={onRevealAnswer}
-                            disabled={isSubmitting}
+                            className="control-button control-button--primary"
+                            onClick={onNextFlashcard}
                         >
-                            Don't Know
+                            Next Flashcard →
                         </button>
-                        <button
-                            className="control-button control-button--secondary"
-                            onClick={onRevealAnswer}
-                            disabled={isSubmitting}
-                        >
-                            Show Answer
-                        </button>
-                        {userAnswer.trim() && (
+                    ) : feedback ? (
+                        /* After submitting answer: Show Answer and Next buttons */
+                        <>
+                            <button
+                                className="control-button control-button--secondary"
+                                onClick={onRevealAnswer}
+                            >
+                                Show Answer
+                            </button>
                             <button
                                 className="control-button control-button--primary"
-                                onClick={onSubmitAnswer}
+                                onClick={onNextFlashcard}
+                            >
+                                Next Flashcard →
+                            </button>
+                        </>
+                    ) : (
+                        /* Before submitting: Don't Know and Submit Answer */
+                        <>
+                            <button
+                                className="control-button control-button--secondary"
+                                onClick={() => {
+                                    onUserAnswerChange(''); // Clear answer
+                                    onSubmitAnswer(); // Submit empty answer
+                                }}
                                 disabled={isSubmitting}
                             >
-                                {isSubmitting ? 'Checking...' : 'Check Answer'}
+                                Don't Know
                             </button>
-                        )}
-                    </>
+                            {userAnswer.trim() && (
+                                <button
+                                    className="control-button control-button--primary"
+                                    onClick={onSubmitAnswer}
+                                    disabled={isSubmitting}
+                                >
+                                    {isSubmitting ? 'Submitting...' : 'Submit Answer'}
+                                </button>
+                            )}
+                        </>
+                    )
+                ) : (
+                    /* Learn mode: Show all controls with feedback */
+                    feedback || showAnswer ? (
+                        <button
+                            className="control-button control-button--primary"
+                            onClick={onNextFlashcard}
+                        >
+                            Next Flashcard →
+                        </button>
+                    ) : (
+                        <>
+                            <button
+                                className="control-button control-button--secondary"
+                                onClick={onRevealAnswer}
+                                disabled={isSubmitting}
+                            >
+                                Don't Know
+                            </button>
+                            <button
+                                className="control-button control-button--secondary"
+                                onClick={onRevealAnswer}
+                                disabled={isSubmitting}
+                            >
+                                Show Answer
+                            </button>
+                            {userAnswer.trim() && (
+                                <button
+                                    className="control-button control-button--primary"
+                                    onClick={onSubmitAnswer}
+                                    disabled={isSubmitting}
+                                >
+                                    {isSubmitting ? 'Checking...' : 'Check Answer'}
+                                </button>
+                            )}
+                        </>
+                    )
                 )}
             </div>
         </div>
