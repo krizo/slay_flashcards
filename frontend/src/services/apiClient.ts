@@ -95,6 +95,11 @@ export async function apiClient<T>(
         throw new Error(`HTTP Error: ${response.status} ${response.statusText}`);
     }
 
+    // Handle 204 No Content (e.g., successful DELETE operations)
+    if (response.status === 204) {
+        return undefined as T;
+    }
+
     // Parse response
     const responseData: ApiResponse<T> = await response.json();
 
