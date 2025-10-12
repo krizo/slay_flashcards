@@ -1,9 +1,6 @@
 name: CI – Backend + Frontend + Smoke test
 
 on:
-  push:
-    branches: [main, staging]
-  pull_request:
   workflow_dispatch:
     inputs:
       environment:
@@ -28,30 +25,28 @@ jobs:
     runs-on: self-hosted
 
     steps:
-      - name: 📥 Checkout
+      - name: 📥 Checkout repository
         uses: actions/checkout@v3
 
-      # ─────── Backend Setup ───────
-
+      # ─────── Backend ───────
       - name: 🐍 Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: "3.11"
 
       - name: 📦 Install backend dependencies
         run: pip install -r requirements.txt
 
       - name: 🚀 Start FastAPI backend
         run: |
-          uvicorn api.main_api:app --reload --host 0.0.0.0 --port 8000 &
+          uvicorn api.main_api:app --host 0.0.0.0 --port 8000 &
           sleep 2
 
-      # ─────── Frontend Setup ───────
-
+      # ─────── Frontend ───────
       - name: 🟦 Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: "18"
 
       - name: 📦 Install frontend dependencies
         working-directory: frontend
@@ -67,35 +62,30 @@ jobs:
           npm run preview -- --port 3000 &
           sleep 5
 
-      # ─────── Smoke Tests ───────
-
+      # ─────── Smoke tests ───────
       - name: 🧪 Smoke test backend
         run: curl -f http://localhost:8000/docs || exit 1
 
       - name: 🧪 Smoke test frontend
         run: curl -f http://localhost:3000 || exit 1
 
-
-      - name: 🧪 Backend test
+      - name: Backend Tests
         run: |
           pytest tests
 
-
-      - name: 🚀 Deploy to production
-        if: github.ref == 'refs/heads/main' && env.DEPLOY == 'true'
+      - name: Frontend Tests
+        working-directory: frontend
         run: |
-          echo "Creating persistent deploy dir..."
+          npm run test 
+
+      # ─────── Conditional Deploy ───────
+      - name: 🚀 Deploy to target environment
+        if: ${{ github.event.inputs.deploy == 'true' }}
+        run: |
+          echo "Deploying to ${{ github.event.inputs.environment }}..."
           mkdir -p /opt/slayflashcards
-          mkdir -p /opt/slayflashcards/frontend
-
-          echo "Copying frontend build..."
           rsync -av --delete frontend/dist/ /opt/slayflashcards/frontend/
-
-          echo "Copying backend..."
           rsync -av --delete api/ /opt/slayflashcards/api/
           rsync -av --delete requirements.txt /opt/slayflashcards/
-
-          echo "Restarting backend service..."
           sudo systemctl restart slayflashcards-backend
-
-          echo "✅ Deployment complete!"
+          echo "✅ Deployment complete."
