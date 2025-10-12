@@ -7,6 +7,8 @@ import {
     FlashcardData,
     SessionCreateResponse,
     SessionFeedback,
+    TestResult,
+    TestSubmitRequest,
 } from '../types';
 
 interface UseSessionReturn {
@@ -25,18 +27,21 @@ interface UseSessionReturn {
     allFlashcards: FlashcardData[];
     currentFlashcardIndex: number;
     seenIndices: number[];
+    testResults: TestResult | null;
     setUserAnswer: (answer: string) => void;
     submitAnswer: () => Promise<void>;
     revealAnswer: () => void;
     goToNextFlashcard: () => void;
     goToFlashcard: (index: number) => void;
     endSession: () => Promise<void>;
+    submitTestSession: () => Promise<void>;
 }
 
 export function useSession(quizId: number | null, mode: SessionMode): UseSessionReturn {
     const navigate = useNavigate();
     const { accessToken, user } = useAuth();
 
+    const [currentMode, setCurrentMode] = useState<SessionMode>(mode);
     const [sessionId, setSessionId] = useState<number | null>(null);
     const [flashcards, setFlashcards] = useState<FlashcardData[]>([]);
     const [currentFlashcardIndex, setCurrentFlashcardIndex] = useState(0);
@@ -50,6 +55,29 @@ export function useSession(quizId: number | null, mode: SessionMode): UseSession
     const [error, setError] = useState<Error | null>(null);
     const [isSessionStarted, setIsSessionStarted] = useState(false);
     const [isSessionCompleted, setIsSessionCompleted] = useState(false);
+    const [testResults, setTestResults] = useState<TestResult | null>(null);
+    const [testAnswers, setTestAnswers] = useState<Map<number, string>>(new Map());
+    const [testStartTime, setTestStartTime] = useState<number | null>(null);
+
+    // Detect mode change and reset immediately
+    if (mode !== currentMode) {
+        console.log('[useSession] Mode changed from', currentMode, 'to', mode, '- resetting state');
+        setCurrentMode(mode);
+        setIsSessionStarted(false);
+        setIsSessionCompleted(false);
+        setTestResults(null);
+        setFlashcards([]);
+        setCurrentFlashcardIndex(0);
+        setFlashcardsCompleted(0);
+        setSeenIndices([0]);
+        setFeedback(null);
+        setUserAnswer('');
+        setShowAnswer(false);
+        setTestAnswers(new Map());
+        setTestStartTime(null);
+        setIsLoading(true);
+        setError(null);
+    }
 
     // Get current flashcard
     const currentFlashcard = flashcards[currentFlashcardIndex] || null;
@@ -57,12 +85,28 @@ export function useSession(quizId: number | null, mode: SessionMode): UseSession
 
     // Initialize session
     useEffect(() => {
-        if (!quizId || !accessToken || !user || isSessionStarted) return;
+        if (!quizId || !accessToken || !user) return;
+
+        // Reset session state when mode or quiz changes
+        console.log('[useSession] Initializing new session with mode:', mode, 'quizId:', quizId);
+        setIsSessionStarted(false);
+        setIsSessionCompleted(false);
+        setTestResults(null);
+        setFlashcards([]);
+        setCurrentFlashcardIndex(0);
+        setFlashcardsCompleted(0);
+        setSeenIndices([0]);
+        setFeedback(null);
+        setUserAnswer('');
+        setShowAnswer(false);
+        setTestAnswers(new Map());
+        setTestStartTime(null);
+        setIsLoading(true); // Set loading immediately
+        setError(null);
 
         const initializeSession = async () => {
             try {
-                setIsLoading(true);
-                setError(null);
+                console.log('[useSession] Creating session...');
 
                 // Create session
                 const session = await api.post<SessionCreateResponse>(
@@ -121,6 +165,12 @@ export function useSession(quizId: number | null, mode: SessionMode): UseSession
                 const shuffled = [...transformedFlashcards].sort(() => Math.random() - 0.5);
                 setFlashcards(shuffled);
                 setIsSessionStarted(true);
+
+                // Start timer for test mode
+                if (mode === 'test') {
+                    setTestStartTime(Date.now());
+                }
+
                 setIsLoading(false);
             } catch (err) {
                 setError(err as Error);
@@ -129,16 +179,16 @@ export function useSession(quizId: number | null, mode: SessionMode): UseSession
         };
 
         initializeSession();
-    }, [quizId, mode, accessToken, user, isSessionStarted]);
+    }, [quizId, mode, accessToken, user]);
 
-    // Submit answer (for learn mode)
+    // Submit answer (for learn mode) or store answer (for test mode)
     const submitAnswer = async () => {
         if (!sessionId || !currentFlashcard || !accessToken) return;
 
         try {
             setIsSubmitting(true);
 
-            // Simple answer checking on frontend
+            // Both modes: check answer and provide immediate feedback
             const correctAnswer = currentFlashcard.answer.text.trim().toLowerCase();
             const submittedAnswer = userAnswer.trim().toLowerCase();
             const isCorrect = correctAnswer === submittedAnswer;
@@ -149,23 +199,29 @@ export function useSession(quizId: number | null, mode: SessionMode): UseSession
                 correct_answer: currentFlashcard.answer.text,
                 feedback: isCorrect
                     ? 'Correct! Well done!'
-                    : 'Not quite right. Keep practicing!',
+                    : 'Incorrect. Click "Show Answer" to see the correct answer.',
             });
 
-            // Track progress on backend
-            await api.put(
-                `/sessions/learning/${sessionId}/progress`,
-                {
-                    progress: [{
-                        flashcard_id: currentFlashcard.id,
-                        reviewed: true,
-                        confidence: isCorrect ? 5 : 3,
-                    }]
-                },
-                accessToken
-            );
+            if (mode === 'test') {
+                // In test mode, store the answer for final submission
+                setTestAnswers((prev) => new Map(prev).set(currentFlashcard.id, userAnswer));
+                setIsSubmitting(false);
+            } else {
+                // Learn mode: track progress on backend
+                await api.put(
+                    `/sessions/learning/${sessionId}/progress`,
+                    {
+                        progress: [{
+                            flashcard_id: currentFlashcard.id,
+                            reviewed: true,
+                            confidence: isCorrect ? 5 : 3,
+                        }]
+                    },
+                    accessToken
+                );
 
-            setIsSubmitting(false);
+                setIsSubmitting(false);
+            }
         } catch (err) {
             // Even if backend tracking fails, show feedback
             console.error('Failed to track progress:', err);
@@ -180,13 +236,19 @@ export function useSession(quizId: number | null, mode: SessionMode): UseSession
 
     // Go to next flashcard
     const goToNextFlashcard = () => {
-        setFlashcardsCompleted((prev) => prev + 1);
-
-        // Check if there are more flashcards
+        // Check if we're on the last flashcard
         if (currentFlashcardIndex + 1 >= flashcards.length) {
-            setIsSessionCompleted(true);
+            // In test mode, automatically submit the test when reaching the end
+            if (mode === 'test') {
+                submitTestSession();
+            } else {
+                // In learn mode, mark session as completed
+                setFlashcardsCompleted((prev) => prev + 1);
+                setIsSessionCompleted(true);
+            }
         } else {
             // Move to next flashcard
+            setFlashcardsCompleted((prev) => prev + 1);
             const nextIndex = currentFlashcardIndex + 1;
             setCurrentFlashcardIndex(nextIndex);
             // Add next index to seen indices if not already there
@@ -204,6 +266,51 @@ export function useSession(quizId: number | null, mode: SessionMode): UseSession
             setUserAnswer('');
             setShowAnswer(false);
             setFeedback(null);
+        }
+    };
+
+    // Submit test session and get results
+    const submitTestSession = async () => {
+        if (!sessionId || !accessToken) return;
+
+        try {
+            setIsSubmitting(true);
+
+            // Calculate test duration in seconds
+            const duration = testStartTime ? Math.floor((Date.now() - testStartTime) / 1000) : undefined;
+
+            // Prepare answers array
+            const answers = Array.from(testAnswers.entries()).map(([flashcard_id, user_answer]) => ({
+                flashcard_id,
+                user_answer,
+                time_taken: 0, // Not tracking individual card time
+            }));
+
+            const requestData: TestSubmitRequest = {
+                session_id: sessionId,
+                answers,
+                duration,
+            };
+
+            // Submit all answers to backend
+            const results = await api.post<TestResult>(
+                '/sessions/test/submit',
+                requestData,
+                accessToken
+            );
+
+            // Add duration to results if not provided by backend
+            if (results && !results.duration && duration) {
+                results.duration = duration;
+            }
+
+            setTestResults(results);
+            setIsSessionCompleted(true);
+            setIsSubmitting(false);
+        } catch (err) {
+            console.error('Failed to submit test session:', err);
+            setError(err as Error);
+            setIsSubmitting(false);
         }
     };
 
@@ -242,11 +349,13 @@ export function useSession(quizId: number | null, mode: SessionMode): UseSession
         allFlashcards: flashcards,
         currentFlashcardIndex,
         seenIndices,
+        testResults,
         setUserAnswer,
         submitAnswer,
         revealAnswer,
         goToNextFlashcard,
         goToFlashcard,
         endSession,
+        submitTestSession,
     };
 }
