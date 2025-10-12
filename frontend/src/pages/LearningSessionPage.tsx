@@ -5,6 +5,7 @@ import { useQuizPerformance } from '../hooks/useQuizPerformance';
 import { useQuizSessions } from '../hooks/useQuizSessions';
 import SessionHeader from '../components/sessions/SessionHeader';
 import FlashcardDisplay from '../components/sessions/FlashcardDisplay';
+import FlashcardTimeline from '../components/sessions/FlashcardTimeline';
 import { SessionMode } from '../types';
 
 function LearningSessionPage() {
@@ -49,10 +50,14 @@ function LearningSessionPage() {
         isSubmitting,
         error,
         isSessionCompleted,
+        allFlashcards,
+        currentFlashcardIndex,
+        seenIndices,
         setUserAnswer,
         submitAnswer,
         revealAnswer,
         goToNextFlashcard,
+        goToFlashcard,
         endSession,
     } = useSession(quizIdNumber, mode);
 
@@ -176,6 +181,13 @@ function LearningSessionPage() {
                     onSubmitAnswer={submitAnswer}
                     onRevealAnswer={revealAnswer}
                     onNextFlashcard={goToNextFlashcard}
+                />
+
+                <FlashcardTimeline
+                    flashcards={allFlashcards}
+                    currentIndex={currentFlashcardIndex}
+                    seenIndices={seenIndices}
+                    onFlashcardClick={goToFlashcard}
                 />
             </div>
         </div>

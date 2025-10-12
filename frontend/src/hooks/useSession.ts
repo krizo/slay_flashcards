@@ -22,10 +22,14 @@ interface UseSessionReturn {
     error: Error | null;
     isSessionStarted: boolean;
     isSessionCompleted: boolean;
+    allFlashcards: FlashcardData[];
+    currentFlashcardIndex: number;
+    seenIndices: number[];
     setUserAnswer: (answer: string) => void;
     submitAnswer: () => Promise<void>;
     revealAnswer: () => void;
     goToNextFlashcard: () => void;
+    goToFlashcard: (index: number) => void;
     endSession: () => Promise<void>;
 }
 
@@ -37,6 +41,7 @@ export function useSession(quizId: number | null, mode: SessionMode): UseSession
     const [flashcards, setFlashcards] = useState<FlashcardData[]>([]);
     const [currentFlashcardIndex, setCurrentFlashcardIndex] = useState(0);
     const [flashcardsCompleted, setFlashcardsCompleted] = useState(0);
+    const [seenIndices, setSeenIndices] = useState<number[]>([0]); // Start with first card as seen
     const [feedback, setFeedback] = useState<SessionFeedback | null>(null);
     const [userAnswer, setUserAnswer] = useState('');
     const [showAnswer, setShowAnswer] = useState(false);
@@ -182,7 +187,20 @@ export function useSession(quizId: number | null, mode: SessionMode): UseSession
             setIsSessionCompleted(true);
         } else {
             // Move to next flashcard
-            setCurrentFlashcardIndex((prev) => prev + 1);
+            const nextIndex = currentFlashcardIndex + 1;
+            setCurrentFlashcardIndex(nextIndex);
+            // Add next index to seen indices if not already there
+            setSeenIndices((prev) => prev.includes(nextIndex) ? prev : [...prev, nextIndex]);
+            setUserAnswer('');
+            setShowAnswer(false);
+            setFeedback(null);
+        }
+    };
+
+    // Go to specific flashcard (for timeline navigation)
+    const goToFlashcard = (index: number) => {
+        if (index >= 0 && index < flashcards.length && seenIndices.includes(index)) {
+            setCurrentFlashcardIndex(index);
             setUserAnswer('');
             setShowAnswer(false);
             setFeedback(null);
@@ -221,10 +239,14 @@ export function useSession(quizId: number | null, mode: SessionMode): UseSession
         error,
         isSessionStarted,
         isSessionCompleted,
+        allFlashcards: flashcards,
+        currentFlashcardIndex,
+        seenIndices,
         setUserAnswer,
         submitAnswer,
         revealAnswer,
         goToNextFlashcard,
+        goToFlashcard,
         endSession,
     };
 }
