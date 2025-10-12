@@ -23,7 +23,7 @@ from core.services.quiz_service import QuizService
 router = APIRouter()
 
 
-def quiz_to_dict(quiz, flashcard_count=None):
+def quiz_to_dict(quiz, flashcard_count=None, last_session_at=None):
     """Convert quiz model to dictionary with base64 encoded image."""
     return {
         "id": quiz.id,
@@ -35,7 +35,8 @@ def quiz_to_dict(quiz, flashcard_count=None):
         "created_at": quiz.created_at,
         "favourite": quiz.favourite if hasattr(quiz, 'favourite') else False,
         "image": base64.b64encode(quiz.image).decode('utf-8') if quiz.image else None,
-        "flashcard_count": flashcard_count
+        "flashcard_count": flashcard_count,
+        "last_session_at": last_session_at
     }
 
 
@@ -48,7 +49,10 @@ async def get_quizzes(
 ):
     """Get all quizzes with optional filtering and pagination."""
     try:
+        from core.db.crud.repository.session_repository import SessionRepository
+
         quiz_service = QuizService(db)
+        session_repo = SessionRepository(db)
 
         # Get base query filtered by current user
         quizzes_query = quiz_service.get_all_quizzes(user_id=current_user.id)
@@ -73,12 +77,29 @@ async def get_quizzes(
         if filters.created_before:
             quizzes_query = [q for q in quizzes_query if q.created_at <= filters.created_before]
 
-        # Convert to quiz objects with flashcard count
+        # Convert to quiz objects with flashcard count and last session
         quiz_data = []
         for quiz in quizzes_query:
             flashcards = quiz_service.get_quiz_flashcards(quiz.id)
-            quiz_dict = quiz_to_dict(quiz, flashcard_count=len(flashcards))
+
+            # Get last session for this quiz
+            sessions = session_repo.get_by_quiz_id(quiz.id)
+            last_session_at = None
+            if sessions:
+                # Get the most recent session
+                latest_session = max(sessions, key=lambda s: s.started_at)
+                last_session_at = latest_session.started_at
+
+            quiz_dict = quiz_to_dict(quiz, flashcard_count=len(flashcards), last_session_at=last_session_at)
             quiz_data.append(Quiz(**quiz_dict))
+
+        # Sort: favourites first, then by last_session_at (most recent first), nulls last
+        from datetime import datetime
+        quiz_data.sort(key=lambda q: (
+            not q.favourite,  # False (favourite) comes before True (not favourite) with ascending sort
+            q.last_session_at is None,  # False (has session) comes before True (no session)
+            -(q.last_session_at.timestamp() if q.last_session_at else 0)  # Negative for descending order
+        ))
 
         # Apply pagination
         start = (pagination.page - 1) * pagination.limit
@@ -206,6 +227,46 @@ async def get_quiz(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to retrieve quiz: {str(e)}"
+        ) from e
+
+
+@router.patch("/{quiz_id}/favourite", response_model=QuizResponse)
+async def toggle_quiz_favourite(
+    quiz_id: int,
+    favourite: bool = Query(..., description="Favourite status"),
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)  # pylint: disable=unused-argument
+):
+    """Toggle quiz favourite status."""
+    try:
+        quiz_service = QuizService(db)
+        quiz = quiz_service.get_quiz_by_id(quiz_id)
+
+        if not quiz:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Quiz with ID {quiz_id} not found"
+            )
+
+        # Update favourite status
+        quiz.favourite = favourite
+        db.commit()
+        db.refresh(quiz)
+
+        flashcards = quiz_service.get_quiz_flashcards(quiz.id)
+        quiz_dict = quiz_to_dict(quiz, flashcard_count=len(flashcards))
+
+        return create_response(
+            data=Quiz(**quiz_dict),
+            message=f"Quiz {'added to' if favourite else 'removed from'} favourites"
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to update quiz favourite status: {str(e)}"
         ) from e
 
 

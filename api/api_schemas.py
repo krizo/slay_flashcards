@@ -204,6 +204,7 @@ class Quiz(QuizBase):
     id: int
     created_at: datetime
     flashcard_count: Optional[int] = None
+    last_session_at: Optional[datetime] = None
 
 
 class QuizStats(BaseModel):

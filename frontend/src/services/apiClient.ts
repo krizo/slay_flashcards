@@ -131,6 +131,12 @@ export const api = {
             body: JSON.stringify(data),
         }, accessToken),
 
+    patch: <T>(endpoint: string, data: any, accessToken?: string | null) =>
+        apiClient<T>(endpoint, {
+            method: 'PATCH',
+            body: data ? JSON.stringify(data) : undefined,
+        }, accessToken),
+
     delete: <T>(endpoint: string, accessToken?: string | null) =>
         apiClient<T>(endpoint, { method: 'DELETE' }, accessToken),
 };

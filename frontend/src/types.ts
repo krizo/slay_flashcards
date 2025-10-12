@@ -86,6 +86,7 @@ export interface Quiz {
     updated_at?: string;
     favourite: boolean;
     image?: string | null;  // Base64 encoded image data
+    last_session_at?: string | null;  // Last session datetime for this quiz
 }
 
 // Request/Response types for Quiz operations
