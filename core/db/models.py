@@ -43,7 +43,7 @@ class Quiz(Base):
 
     user = relationship("User", back_populates="quizzes")
     flashcards = relationship("Flashcard", back_populates="quiz", cascade="all, delete-orphan")
-    sessions = relationship("Session", back_populates="quiz")
+    sessions = relationship("Session", back_populates="quiz", cascade="all, delete-orphan")
 
 
 class Flashcard(Base):

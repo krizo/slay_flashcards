@@ -98,6 +98,7 @@ vi.mock('../components/quizzes/QuizUpdateForm', () => ({
 // Mock API client
 vi.mock('../services/apiClient', () => ({
     api: {
+        get: vi.fn(),
         delete: vi.fn(),
     },
 }));
@@ -249,13 +250,16 @@ describe('QuizzesPage', () => {
             expect(screen.getByTestId('selected-quiz-id')).toHaveTextContent('none');
         });
 
-        it('refetches quiz list after successful creation', () => {
+        it('exits create mode after successful creation', () => {
             renderWithRouter(<QuizzesPage />);
 
             fireEvent.click(screen.getByRole('button', { name: /new quiz/i }));
+            expect(screen.getByTestId('quiz-create-form')).toBeInTheDocument();
+
             fireEvent.click(screen.getByTestId('create-success-button'));
 
-            expect(mockRefetch).toHaveBeenCalledTimes(1);
+            expect(screen.queryByTestId('quiz-create-form')).not.toBeInTheDocument();
+            expect(screen.getByTestId('quiz-details-panel')).toBeInTheDocument();
         });
 
         it('returns to details panel after successful creation', () => {
@@ -278,13 +282,13 @@ describe('QuizzesPage', () => {
             expect(screen.getByTestId('quiz-details-panel')).toBeInTheDocument();
         });
 
-        it('does not refetch quiz list when creation is cancelled', () => {
+        it('maintains details view when creation is cancelled', () => {
             renderWithRouter(<QuizzesPage />);
 
             fireEvent.click(screen.getByRole('button', { name: /new quiz/i }));
             fireEvent.click(screen.getByTestId('create-cancel-button'));
 
-            expect(mockRefetch).not.toHaveBeenCalled();
+            expect(screen.getByTestId('quiz-details-panel')).toBeInTheDocument();
         });
     });
 
@@ -339,7 +343,7 @@ describe('QuizzesPage', () => {
             expect(useQuizHook.useQuiz).toHaveBeenCalledWith(1);
         });
 
-        it('refetches quiz list after successful update', () => {
+        it('exits edit mode after successful update', () => {
             vi.mocked(useQuizHook.useQuiz).mockReturnValue({
                 quiz: mockQuiz,
                 isLoading: false,
@@ -351,9 +355,12 @@ describe('QuizzesPage', () => {
 
             fireEvent.click(screen.getByTestId('select-quiz-1'));
             fireEvent.click(screen.getByTestId('edit-button'));
+            expect(screen.getByTestId('quiz-update-form')).toBeInTheDocument();
+
             fireEvent.click(screen.getByTestId('update-success-button'));
 
-            expect(mockRefetch).toHaveBeenCalledTimes(1);
+            expect(screen.queryByTestId('quiz-update-form')).not.toBeInTheDocument();
+            expect(screen.getByTestId('quiz-details-panel')).toBeInTheDocument();
         });
 
         it('returns to details panel after successful update', () => {
@@ -392,7 +399,7 @@ describe('QuizzesPage', () => {
             expect(screen.getByTestId('quiz-details-panel')).toBeInTheDocument();
         });
 
-        it('does not refetch quiz list when update is cancelled', () => {
+        it('maintains details view when update is cancelled', () => {
             vi.mocked(useQuizHook.useQuiz).mockReturnValue({
                 quiz: mockQuiz,
                 isLoading: false,
@@ -406,7 +413,7 @@ describe('QuizzesPage', () => {
             fireEvent.click(screen.getByTestId('edit-button'));
             fireEvent.click(screen.getByTestId('update-cancel-button'));
 
-            expect(mockRefetch).not.toHaveBeenCalled();
+            expect(screen.getByTestId('quiz-details-panel')).toBeInTheDocument();
         });
     });
 
@@ -423,6 +430,22 @@ describe('QuizzesPage', () => {
         });
 
         it('calls API delete when deletion is confirmed', async () => {
+            vi.mocked(apiClient.api.get).mockResolvedValue(mockQuiz);
+            vi.mocked(apiClient.api.delete).mockResolvedValue(undefined);
+
+            renderWithRouter(<QuizzesPage />);
+
+            fireEvent.click(screen.getByTestId('select-quiz-1'));
+            fireEvent.click(screen.getByTestId('delete-button'));
+
+            await waitFor(() => {
+                expect(apiClient.api.get).toHaveBeenCalledWith('/quizzes/1', 'mock-access-token');
+                expect(apiClient.api.delete).toHaveBeenCalledWith('/quizzes/1', 'mock-access-token');
+            });
+        });
+
+        it('completes deletion successfully', async () => {
+            vi.mocked(apiClient.api.get).mockResolvedValue(mockQuiz);
             vi.mocked(apiClient.api.delete).mockResolvedValue(undefined);
 
             renderWithRouter(<QuizzesPage />);
@@ -435,20 +458,8 @@ describe('QuizzesPage', () => {
             });
         });
 
-        it('refetches quiz list after successful deletion', async () => {
-            vi.mocked(apiClient.api.delete).mockResolvedValue(undefined);
-
-            renderWithRouter(<QuizzesPage />);
-
-            fireEvent.click(screen.getByTestId('select-quiz-1'));
-            fireEvent.click(screen.getByTestId('delete-button'));
-
-            await waitFor(() => {
-                expect(mockRefetch).toHaveBeenCalledTimes(1);
-            });
-        });
-
         it('clears selection after successful deletion', async () => {
+            vi.mocked(apiClient.api.get).mockResolvedValue(mockQuiz);
             vi.mocked(apiClient.api.delete).mockResolvedValue(undefined);
 
             renderWithRouter(<QuizzesPage />);
@@ -472,12 +483,12 @@ describe('QuizzesPage', () => {
             fireEvent.click(screen.getByTestId('delete-button'));
 
             expect(apiClient.api.delete).not.toHaveBeenCalled();
-            expect(mockRefetch).not.toHaveBeenCalled();
         });
 
         it('handles deletion error gracefully', async () => {
             const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
             const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
+            vi.mocked(apiClient.api.get).mockResolvedValue(mockQuiz);
             vi.mocked(apiClient.api.delete).mockRejectedValue(new Error('Network error'));
 
             renderWithRouter(<QuizzesPage />);
@@ -494,10 +505,68 @@ describe('QuizzesPage', () => {
             alertSpy.mockRestore();
         });
 
-        it('does not refetch quiz list when deletion fails', async () => {
+        it('does not show alert when deletion fails with network error', async () => {
             vi.spyOn(console, 'error').mockImplementation(() => {});
-            vi.spyOn(window, 'alert').mockImplementation(() => {});
+            const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
+            vi.mocked(apiClient.api.get).mockResolvedValue(mockQuiz);
             vi.mocked(apiClient.api.delete).mockRejectedValue(new Error('Network error'));
+
+            renderWithRouter(<QuizzesPage />);
+
+            fireEvent.click(screen.getByTestId('select-quiz-1'));
+            fireEvent.click(screen.getByTestId('delete-button'));
+
+            await waitFor(() => {
+                expect(apiClient.api.delete).toHaveBeenCalled();
+                expect(alertSpy).toHaveBeenCalledWith('Failed to delete quiz. Please try again.');
+            });
+
+            alertSpy.mockRestore();
+        });
+
+        it('handles quiz not found during verification', async () => {
+            const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
+            vi.mocked(apiClient.api.get).mockResolvedValue(null);
+
+            renderWithRouter(<QuizzesPage />);
+
+            fireEvent.click(screen.getByTestId('select-quiz-1'));
+            fireEvent.click(screen.getByTestId('delete-button'));
+
+            await waitFor(() => {
+                expect(alertSpy).toHaveBeenCalledWith('This quiz no longer exists. Refreshing the list...');
+            });
+
+            expect(apiClient.api.delete).not.toHaveBeenCalled();
+            alertSpy.mockRestore();
+        });
+
+        it('handles 404 error during deletion', async () => {
+            const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+            const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
+            vi.mocked(apiClient.api.get).mockResolvedValue(mockQuiz);
+            vi.mocked(apiClient.api.delete).mockRejectedValue({
+                response: { status: 404 },
+                message: 'Quiz not found'
+            });
+
+            renderWithRouter(<QuizzesPage />);
+
+            fireEvent.click(screen.getByTestId('select-quiz-1'));
+            fireEvent.click(screen.getByTestId('delete-button'));
+
+            await waitFor(() => {
+                expect(alertSpy).toHaveBeenCalledWith('This quiz no longer exists. Refreshing the list...');
+            });
+
+            consoleErrorSpy.mockRestore();
+            alertSpy.mockRestore();
+        });
+
+        it('deletes quiz without showing alert on success', async () => {
+            const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
+            vi.mocked(apiClient.api.get).mockResolvedValue(mockQuiz);
+            vi.mocked(apiClient.api.delete).mockResolvedValue(undefined);
 
             renderWithRouter(<QuizzesPage />);
 
@@ -508,7 +577,9 @@ describe('QuizzesPage', () => {
                 expect(apiClient.api.delete).toHaveBeenCalled();
             });
 
-            expect(mockRefetch).not.toHaveBeenCalled();
+            // Should not show success alert
+            expect(alertSpy).not.toHaveBeenCalledWith('Quiz deleted successfully!');
+            alertSpy.mockRestore();
         });
     });
 
@@ -594,12 +665,6 @@ describe('QuizzesPage', () => {
     });
 
     describe('Hook Integration', () => {
-        it('calls useQuizList hook', () => {
-            renderWithRouter(<QuizzesPage />);
-
-            expect(useQuizListHook.useQuizList).toHaveBeenCalled();
-        });
-
         it('calls useQuiz hook with null when not editing', () => {
             renderWithRouter(<QuizzesPage />);
 

@@ -5,7 +5,6 @@ import QuizDetailsPanel from '../components/quizzes/QuizDetailsPanel';
 import QuizCreateForm from '../components/quizzes/QuizCreateForm';
 import QuizUpdateForm from '../components/quizzes/QuizUpdateForm';
 import { useQuiz } from '../hooks/useQuiz';
-import { useQuizList } from '../hooks/useQuizList';
 import { useQuizFilters } from '../hooks/useQuizFilters';
 import { api } from '../services/apiClient';
 import { useAuth } from '../context/AuthContext';
@@ -19,15 +18,13 @@ function QuizzesPage() {
     const [selectedQuizId, setSelectedQuizId] = useState<number | null>(null);
     const [isCreatingNewQuiz, setIsCreatingNewQuiz] = useState(false);
     const [isEditingQuiz, setIsEditingQuiz] = useState(false);
+    const [quizListKey, setQuizListKey] = useState(0);
 
     // Filter states
     const [searchQuery, setSearchQuery] = useState<string>('');
     const [selectedSubject, setSelectedSubject] = useState<string>('');
     const [selectedCategory, setSelectedCategory] = useState<string>('');
     const [selectedLevel, setSelectedLevel] = useState<string>('');
-
-    // Fetch quiz list for refetching after operations
-    const { refetch: refetchQuizList } = useQuizList();
 
     // Fetch filter options
     const { subjects, categories, levels, isLoading: filtersLoading } = useQuizFilters();
@@ -52,7 +49,7 @@ function QuizzesPage() {
     // Handle quiz creation success
     const handleCreateSuccess = () => {
         setIsCreatingNewQuiz(false);
-        refetchQuizList();
+        setQuizListKey(prev => prev + 1);
         // Optionally select the newly created quiz
     };
 
@@ -71,7 +68,7 @@ function QuizzesPage() {
     // Handle quiz update success
     const handleUpdateSuccess = () => {
         setIsEditingQuiz(false);
-        refetchQuizList();
+        setQuizListKey(prev => prev + 1);
     };
 
     // Handle quiz update cancel
@@ -95,16 +92,34 @@ function QuizzesPage() {
         }
 
         try {
+            // Verify quiz exists before attempting deletion
+            const quiz = await api.get(`/quizzes/${quizId}`, accessToken);
+
+            if (!quiz) {
+                alert('This quiz no longer exists. Refreshing the list...');
+                setQuizListKey(prev => prev + 1);
+                setSelectedQuizId(null);
+                return;
+            }
+
             // Call API to delete quiz
             await api.delete(`/quizzes/${quizId}`, accessToken);
 
             // Clear selection and refetch list
             setSelectedQuizId(null);
             setIsEditingQuiz(false);
-            refetchQuizList();
-        } catch (error) {
+            setQuizListKey(prev => prev + 1);
+        } catch (error: any) {
             console.error('Failed to delete quiz:', error);
-            alert('Failed to delete quiz. Please try again.');
+
+            // Check if quiz not found
+            if (error.response?.status === 404 || error.message?.includes('not found')) {
+                alert('This quiz no longer exists. Refreshing the list...');
+                setSelectedQuizId(null);
+                setQuizListKey(prev => prev + 1);
+            } else {
+                alert('Failed to delete quiz. Please try again.');
+            }
         }
     };
 
@@ -224,6 +239,7 @@ function QuizzesPage() {
             <div className="quiz-management-layout">
                 {/* Left Panel: Quiz List */}
                 <QuizListPanel
+                    key={quizListKey}
                     selectedQuizId={selectedQuizId}
                     onSelectQuiz={handleSelectQuiz}
                     searchQuery={searchQuery}
