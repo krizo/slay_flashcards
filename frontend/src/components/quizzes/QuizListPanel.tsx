@@ -1,5 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useQuizList } from '../../hooks/useQuizList';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faStar as faStarSolid } from '@fortawesome/free-solid-svg-icons';
+import { faStar as faStarRegular } from '@fortawesome/free-regular-svg-icons';
+import { api } from '../../services/apiClient';
+import { useAuth } from '../../context/AuthContext';
 
 // Helper function to decode base64-encoded UTF-8 emoji
 const decodeImage = (base64: string): string => {
@@ -38,8 +43,12 @@ function QuizListPanel({
     selectedCategory,
     selectedLevel,
 }: QuizListPanelProps) {
+    const { accessToken } = useAuth();
+
     // Debounce search query
     const [debouncedQuery, setDebouncedQuery] = useState<string>('');
+    // Local favourite state for optimistic updates
+    const [localFavourites, setLocalFavourites] = useState<Record<number, boolean>>({});
 
     // Debounce search input
     useEffect(() => {
@@ -51,12 +60,32 @@ function QuizListPanel({
     }, [searchQuery]);
 
     // Fetch quizzes with filters
-    const { quizzes, isLoading, error } = useQuizList({
+    const { quizzes, isLoading, error, refetch } = useQuizList({
         nameContains: debouncedQuery || undefined,
         subject: selectedSubject || undefined,
         category: selectedCategory || undefined,
         level: selectedLevel || undefined,
     });
+
+    // Handle favourite toggle
+    const handleToggleFavourite = async (e: React.MouseEvent, quizId: number, currentFavourite: boolean) => {
+        e.stopPropagation(); // Prevent quiz selection when clicking star
+
+        if (!accessToken) return;
+
+        // Optimistic update
+        setLocalFavourites(prev => ({ ...prev, [quizId]: !currentFavourite }));
+
+        try {
+            await api.patch(`/quizzes/${quizId}/favourite?favourite=${!currentFavourite}`, null, accessToken);
+            // Refetch to get updated sort order
+            refetch();
+        } catch (error) {
+            console.error('Failed to toggle favourite:', error);
+            // Revert optimistic update on error
+            setLocalFavourites(prev => ({ ...prev, [quizId]: currentFavourite }));
+        }
+    };
 
     return (
         <div className="quiz-list-panel">
@@ -89,9 +118,45 @@ function QuizListPanel({
                                         {quiz.image ? decodeImage(quiz.image) : '📚'}
                                     </div>
                                     <div className="quiz-list-item-content">
-                                        <div className="quiz-list-item-header">
+                                        <div className="quiz-list-item-title-row">
                                             <h3 className="quiz-list-item-name">{quiz.name}</h3>
                                             <span className="quiz-list-item-badge">{quiz.subject}</span>
+                                            <button
+                                                className={`quiz-favourite-btn ${
+                                                    (localFavourites[quiz.id] !== undefined
+                                                        ? localFavourites[quiz.id]
+                                                        : quiz.favourite)
+                                                        ? 'quiz-favourite-btn--active'
+                                                        : ''
+                                                }`}
+                                                onClick={(e) =>
+                                                    handleToggleFavourite(
+                                                        e,
+                                                        quiz.id,
+                                                        localFavourites[quiz.id] !== undefined
+                                                            ? localFavourites[quiz.id]
+                                                            : quiz.favourite
+                                                    )
+                                                }
+                                                title={
+                                                    (localFavourites[quiz.id] !== undefined
+                                                        ? localFavourites[quiz.id]
+                                                        : quiz.favourite)
+                                                        ? 'Remove from favourites'
+                                                        : 'Add to favourites'
+                                                }
+                                                aria-label="Toggle favourite"
+                                            >
+                                                <FontAwesomeIcon
+                                                    icon={
+                                                        (localFavourites[quiz.id] !== undefined
+                                                            ? localFavourites[quiz.id]
+                                                            : quiz.favourite)
+                                                            ? faStarSolid
+                                                            : faStarRegular
+                                                    }
+                                                />
+                                            </button>
                                         </div>
                                         {subtitle && (
                                             <div className="quiz-list-item-subtitle">
