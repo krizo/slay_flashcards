@@ -241,13 +241,27 @@ async def create_session(
                 detail=f"Quiz with ID {session_data.quiz_id} not found"
             )
 
-        # Create session
-        session = user_service.create_session(
-            session_data.user_id,
-            session_data.quiz_id,
-            session_data.mode.value,
-            session_data.score
-        )
+        # Check for recent duplicate session (idempotency for React Strict Mode)
+        session_repo = SessionRepository(db)
+        recent_threshold = datetime.datetime.now() - datetime.timedelta(seconds=10)
+        user_sessions = session_repo.get_user_quiz_sessions(session_data.user_id, session_data.quiz_id)
+
+        # Find a session that matches user_id, quiz_id, mode and was created in the last 10 seconds
+        for existing_session in user_sessions:
+            if (existing_session.mode == session_data.mode.value and
+                existing_session.started_at >= recent_threshold and
+                not getattr(existing_session, 'completed', False)):
+                # Return existing session instead of creating duplicate
+                session = existing_session
+                break
+        else:
+            # Create new session only if no recent duplicate found
+            session = user_service.create_session(
+                session_data.user_id,
+                session_data.quiz_id,
+                session_data.mode.value,
+                session_data.score
+            )
 
         session_dict = {
             "id": session.id,
