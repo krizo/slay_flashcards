@@ -44,20 +44,21 @@ export function useQuizStats(quizId: number | null): UseQuizStatsReturn {
                     new Date(b.started_at).getTime() - new Date(a.started_at).getTime()
                 );
 
-                // Calculate stats from sessions
-                const testSessions = sessions.filter(s => s.mode === 'test');
-                const completedSessions = sessions.filter(s => s.completed_at && s.score !== null);
+                // Calculate stats from completed sessions only
+                const completedSessions = sessions.filter(s => s.completed === true);
+                const testSessions = completedSessions.filter(s => s.mode === 'test');
+                const testSessionsWithScores = testSessions.filter(s => s.score !== null);
 
-                const bestScore = completedSessions.length > 0
-                    ? Math.max(...completedSessions.map(s => s.score))
+                const bestScore = testSessionsWithScores.length > 0
+                    ? Math.max(...testSessionsWithScores.map(s => s.score))
                     : null;
 
-                const averageScore = completedSessions.length > 0
-                    ? completedSessions.reduce((sum, s) => sum + s.score, 0) / completedSessions.length
+                const averageScore = testSessionsWithScores.length > 0
+                    ? testSessionsWithScores.reduce((sum, s) => sum + s.score, 0) / testSessionsWithScores.length
                     : null;
 
                 setQuizStats({
-                    total_sessions: sessions.length,
+                    total_sessions: completedSessions.length,
                     test_sessions: testSessions.length,
                     best_score: bestScore,
                     average_score: averageScore,

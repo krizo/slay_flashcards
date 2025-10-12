@@ -607,6 +607,9 @@ async def get_user_recent_sessions(
         else:
             sessions = session_repo.get_recent_sessions(user_id, limit)
 
+        # Filter by completed sessions only
+        sessions = [s for s in sessions if getattr(s, 'completed', False)]
+
         # Limit results
         sessions = sessions[:limit]
 

@@ -372,6 +372,9 @@ async def get_user_progress(
         since_date = datetime.now() - timedelta(days=days)
         sessions = session_repo.get_sessions_since_date(user_id, since_date)
 
+        # Filter by completed sessions only
+        sessions = [s for s in sessions if getattr(s, 'completed', False)]
+
         # Filter by quiz if specified
         if quiz_id:
             sessions = [s for s in sessions if s.quiz_id == quiz_id]
@@ -464,10 +467,10 @@ async def get_user_leaderboard(  # pylint: disable=too-many-locals
             for user in all_users:
                 if quiz_id:
                     sessions = session_repo.get_user_quiz_sessions(user.id, quiz_id)
-                    test_sessions = [s for s in sessions if s.mode == "test" and s.score is not None]
+                    test_sessions = [s for s in sessions if s.mode == "test" and s.score is not None and getattr(s, 'completed', False)]
                 else:
                     test_sessions = [s for s in session_repo.get_by_user_id(user.id)
-                                   if s.mode == "test" and s.score is not None]
+                                   if s.mode == "test" and s.score is not None and getattr(s, 'completed', False)]
 
                 if test_sessions:
                     avg_score = sum(s.score for s in test_sessions) / len(test_sessions)
