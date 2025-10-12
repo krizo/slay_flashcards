@@ -101,7 +101,7 @@ function QuizListPanel({
                     <ul className="quiz-list">
                         {quizzes.map((quiz) => {
                             // Build category/level subtitle if they exist
-                            const subtitleParts = [];
+                            const subtitleParts: string[] = [];
                             if (quiz.category) subtitleParts.push(quiz.category);
                             if (quiz.level) subtitleParts.push(quiz.level);
                             const subtitle = subtitleParts.length > 0 ? subtitleParts.join(' • ') : null;
