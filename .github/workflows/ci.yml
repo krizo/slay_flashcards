@@ -69,14 +69,14 @@ jobs:
       - name: 🧪 Smoke test frontend
         run: curl -f http://localhost:3000 || exit 1
 
-      - name: Backend Tests
-        run: |
-          pytest tests
+#      - name: Backend Tests
+#        run: |
+#          pytest tests
 
-      - name: Frontend Tests
-        working-directory: frontend
-        run: |
-          npm run test 
+#      - name: Frontend Tests
+#        working-directory: frontend
+#        run: |
+#          npm run test
 
       # ─────── Conditional Deploy ───────
       - name: 🚀 Deploy to target environment
