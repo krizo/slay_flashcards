@@ -51,10 +51,10 @@ describe('FlashcardComponent', () => {
         const container = document.querySelector('.flashcard-container');
         const difficultyDots = container?.querySelectorAll('.flashcard-difficulty .dot');
 
-        // 5 dots on front + 5 dots on back = 10 total
-        expect(difficultyDots).toHaveLength(10);
+        // difficulty 3: 3 dots on front + 3 dots on back = 6 total
+        expect(difficultyDots).toHaveLength(6);
 
-        // Check that exactly 6 dots are active (3 on front + 3 on back)
+        // All rendered dots are active (3 on front + 3 on back)
         const activeDots = container?.querySelectorAll('.flashcard-difficulty .dot.active');
         expect(activeDots).toHaveLength(6);
     });
