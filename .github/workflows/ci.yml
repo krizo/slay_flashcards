@@ -2,7 +2,7 @@ name: SlayFlashcards CI
 
 on:
   push:
-    branches: [main, staging]
+    branches: [main, frontend]
   pull_request:
 
 jobs:
