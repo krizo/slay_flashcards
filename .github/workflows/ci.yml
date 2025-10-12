@@ -82,10 +82,9 @@ jobs:
       - name: 🚀 Deploy to target environment
         if: ${{ github.event.inputs.deploy == 'true' }}
         run: |
-          echo "Deploying to ${{ github.event.inputs.environment }}..."
-          sudo mkdir -p /opt/slayflashcards
-          rsync -av --delete frontend/dist/ /opt/slayflashcards/frontend/
-          rsync -av --delete api/ /opt/slayflashcards/api/
-          rsync -av --delete requirements.txt /opt/slayflashcards/
+          echo "Deploying..."
+          sudo mkdir -p /opt/slayflashcards/frontend
+          sudo rsync -av --delete frontend/dist/ /opt/slayflashcards/frontend/
+          sudo rsync -av --delete api/ /opt/slayflashcards/api/
+          sudo rsync -av --delete requirements.txt /opt/slayflashcards/
           sudo systemctl restart slayflashcards-backend
-          echo "✅ Deployment complete."
