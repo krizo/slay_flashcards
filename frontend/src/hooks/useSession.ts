@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../services/apiClient';
 import { useAuth } from '../context/AuthContext';
@@ -40,8 +40,6 @@ interface UseSessionReturn {
 export function useSession(quizId: number | null, mode: SessionMode): UseSessionReturn {
     const navigate = useNavigate();
     const { accessToken, user } = useAuth();
-
-    const [currentMode, setCurrentMode] = useState<SessionMode>(mode);
     const [sessionId, setSessionId] = useState<number | null>(null);
     const [flashcards, setFlashcards] = useState<FlashcardData[]>([]);
     const [currentFlashcardIndex, setCurrentFlashcardIndex] = useState(0);
@@ -59,51 +57,22 @@ export function useSession(quizId: number | null, mode: SessionMode): UseSession
     const [testAnswers, setTestAnswers] = useState<Map<number, string>>(new Map());
     const [testStartTime, setTestStartTime] = useState<number | null>(null);
 
-    // Detect mode change and reset immediately
-    if (mode !== currentMode) {
-        setCurrentMode(mode);
-        setIsSessionStarted(false);
-        setIsSessionCompleted(false);
-        setTestResults(null);
-        setFlashcards([]);
-        setCurrentFlashcardIndex(0);
-        setFlashcardsCompleted(0);
-        setSeenIndices([0]);
-        setFeedback(null);
-        setUserAnswer('');
-        setShowAnswer(false);
-        setTestAnswers(new Map());
-        setTestStartTime(null);
-        setIsLoading(true);
-        setError(null);
-    }
-
     // Get current flashcard
     const currentFlashcard = flashcards[currentFlashcardIndex] || null;
     const totalFlashcards = flashcards.length;
 
     // Initialize session
     useEffect(() => {
-        if (!quizId || !accessToken || !user) return;
+        if (!quizId || !accessToken || !user || isSessionStarted) {
+            return;
+        }
 
-        // Reset session state when mode or quiz changes
-        setIsSessionStarted(false);
-        setIsSessionCompleted(false);
-        setTestResults(null);
-        setFlashcards([]);
-        setCurrentFlashcardIndex(0);
-        setFlashcardsCompleted(0);
-        setSeenIndices([0]);
-        setFeedback(null);
-        setUserAnswer('');
-        setShowAnswer(false);
-        setTestAnswers(new Map());
-        setTestStartTime(null);
-        setIsLoading(true); // Set loading immediately
-        setError(null);
+        let cancelled = false;
 
         const initializeSession = async () => {
             try {
+                setIsLoading(true);
+                setError(null);
 
                 // Create session
                 const session = await api.post<SessionCreateResponse>(
@@ -112,6 +81,7 @@ export function useSession(quizId: number | null, mode: SessionMode): UseSession
                     accessToken
                 );
 
+                if (cancelled) return;
                 setSessionId(session.id);
 
                 // Fetch all flashcards for the quiz
@@ -160,23 +130,32 @@ export function useSession(quizId: number | null, mode: SessionMode): UseSession
 
                 // Shuffle flashcards for variety
                 const shuffled = [...transformedFlashcards].sort(() => Math.random() - 0.5);
+
+                if (cancelled) return;
+
                 setFlashcards(shuffled);
                 setIsSessionStarted(true);
 
-                // Start timer for test mode
                 if (mode === 'test') {
                     setTestStartTime(Date.now());
                 }
 
                 setIsLoading(false);
             } catch (err) {
-                setError(err as Error);
-                setIsLoading(false);
+                if (!cancelled) {
+                    setError(err as Error);
+                    setIsLoading(false);
+                }
             }
         };
 
         initializeSession();
-    }, [quizId, mode, accessToken, user]);
+
+        // Cleanup
+        return () => {
+            cancelled = true;
+        };
+    }, [quizId, mode, accessToken, user, isSessionStarted]);
 
     // Submit answer (for learn mode) or store answer (for test mode)
     const submitAnswer = async () => {
