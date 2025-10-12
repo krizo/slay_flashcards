@@ -15,7 +15,7 @@ describe('ProgressChartCard', () => {
     ];
 
     it('renders loading state', () => {
-        render(<ProgressChartCard data={null} isLoading={true} />);
+        render(<ProgressChartCard data={null} isLoading={true} timePeriod="week" />);
 
         expect(screen.getByText('Progress Over Time')).toBeInTheDocument();
         expect(screen.getByText('Loading progress data...')).toBeInTheDocument();
@@ -23,7 +23,7 @@ describe('ProgressChartCard', () => {
 
     it('renders error state', () => {
         const error = new Error('Network error occurred');
-        render(<ProgressChartCard data={null} error={error} />);
+        render(<ProgressChartCard data={null} error={error} timePeriod="week" />);
 
         expect(screen.getByText('Progress Over Time')).toBeInTheDocument();
         expect(screen.getByText('Failed to load progress data')).toBeInTheDocument();
@@ -31,20 +31,20 @@ describe('ProgressChartCard', () => {
     });
 
     it('renders empty state when no data provided', () => {
-        render(<ProgressChartCard data={null} />);
+        render(<ProgressChartCard data={null} timePeriod="week" />);
 
         expect(screen.getByText('Progress Over Time')).toBeInTheDocument();
         expect(screen.getByText('No progress data available for this period')).toBeInTheDocument();
     });
 
     it('renders empty state when data array is empty', () => {
-        render(<ProgressChartCard data={[]} />);
+        render(<ProgressChartCard data={[]} timePeriod="week" />);
 
         expect(screen.getByText('No progress data available for this period')).toBeInTheDocument();
     });
 
     it('renders chart with data', () => {
-        render(<ProgressChartCard data={mockProgressData} />);
+        render(<ProgressChartCard data={mockProgressData} timePeriod="week" />);
 
         expect(screen.getByText('Progress Over Time')).toBeInTheDocument();
         expect(screen.getByText(/Your average scores over/i)).toBeInTheDocument();
@@ -55,7 +55,7 @@ describe('ProgressChartCard', () => {
     });
 
     it('displays correct title and subtitle', () => {
-        render(<ProgressChartCard data={mockProgressData} />);
+        render(<ProgressChartCard data={mockProgressData} timePeriod="week" />);
 
         expect(screen.getByText('Progress Over Time')).toBeInTheDocument();
         expect(screen.getByText(/Your average scores over/i)).toBeInTheDocument();
@@ -66,7 +66,7 @@ describe('ProgressChartCard', () => {
             { date: '2025-10-08', score: 88 },
         ];
 
-        render(<ProgressChartCard data={singleDataPoint} />);
+        render(<ProgressChartCard data={singleDataPoint} timePeriod="week" />);
 
         const chartContainer = document.querySelector('.chart-container');
         expect(chartContainer).toBeInTheDocument();
@@ -78,7 +78,7 @@ describe('ProgressChartCard', () => {
             { date: '2025-10-09', score: 50 },
         ];
 
-        render(<ProgressChartCard data={dataWithZeros} />);
+        render(<ProgressChartCard data={dataWithZeros} timePeriod="week" />);
 
         const chartContainer = document.querySelector('.chart-container');
         expect(chartContainer).toBeInTheDocument();

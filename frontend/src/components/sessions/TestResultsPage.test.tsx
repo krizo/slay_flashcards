@@ -63,7 +63,6 @@ describe('TestResultsPage', () => {
     };
 
     it('renders test results with score', () => {
-        const mockOnReviewMistakes = vi.fn();
         const mockOnGoToQuizzes = vi.fn();
         const mockOnRetry = vi.fn();
         const mockOnLearn = vi.fn();
@@ -71,7 +70,6 @@ describe('TestResultsPage', () => {
         render(
             <TestResultsPage
                 testResults={mockTestResultsPerfect}
-                onReviewMistakes={mockOnReviewMistakes}
                 onGoToQuizzes={mockOnGoToQuizzes}
                 onRetry={mockOnRetry}
                 onLearn={mockOnLearn}
@@ -84,7 +82,6 @@ describe('TestResultsPage', () => {
     });
 
     it('displays celebration icon for high score (>= 80%)', () => {
-        const mockOnReviewMistakes = vi.fn();
         const mockOnGoToQuizzes = vi.fn();
         const mockOnRetry = vi.fn();
         const mockOnLearn = vi.fn();
@@ -92,7 +89,6 @@ describe('TestResultsPage', () => {
         render(
             <TestResultsPage
                 testResults={mockTestResultsPerfect}
-                onReviewMistakes={mockOnReviewMistakes}
                 onGoToQuizzes={mockOnGoToQuizzes}
                 onRetry={mockOnRetry}
                 onLearn={mockOnLearn}
@@ -103,7 +99,6 @@ describe('TestResultsPage', () => {
     });
 
     it('displays all answered questions in breakdown', () => {
-        const mockOnReviewMistakes = vi.fn();
         const mockOnGoToQuizzes = vi.fn();
         const mockOnRetry = vi.fn();
         const mockOnLearn = vi.fn();
@@ -111,7 +106,6 @@ describe('TestResultsPage', () => {
         render(
             <TestResultsPage
                 testResults={mockTestResultsMixed}
-                onReviewMistakes={mockOnReviewMistakes}
                 onGoToQuizzes={mockOnGoToQuizzes}
                 onRetry={mockOnRetry}
                 onLearn={mockOnLearn}
@@ -124,7 +118,6 @@ describe('TestResultsPage', () => {
     });
 
     it('displays correct answers with checkmark', () => {
-        const mockOnReviewMistakes = vi.fn();
         const mockOnGoToQuizzes = vi.fn();
         const mockOnRetry = vi.fn();
         const mockOnLearn = vi.fn();
@@ -132,7 +125,6 @@ describe('TestResultsPage', () => {
         const { container } = render(
             <TestResultsPage
                 testResults={mockTestResultsMixed}
-                onReviewMistakes={mockOnReviewMistakes}
                 onGoToQuizzes={mockOnGoToQuizzes}
                 onRetry={mockOnRetry}
                 onLearn={mockOnLearn}
@@ -144,7 +136,6 @@ describe('TestResultsPage', () => {
     });
 
     it('displays incorrect answers with X mark', () => {
-        const mockOnReviewMistakes = vi.fn();
         const mockOnGoToQuizzes = vi.fn();
         const mockOnRetry = vi.fn();
         const mockOnLearn = vi.fn();
@@ -152,7 +143,6 @@ describe('TestResultsPage', () => {
         const { container } = render(
             <TestResultsPage
                 testResults={mockTestResultsMixed}
-                onReviewMistakes={mockOnReviewMistakes}
                 onGoToQuizzes={mockOnGoToQuizzes}
                 onRetry={mockOnRetry}
                 onLearn={mockOnLearn}
@@ -164,7 +154,31 @@ describe('TestResultsPage', () => {
     });
 
     it('shows correct answer for incorrect responses', () => {
-        const mockOnReviewMistakes = vi.fn();
+        const mockOnGoToQuizzes = vi.fn();
+        const mockOnRetry = vi.fn();
+        const mockOnLearn = vi.fn();
+
+        const { container } = render(
+            <TestResultsPage
+                testResults={mockTestResultsMixed}
+                onGoToQuizzes={mockOnGoToQuizzes}
+                onRetry={mockOnRetry}
+                onLearn={mockOnLearn}
+            />
+        );
+
+        // Click on the incorrect answer card to reveal answers
+        const incorrectCard = container.querySelector('.timeline-card--incorrect');
+        expect(incorrectCard).toBeInTheDocument();
+
+        if (incorrectCard) {
+            fireEvent.click(incorrectCard);
+            expect(screen.getByText('London')).toBeInTheDocument();
+            expect(screen.getByText('Paris')).toBeInTheDocument();
+        }
+    });
+
+    it('shows "Show Mistakes Only" filter button when there are incorrect answers', () => {
         const mockOnGoToQuizzes = vi.fn();
         const mockOnRetry = vi.fn();
         const mockOnLearn = vi.fn();
@@ -172,38 +186,16 @@ describe('TestResultsPage', () => {
         render(
             <TestResultsPage
                 testResults={mockTestResultsMixed}
-                onReviewMistakes={mockOnReviewMistakes}
                 onGoToQuizzes={mockOnGoToQuizzes}
                 onRetry={mockOnRetry}
                 onLearn={mockOnLearn}
             />
         );
 
-        expect(screen.getByText('London')).toBeInTheDocument();
-        expect(screen.getByText('Paris')).toBeInTheDocument();
+        expect(screen.getByText(/Show Mistakes Only/)).toBeInTheDocument();
     });
 
-    it('shows "Review Mistakes" button when there are incorrect answers', () => {
-        const mockOnReviewMistakes = vi.fn();
-        const mockOnGoToQuizzes = vi.fn();
-        const mockOnRetry = vi.fn();
-        const mockOnLearn = vi.fn();
-
-        render(
-            <TestResultsPage
-                testResults={mockTestResultsMixed}
-                onReviewMistakes={mockOnReviewMistakes}
-                onGoToQuizzes={mockOnGoToQuizzes}
-                onRetry={mockOnRetry}
-                onLearn={mockOnLearn}
-            />
-        );
-
-        expect(screen.getByText('Review Mistakes')).toBeInTheDocument();
-    });
-
-    it('does not show "Review Mistakes" button for perfect score', () => {
-        const mockOnReviewMistakes = vi.fn();
+    it('does not show "Show Mistakes Only" filter button for perfect score', () => {
         const mockOnGoToQuizzes = vi.fn();
         const mockOnRetry = vi.fn();
         const mockOnLearn = vi.fn();
@@ -211,18 +203,16 @@ describe('TestResultsPage', () => {
         render(
             <TestResultsPage
                 testResults={mockTestResultsPerfect}
-                onReviewMistakes={mockOnReviewMistakes}
                 onGoToQuizzes={mockOnGoToQuizzes}
                 onRetry={mockOnRetry}
                 onLearn={mockOnLearn}
             />
         );
 
-        expect(screen.queryByText('Review Mistakes')).not.toBeInTheDocument();
+        expect(screen.queryByText(/Show Mistakes Only/)).not.toBeInTheDocument();
     });
 
     it('always shows "Go to Quizzes" button', () => {
-        const mockOnReviewMistakes = vi.fn();
         const mockOnGoToQuizzes = vi.fn();
         const mockOnRetry = vi.fn();
         const mockOnLearn = vi.fn();
@@ -230,7 +220,6 @@ describe('TestResultsPage', () => {
         render(
             <TestResultsPage
                 testResults={mockTestResultsPerfect}
-                onReviewMistakes={mockOnReviewMistakes}
                 onGoToQuizzes={mockOnGoToQuizzes}
                 onRetry={mockOnRetry}
                 onLearn={mockOnLearn}
@@ -240,8 +229,7 @@ describe('TestResultsPage', () => {
         expect(screen.getByText('Go to Quizzes')).toBeInTheDocument();
     });
 
-    it('calls onReviewMistakes when "Review Mistakes" button is clicked', () => {
-        const mockOnReviewMistakes = vi.fn();
+    it('toggles mistakes filter when filter button is clicked', () => {
         const mockOnGoToQuizzes = vi.fn();
         const mockOnRetry = vi.fn();
         const mockOnLearn = vi.fn();
@@ -249,21 +237,19 @@ describe('TestResultsPage', () => {
         render(
             <TestResultsPage
                 testResults={mockTestResultsMixed}
-                onReviewMistakes={mockOnReviewMistakes}
                 onGoToQuizzes={mockOnGoToQuizzes}
                 onRetry={mockOnRetry}
                 onLearn={mockOnLearn}
             />
         );
 
-        const reviewButton = screen.getByText('Review Mistakes');
-        fireEvent.click(reviewButton);
+        const filterButton = screen.getByText(/Show Mistakes Only/);
+        fireEvent.click(filterButton);
 
-        expect(mockOnReviewMistakes).toHaveBeenCalledTimes(1);
+        expect(screen.getByText(/Show All/)).toBeInTheDocument();
     });
 
     it('calls onGoToQuizzes when "Go to Quizzes" button is clicked', () => {
-        const mockOnReviewMistakes = vi.fn();
         const mockOnGoToQuizzes = vi.fn();
         const mockOnRetry = vi.fn();
         const mockOnLearn = vi.fn();
@@ -271,7 +257,6 @@ describe('TestResultsPage', () => {
         render(
             <TestResultsPage
                 testResults={mockTestResultsPerfect}
-                onReviewMistakes={mockOnReviewMistakes}
                 onGoToQuizzes={mockOnGoToQuizzes}
                 onRetry={mockOnRetry}
                 onLearn={mockOnLearn}
@@ -285,7 +270,6 @@ describe('TestResultsPage', () => {
     });
 
     it('displays question number for each item in breakdown', () => {
-        const mockOnReviewMistakes = vi.fn();
         const mockOnGoToQuizzes = vi.fn();
         const mockOnRetry = vi.fn();
         const mockOnLearn = vi.fn();
@@ -293,7 +277,6 @@ describe('TestResultsPage', () => {
         const { container } = render(
             <TestResultsPage
                 testResults={mockTestResultsMixed}
-                onReviewMistakes={mockOnReviewMistakes}
                 onGoToQuizzes={mockOnGoToQuizzes}
                 onRetry={mockOnRetry}
                 onLearn={mockOnLearn}
@@ -305,7 +288,6 @@ describe('TestResultsPage', () => {
     });
 
     it('applies correct styling classes to correct answers', () => {
-        const mockOnReviewMistakes = vi.fn();
         const mockOnGoToQuizzes = vi.fn();
         const mockOnRetry = vi.fn();
         const mockOnLearn = vi.fn();
@@ -313,7 +295,6 @@ describe('TestResultsPage', () => {
         const { container } = render(
             <TestResultsPage
                 testResults={mockTestResultsMixed}
-                onReviewMistakes={mockOnReviewMistakes}
                 onGoToQuizzes={mockOnGoToQuizzes}
                 onRetry={mockOnRetry}
                 onLearn={mockOnLearn}
@@ -325,7 +306,6 @@ describe('TestResultsPage', () => {
     });
 
     it('applies incorrect styling classes to incorrect answers', () => {
-        const mockOnReviewMistakes = vi.fn();
         const mockOnGoToQuizzes = vi.fn();
         const mockOnRetry = vi.fn();
         const mockOnLearn = vi.fn();
@@ -333,7 +313,6 @@ describe('TestResultsPage', () => {
         const { container } = render(
             <TestResultsPage
                 testResults={mockTestResultsMixed}
-                onReviewMistakes={mockOnReviewMistakes}
                 onGoToQuizzes={mockOnGoToQuizzes}
                 onRetry={mockOnRetry}
                 onLearn={mockOnLearn}
@@ -345,7 +324,6 @@ describe('TestResultsPage', () => {
     });
 
     it('handles empty user answer', () => {
-        const mockOnReviewMistakes = vi.fn();
         const mockOnGoToQuizzes = vi.fn();
         const mockOnRetry = vi.fn();
         const mockOnLearn = vi.fn();
@@ -365,21 +343,26 @@ describe('TestResultsPage', () => {
             ],
         };
 
-        render(
+        const { container } = render(
             <TestResultsPage
                 testResults={testResultsWithEmpty}
-                onReviewMistakes={mockOnReviewMistakes}
                 onGoToQuizzes={mockOnGoToQuizzes}
                 onRetry={mockOnRetry}
                 onLearn={mockOnLearn}
             />
         );
 
-        expect(screen.getByText('(no answer)')).toBeInTheDocument();
+        // Click on the card to reveal answers
+        const card = container.querySelector('.timeline-card');
+        expect(card).toBeInTheDocument();
+
+        if (card) {
+            fireEvent.click(card);
+            expect(screen.getByText('(no answer)')).toBeInTheDocument();
+        }
     });
 
     it('always shows "Retry Test" button', () => {
-        const mockOnReviewMistakes = vi.fn();
         const mockOnGoToQuizzes = vi.fn();
         const mockOnRetry = vi.fn();
         const mockOnLearn = vi.fn();
@@ -387,7 +370,6 @@ describe('TestResultsPage', () => {
         render(
             <TestResultsPage
                 testResults={mockTestResultsPerfect}
-                onReviewMistakes={mockOnReviewMistakes}
                 onGoToQuizzes={mockOnGoToQuizzes}
                 onRetry={mockOnRetry}
                 onLearn={mockOnLearn}
@@ -398,7 +380,6 @@ describe('TestResultsPage', () => {
     });
 
     it('always shows "Learn Mode" button', () => {
-        const mockOnReviewMistakes = vi.fn();
         const mockOnGoToQuizzes = vi.fn();
         const mockOnRetry = vi.fn();
         const mockOnLearn = vi.fn();
@@ -406,7 +387,6 @@ describe('TestResultsPage', () => {
         render(
             <TestResultsPage
                 testResults={mockTestResultsPerfect}
-                onReviewMistakes={mockOnReviewMistakes}
                 onGoToQuizzes={mockOnGoToQuizzes}
                 onRetry={mockOnRetry}
                 onLearn={mockOnLearn}
@@ -417,7 +397,6 @@ describe('TestResultsPage', () => {
     });
 
     it('calls onRetry when "Retry Test" button is clicked', () => {
-        const mockOnReviewMistakes = vi.fn();
         const mockOnGoToQuizzes = vi.fn();
         const mockOnRetry = vi.fn();
         const mockOnLearn = vi.fn();
@@ -425,7 +404,6 @@ describe('TestResultsPage', () => {
         render(
             <TestResultsPage
                 testResults={mockTestResultsPerfect}
-                onReviewMistakes={mockOnReviewMistakes}
                 onGoToQuizzes={mockOnGoToQuizzes}
                 onRetry={mockOnRetry}
                 onLearn={mockOnLearn}
@@ -439,7 +417,6 @@ describe('TestResultsPage', () => {
     });
 
     it('calls onLearn when "Learn Mode" button is clicked', () => {
-        const mockOnReviewMistakes = vi.fn();
         const mockOnGoToQuizzes = vi.fn();
         const mockOnRetry = vi.fn();
         const mockOnLearn = vi.fn();
@@ -447,7 +424,6 @@ describe('TestResultsPage', () => {
         render(
             <TestResultsPage
                 testResults={mockTestResultsPerfect}
-                onReviewMistakes={mockOnReviewMistakes}
                 onGoToQuizzes={mockOnGoToQuizzes}
                 onRetry={mockOnRetry}
                 onLearn={mockOnLearn}

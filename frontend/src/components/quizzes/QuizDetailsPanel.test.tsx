@@ -1,10 +1,13 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import QuizDetailsPanel from './QuizDetailsPanel';
 import * as useQuizHook from '../../hooks/useQuiz';
 import * as useQuizPerformanceHook from '../../hooks/useQuizPerformance';
 import * as useQuizSessionsHook from '../../hooks/useQuizSessions';
 import { Quiz } from '../../types';
+
+// Declare global for vitest
+declare const global: typeof globalThis;
 
 // Mock the hooks
 vi.mock('../../hooks/useQuiz');
@@ -50,6 +53,7 @@ describe('QuizDetailsPanel', () => {
         flashcard_count: 25,
         created_at: '2025-10-01T10:00:00Z',
         updated_at: '2025-10-05T15:30:00Z',
+        favourite: false,
     };
 
     const mockPerformance = {
@@ -91,6 +95,7 @@ describe('QuizDetailsPanel', () => {
             score: 92.0,
             started_at: '2025-10-10T14:00:00Z',
             completed_at: '2025-10-10T14:30:00Z',
+            completed: true,
         },
         {
             id: 2,
@@ -100,6 +105,7 @@ describe('QuizDetailsPanel', () => {
             score: null,
             started_at: '2025-10-09T10:00:00Z',
             completed_at: '2025-10-09T10:45:00Z',
+            completed: true,
         },
     ];
 
@@ -785,6 +791,7 @@ describe('QuizDetailsPanel', () => {
             const recentSession = {
                 ...mockSessions[0],
                 started_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), // 2 days ago
+                completed: true,
             };
 
             vi.mocked(useQuizSessionsHook.useQuizSessions).mockReturnValue({

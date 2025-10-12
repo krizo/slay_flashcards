@@ -231,12 +231,19 @@ body {
 
 /* Page Container */
 .page-container {
-    max-width: 1400px;
-    width: 100%;
+    max-width: 1600px;
+    width: 95%;
     margin: 0 auto;
     display: flex;
     flex-direction: column;
     height: 100%;
+}
+
+@media (min-width: 1920px) {
+    .page-container {
+        max-width: 1800px;
+        width: 90%;
+    }
 }
 
 /* Page Header */

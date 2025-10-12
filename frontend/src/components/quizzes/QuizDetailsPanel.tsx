@@ -28,7 +28,6 @@ import {
     faTrash,
     faLayerGroup,
     faCalendarPlus,
-    faClock,
     faTag,
     faSignal,
     faDownload,
@@ -474,14 +473,14 @@ function QuizDetailsPanel({
                                                     const date = new Date(value);
                                                     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
                                                 }}
-                                                formatter={(value: number | null, name: string) => {
-                                                    if (name === 'score' && value !== null) {
+                                                formatter={(value, name) => {
+                                                    if (name === 'score' && typeof value === 'number') {
                                                         return [`${Math.round(value)}%`, 'Avg Score'];
                                                     }
-                                                    if (name === 'sessions') {
+                                                    if (name === 'sessions' && typeof value === 'number') {
                                                         return [value, 'Sessions'];
                                                     }
-                                                    return [value, name];
+                                                    return [value ?? 0, String(name)];
                                                 }}
                                             />
                                             <Line

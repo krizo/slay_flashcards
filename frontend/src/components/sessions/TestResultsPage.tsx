@@ -191,7 +191,7 @@ function TestResultsPage({
                     <div className="timeline-progress-badge">
                         Test Results {showOnlyMistakes && `(${filteredBreakdown.length} mistakes)`}
                     </div>
-                    {filteredBreakdown.map((item, index) => {
+                    {filteredBreakdown.map((item) => {
                         const showAnswers = shouldShowAnswers(item.flashcard_id);
                         // Find original index in full breakdown
                         const originalIndex = breakdown.findIndex(b => b.flashcard_id === item.flashcard_id);

@@ -111,6 +111,7 @@ describe('QuizzesPage', () => {
         user_id: 1,
         flashcard_count: 10,
         created_at: '2025-10-08T10:00:00Z',
+        favourite: false,
     };
 
     const mockRefetch = vi.fn();

@@ -1,5 +1,5 @@
 import { render, screen, fireEvent } from '@testing-library/react';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import SessionHeader from './SessionHeader';
 
 describe('SessionHeader', () => {
@@ -225,7 +225,7 @@ describe('SessionHeader', () => {
         });
 
         it('displays all metrics with proper icons', () => {
-            const { container } = render(
+            render(
                 <SessionHeader
                     quizName={quizName}
                     yourBest={95}

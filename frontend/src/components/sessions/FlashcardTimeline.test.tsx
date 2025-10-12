@@ -282,7 +282,7 @@ describe('FlashcardTimeline', () => {
                 ...mockFlashcards[0],
                 question: {
                     ...mockFlashcards[0].question,
-                    emoji: null
+                    emoji: ''
                 }
             }
         ];
