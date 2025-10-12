@@ -9,3 +9,6 @@
 /frontend/.vite
 *.log
 results.json
+node_modules/
+frontend/dist/
+frontend/.vite
