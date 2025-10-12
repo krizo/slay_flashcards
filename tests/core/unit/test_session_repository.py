@@ -485,3 +485,83 @@ def test_get_session_activity(test_db):
 
     assert stats["total_sessions"] >= 5
     assert stats["learn_sessions"] >= 5
+
+
+# =============================================================================
+# COMPLETED SESSION FILTERING TESTS
+# =============================================================================
+
+def test_statistics_only_count_completed_sessions(test_db):
+    """Test that statistics only count completed sessions."""
+    user_repo = UserRepository(test_db)
+    quiz_repo = QuizRepository(test_db)
+    session_repo = SessionRepository(test_db)
+
+    user = user_repo.create_user(name="user", email="user@example.com")
+    quiz = quiz_repo.create_quiz(name="Quiz", user_id=user.id)
+
+    # Create completed sessions
+    s1 = session_repo.create_session(user.id, quiz.id, "learn")
+    s2 = session_repo.create_session(user.id, quiz.id, "test", score=85)
+    session_repo.update(s1, completed=True)
+    session_repo.update(s2, completed=True)
+
+    # Create incomplete sessions (should not be counted)
+    session_repo.create_session(user.id, quiz.id, "learn")
+    session_repo.create_session(user.id, quiz.id, "test", score=90)
+
+    stats = session_repo.get_session_statistics(user.id)
+
+    # Should only count the 2 completed sessions
+    assert stats["total_sessions"] == 2
+    assert stats["learn_sessions"] == 1
+    assert stats["test_sessions"] == 1
+    assert stats["average_score"] == 85.0
+
+
+def test_statistics_ignore_incomplete_test_scores(test_db):
+    """Test that incomplete test sessions don't affect score statistics."""
+    user_repo = UserRepository(test_db)
+    quiz_repo = QuizRepository(test_db)
+    session_repo = SessionRepository(test_db)
+
+    user = user_repo.create_user(name="user", email="user@example.com")
+    quiz = quiz_repo.create_quiz(name="Quiz", user_id=user.id)
+
+    # Create completed test sessions
+    s1 = session_repo.create_session(user.id, quiz.id, "test", score=80)
+    s2 = session_repo.create_session(user.id, quiz.id, "test", score=90)
+    session_repo.update(s1, completed=True)
+    session_repo.update(s2, completed=True)
+
+    # Create incomplete test session with high score (should be ignored)
+    session_repo.create_session(user.id, quiz.id, "test", score=100)
+
+    stats = session_repo.get_session_statistics(user.id)
+
+    # Average should be (80 + 90) / 2 = 85, not including the incomplete 100
+    assert stats["average_score"] == 85.0
+    assert stats["best_score"] == 90
+
+
+def test_empty_statistics_when_no_completed_sessions(test_db):
+    """Test that statistics are empty when there are only incomplete sessions."""
+    user_repo = UserRepository(test_db)
+    quiz_repo = QuizRepository(test_db)
+    session_repo = SessionRepository(test_db)
+
+    user = user_repo.create_user(name="user", email="user@example.com")
+    quiz = quiz_repo.create_quiz(name="Quiz", user_id=user.id)
+
+    # Create only incomplete sessions
+    session_repo.create_session(user.id, quiz.id, "learn")
+    session_repo.create_session(user.id, quiz.id, "test", score=95)
+
+    stats = session_repo.get_session_statistics(user.id)
+
+    # Should return empty statistics
+    assert stats["total_sessions"] == 0
+    assert stats["learn_sessions"] == 0
+    assert stats["test_sessions"] == 0
+    assert stats["average_score"] is None
+    assert stats["best_score"] is None
