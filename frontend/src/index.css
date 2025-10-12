@@ -147,10 +147,8 @@ body {
     justify-content: flex-end;
     align-items: center;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
-    border-bottom: 1px solid var(--color-border);
-    z-index: 10;
     flex-shrink: 0;
-    min-height: 84px; /* Match sidebar-header height */
+    min-height: 84px; /* Match sidebar-header height exactly */
 }
 
 .header-user-info {
@@ -2595,20 +2593,31 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    background-color: #f0f2f5;
     overflow: hidden;
 }
 
 /* Session Header */
 .session-header {
-    width: 100%;
+    position: fixed;
+    left: 280px; /* Start at main-content left edge */
+    right: 60px; /* Leave space for timeline margin */
+    top: 100px; /* Below separator line (98px + 2px line height) */
     padding: 15px 30px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: #fff;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    background-color: #e8eaf0;
     flex-shrink: 0;
+}
+
+.session-header::before {
+    content: '';
+    position: fixed;
+    left: 0; /* Start from left edge */
+    right: 0; /* Extend to right edge */
+    top: 98px; /* Position at bottom of sidebar-header */
+    height: 2px;
+    background-color: #d0d0d0;
 }
 
 .session-title-wrapper {
@@ -2648,6 +2657,8 @@ body {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    padding-bottom: 8px;
+    margin-bottom: 8px;
 }
 
 .session-metrics {
@@ -2713,6 +2724,7 @@ body {
     justify-content: center;
     border-radius: 8px;
     transition: all 0.2s ease;
+    align-self: flex-start;
 }
 
 .session-close-button:hover {
@@ -2724,10 +2736,13 @@ body {
 .session-content-wrapper {
     flex-grow: 1;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
     width: 100%;
-    padding: 20px;
+    padding: 20px 40px;
+    padding-top: 220px; /* Account for fixed session-header */
+    margin-left: 280px; /* Account for sidebar */
+    margin-right: 340px; /* Account for timeline + margin */
 }
 
 /* Flashcard Card */
@@ -2742,6 +2757,7 @@ body {
     flex-direction: column;
     gap: 20px;
     border: 1px solid rgba(106, 63, 251, 0.1);
+    margin-right: 280px; /* Account for timeline width to center properly */
 }
 
 @media (max-width: 1600px) {
@@ -3201,5 +3217,151 @@ body {
 
     .session-title {
         font-size: 1em;
+    }
+}
+
+/* =====================================
+   Flashcard Timeline Sidebar Styles
+   ===================================== */
+
+.flashcard-timeline {
+    position: fixed;
+    right: 60px; /* Margin from right edge */
+    top: 100px; /* Below separator line (98px + 2px line height) */
+    bottom: 0;
+    width: 280px;
+    background-color: #e8eaf0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.timeline-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 30px 15px 15px 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.timeline-progress-badge {
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+    color: white;
+    padding: 20px 16px;
+    border-radius: 12px;
+    text-align: center;
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-top: 10px;
+    margin-bottom: 24px;
+    box-shadow: 0 4px 12px rgba(106, 63, 251, 0.25);
+}
+
+.timeline-card {
+    background-color: #F9FAFB;
+    border: 2px solid var(--color-border);
+    border-radius: 12px;
+    padding: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.timeline-card:hover {
+    transform: translateX(-4px);
+    box-shadow: 0 4px 12px rgba(106, 63, 251, 0.15);
+    border-color: var(--color-primary);
+}
+
+.timeline-card--current {
+    background: linear-gradient(135deg, rgba(106, 63, 251, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+    border-color: var(--color-primary);
+    border-width: 2px;
+}
+
+.timeline-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.timeline-card-emoji {
+    font-size: 1.5rem;
+}
+
+.timeline-card-difficulty {
+    font-size: 0.7rem;
+    color: #FFA500;
+}
+
+.timeline-card-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-text-dark);
+    line-height: 1.3;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+.timeline-card-badge {
+    margin-top: 8px;
+    padding: 4px 8px;
+    background-color: var(--color-primary);
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 600;
+    border-radius: 6px;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.timeline-upcoming {
+    background-color: #F3F4F6;
+    border: 2px dashed var(--color-border);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    color: var(--color-text-light);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.timeline-upcoming-icon {
+    font-size: 2rem;
+    opacity: 0.5;
+}
+
+.timeline-upcoming-text {
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+/* Adjust session content wrapper to make room for timeline */
+/* Mobile responsiveness */
+@media (max-width: 1024px) {
+    .flashcard-timeline {
+        display: none; /* Hide timeline on tablets and mobile */
+    }
+
+    .session-content-wrapper {
+        margin-left: 0;
+        margin-right: 0;
+        padding-top: 120px; /* Less padding on mobile */
+    }
+
+    .session-header {
+        position: relative;
+        left: 0;
+        right: 0;
+        top: 0;
+        width: 100%; /* Full width on mobile */
     }
 }
