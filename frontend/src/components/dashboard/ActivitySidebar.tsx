@@ -1,4 +1,4 @@
-import { Session } from '../../types';
+import {Session} from '../../types';
 
 interface ActivitySidebarProps {
     recentSessions: Session[] | null;
@@ -6,7 +6,7 @@ interface ActivitySidebarProps {
     error?: Error | null;
 }
 
-const ActivitySidebar = ({ recentSessions, isLoading, error }: ActivitySidebarProps) => {
+const ActivitySidebar = ({recentSessions, isLoading, error}: ActivitySidebarProps) => {
     const formatDate = (dateString: string) => {
         const date = new Date(dateString);
         const now = new Date();
@@ -57,7 +57,7 @@ const ActivitySidebar = ({ recentSessions, isLoading, error }: ActivitySidebarPr
                     <div className="activity-list">
                         {recentSessions.map((session) => {
                             // Build category/level subtitle if they exist
-                            const subtitleParts = [];
+                            const subtitleParts: string[] = [];
                             if (session.quiz_category) subtitleParts.push(session.quiz_category);
                             if (session.quiz_level) subtitleParts.push(session.quiz_level);
                             const subtitle = subtitleParts.length > 0 ? subtitleParts.join(' • ') : null;
