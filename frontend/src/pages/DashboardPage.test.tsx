@@ -56,6 +56,7 @@ describe('DashboardPage', () => {
             started_at: '2025-10-08T08:38:52Z',
             score: 75,
             completed_at: '2025-10-08T09:00:52Z',
+            completed: true,
             quiz_name: 'JavaScript Basics',
         },
         {
@@ -66,6 +67,7 @@ describe('DashboardPage', () => {
             started_at: '2025-10-07T10:20:00Z',
             score: null,
             completed_at: '2025-10-07T10:45:00Z',
+            completed: true,
             quiz_name: 'Python Fundamentals',
         },
     ];
@@ -338,9 +340,6 @@ describe('DashboardPage', () => {
 
         it('renders Row 1 stats (Session Overview) in correct order', () => {
             render(<DashboardPage />);
-
-            // Get all stat labels
-            const labels = screen.getAllByText(/Total Sessions|Learn Sessions|Test Sessions|Unique Quizzes/);
 
             // Should have all 4 session overview stats
             expect(screen.getByText('Total Sessions')).toBeInTheDocument();

@@ -62,7 +62,6 @@ function LearningSessionPage() {
         goToNextFlashcard,
         goToFlashcard,
         endSession,
-        submitTestSession,
     } = useSession(quizIdNumber, mode);
 
     // Text-to-speech function

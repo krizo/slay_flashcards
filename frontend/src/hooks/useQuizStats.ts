@@ -39,11 +39,6 @@ export function useQuizStats(quizId: number | null): UseQuizStatsReturn {
                     { user_id: user.id, quiz_id: quizId }
                 );
 
-                // Sort by started_at descending (most recent first)
-                const sortedSessions = [...sessions].sort((a, b) =>
-                    new Date(b.started_at).getTime() - new Date(a.started_at).getTime()
-                );
-
                 // Calculate stats from completed sessions only
                 const completedSessions = sessions.filter(s => s.completed === true);
                 const testSessions = completedSessions.filter(s => s.mode === 'test');

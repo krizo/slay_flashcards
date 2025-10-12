@@ -24,6 +24,7 @@ export const mockRecentSessions: Session[] = [
         started_at: '2025-10-08T10:30:00Z',
         score: 85,
         completed_at: '2025-10-08T10:45:00Z',
+        completed: true,
         quiz_name: 'French Vocabulary',
     },
     {
@@ -34,6 +35,7 @@ export const mockRecentSessions: Session[] = [
         started_at: '2025-10-08T09:00:00Z',
         score: 92,
         completed_at: '2025-10-08T09:20:00Z',
+        completed: true,
         quiz_name: 'React Fundamentals',
     },
     {
@@ -44,6 +46,7 @@ export const mockRecentSessions: Session[] = [
         started_at: '2025-10-07T15:00:00Z',
         score: 78,
         completed_at: '2025-10-07T15:30:00Z',
+        completed: true,
         quiz_name: 'JavaScript Basics',
     },
     {
@@ -54,6 +57,7 @@ export const mockRecentSessions: Session[] = [
         started_at: '2025-10-07T11:00:00Z',
         score: 88,
         completed_at: '2025-10-07T11:25:00Z',
+        completed: true,
         quiz_name: 'TypeScript Advanced',
     },
     {
@@ -64,6 +68,7 @@ export const mockRecentSessions: Session[] = [
         started_at: '2025-10-06T14:00:00Z',
         score: 75,
         completed_at: '2025-10-06T14:20:00Z',
+        completed: true,
         quiz_name: 'Python Basics',
     },
 ];

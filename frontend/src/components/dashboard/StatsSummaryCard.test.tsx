@@ -4,8 +4,6 @@ import userEvent from '@testing-library/user-event';
 import StatsSummaryCard from './StatsSummaryCard';
 import { UserStats, Session } from '../../types';
 
-type TimePeriod = 'week' | 'month' | 'year' | 'all';
-
 // Helper function to render with user event
 const renderWithUser = (component: React.ReactElement) => {
     return {
@@ -38,6 +36,7 @@ describe('StatsSummaryCard', () => {
             started_at: '2025-10-08T08:38:52Z',
             score: 75,
             completed_at: '2025-10-08T09:00:52Z',
+            completed: true,
             quiz_name: 'JavaScript Basics',
         },
         {
@@ -48,6 +47,7 @@ describe('StatsSummaryCard', () => {
             started_at: '2025-10-07T10:20:00Z',
             score: null,
             completed_at: '2025-10-07T10:45:00Z',
+            completed: true,
             quiz_name: 'Python Fundamentals',
         },
     ];
@@ -206,6 +206,7 @@ describe('StatsSummaryCard', () => {
                 started_at: '2025-10-07T10:20:00Z',
                 score: null,
                 completed_at: '2025-10-07T10:45:00Z',
+                completed: true,
                 quiz_name: 'Python Fundamentals',
             },
         ];

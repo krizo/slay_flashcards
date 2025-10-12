@@ -13,6 +13,7 @@ describe('ActivitySidebar', () => {
             started_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2 hours ago
             score: 85,
             completed_at: new Date().toISOString(),
+            completed: true,
             quiz_name: 'JavaScript Basics',
         },
         {
@@ -23,6 +24,7 @@ describe('ActivitySidebar', () => {
             started_at: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(), // 5 hours ago
             score: null,
             completed_at: new Date().toISOString(),
+            completed: true,
             quiz_name: 'Python Fundamentals',
         },
         {
@@ -33,6 +35,7 @@ describe('ActivitySidebar', () => {
             started_at: new Date(Date.now() - 25 * 60 * 60 * 1000).toISOString(), // 25 hours ago (Yesterday)
             score: 92,
             completed_at: new Date().toISOString(),
+            completed: true,
         },
     ];
 
@@ -113,6 +116,7 @@ describe('ActivitySidebar', () => {
                 started_at: new Date().toISOString(),
                 score: null,
                 completed_at: new Date().toISOString(),
+                completed: true,
                 quiz_name: 'Test Quiz',
             },
         ];
@@ -133,6 +137,7 @@ describe('ActivitySidebar', () => {
                 started_at: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(), // 3 hours ago
                 score: null,
                 completed_at: new Date().toISOString(),
+                completed: true,
                 quiz_name: 'Test Quiz',
             },
         ];
@@ -152,6 +157,7 @@ describe('ActivitySidebar', () => {
                 started_at: new Date(Date.now() - 25 * 60 * 60 * 1000).toISOString(), // 25 hours ago
                 score: 88,
                 completed_at: new Date().toISOString(),
+                completed: true,
                 quiz_name: 'Test Quiz',
             },
         ];
@@ -171,6 +177,7 @@ describe('ActivitySidebar', () => {
                 started_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), // 3 days ago
                 score: 88,
                 completed_at: new Date().toISOString(),
+                completed: true,
                 quiz_name: 'Test Quiz',
             },
         ];
@@ -190,6 +197,7 @@ describe('ActivitySidebar', () => {
                 started_at: new Date(Date.now() - 30 * 60 * 1000).toISOString(), // 30 minutes ago
                 score: 88,
                 completed_at: new Date().toISOString(),
+                completed: true,
                 quiz_name: 'Test Quiz',
             },
         ];
@@ -229,6 +237,7 @@ describe('ActivitySidebar', () => {
                     started_at: new Date().toISOString(),
                     score: 85,
                     completed_at: new Date().toISOString(),
+                    completed: true,
                     quiz_name: 'Matematyka - Funkcje kwadratowe',
                     quiz_category: 'Funkcje',
                     quiz_level: 'Klasa 2',
@@ -251,6 +260,7 @@ describe('ActivitySidebar', () => {
                     started_at: new Date().toISOString(),
                     score: null,
                     completed_at: new Date().toISOString(),
+                    completed: true,
                     quiz_name: 'Test Quiz',
                     quiz_category: 'Algebra',
                     quiz_level: null,
@@ -274,6 +284,7 @@ describe('ActivitySidebar', () => {
                     started_at: new Date().toISOString(),
                     score: 90,
                     completed_at: new Date().toISOString(),
+                    completed: true,
                     quiz_name: 'Test Quiz',
                     quiz_category: null,
                     quiz_level: 'Beginner',
@@ -297,6 +308,7 @@ describe('ActivitySidebar', () => {
                     started_at: new Date().toISOString(),
                     score: null,
                     completed_at: new Date().toISOString(),
+                    completed: true,
                     quiz_name: 'Simple Quiz',
                     quiz_category: null,
                     quiz_level: null,
@@ -319,6 +331,7 @@ describe('ActivitySidebar', () => {
                     started_at: new Date().toISOString(),
                     score: 75,
                     completed_at: new Date().toISOString(),
+                    completed: true,
                     quiz_name: 'Basic Quiz',
                 },
             ];
@@ -339,6 +352,7 @@ describe('ActivitySidebar', () => {
                     started_at: new Date().toISOString(),
                     score: 88,
                     completed_at: new Date().toISOString(),
+                    completed: true,
                     quiz_name: 'Quiz Name',
                     quiz_category: 'Category',
                     quiz_level: 'Level',
@@ -362,6 +376,7 @@ describe('ActivitySidebar', () => {
                     started_at: new Date().toISOString(),
                     score: null,
                     completed_at: new Date().toISOString(),
+                    completed: true,
                     quiz_name: 'Physics Quiz',
                     quiz_category: 'Mechanics',
                     quiz_level: 'Advanced',
@@ -383,6 +398,7 @@ describe('ActivitySidebar', () => {
                     started_at: new Date().toISOString(),
                     score: 85,
                     completed_at: new Date().toISOString(),
+                    completed: true,
                     quiz_name: 'Quiz 1',
                     quiz_category: 'Cat1',
                     quiz_level: 'Lv1',
@@ -395,6 +411,7 @@ describe('ActivitySidebar', () => {
                     started_at: new Date().toISOString(),
                     score: null,
                     completed_at: new Date().toISOString(),
+                    completed: true,
                     quiz_name: 'Quiz 2',
                     quiz_category: 'Cat2',
                     quiz_level: null,
@@ -407,6 +424,7 @@ describe('ActivitySidebar', () => {
                     started_at: new Date().toISOString(),
                     score: 90,
                     completed_at: new Date().toISOString(),
+                    completed: true,
                     quiz_name: 'Quiz 3',
                     quiz_category: null,
                     quiz_level: null,
@@ -432,6 +450,7 @@ describe('ActivitySidebar', () => {
                     started_at: new Date().toISOString(),
                     score: 76.20143411436945,
                     completed_at: new Date().toISOString(),
+                    completed: true,
                     quiz_name: 'Test Quiz',
                 },
                 {
@@ -442,6 +461,7 @@ describe('ActivitySidebar', () => {
                     started_at: new Date().toISOString(),
                     score: 88.7,
                     completed_at: new Date().toISOString(),
+                    completed: true,
                     quiz_name: 'Quiz 2',
                 },
                 {
@@ -452,6 +472,7 @@ describe('ActivitySidebar', () => {
                     started_at: new Date().toISOString(),
                     score: 91.3,
                     completed_at: new Date().toISOString(),
+                    completed: true,
                     quiz_name: 'Quiz 3',
                 },
             ];
@@ -478,6 +499,7 @@ describe('ActivitySidebar', () => {
                     started_at: new Date().toISOString(),
                     score: 85.5,
                     completed_at: new Date().toISOString(),
+                    completed: true,
                     quiz_name: 'Test',
                 },
             ];
