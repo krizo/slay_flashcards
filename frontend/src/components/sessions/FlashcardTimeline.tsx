@@ -35,9 +35,11 @@ function FlashcardTimeline({
                                 <span className="timeline-card-emoji">
                                     {flashcard.question.emoji}
                                 </span>
-                                <span className="timeline-card-difficulty">
-                                    {'⭐'.repeat(flashcard.question.difficulty)}
-                                </span>
+                                {flashcard.question.difficulty && (
+                                    <span className="timeline-card-difficulty">
+                                        {'⭐'.repeat(flashcard.question.difficulty)}
+                                    </span>
+                                )}
                             </div>
                             <div className="timeline-card-title">
                                 {flashcard.question.title}

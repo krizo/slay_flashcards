@@ -6,16 +6,22 @@ export interface QuestionData {
     title: string;
     text: string;
     lang?: string | null;
-    difficulty: number;
+    difficulty: number | null;
     emoji: string;
     image: string | null;
+    examples?: string[] | null;
+}
+
+export interface AnswerOption {
+    value: string;
+    label: string;
 }
 
 export interface AnswerData {
     text: string;
     lang?: string | null;
     type: AnswerType;
-    options: string[] | null;
+    options: AnswerOption[] | null;
     metadata: Record<string, any> | null;
 }
 
@@ -80,7 +86,6 @@ export interface Quiz {
     category?: string | null;
     level?: string | null;
     description: string | null;
-    user_id: number;
     flashcard_count?: number;
     created_at?: string;
     updated_at?: string;

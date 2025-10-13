@@ -141,11 +141,11 @@ const AnswerInput: React.FC<AnswerInputProps> = ({answer, userAnswer, onAnswerCh
                             <input
                                 type="radio"
                                 name="choice-answer"
-                                value={option}
-                                checked={userAnswer === option}
+                                value={option.value}
+                                checked={userAnswer === option.value}
                                 onChange={handleChoiceChange}
                             />
-                            <span>{option}</span>
+                            <span>{option.label}</span>
                         </label>
                     ))}
                 </div>
@@ -158,11 +158,11 @@ const AnswerInput: React.FC<AnswerInputProps> = ({answer, userAnswer, onAnswerCh
                         <label key={index}>
                             <input
                                 type="checkbox"
-                                value={option}
-                                checked={selectedOptions.includes(option)}
-                                onChange={() => handleMultipleChoiceChange(option)}
+                                value={option.value}
+                                checked={selectedOptions.includes(option.value)}
+                                onChange={() => handleMultipleChoiceChange(option.value)}
                             />
-                            <span>{option}</span>
+                            <span>{option.label}</span>
                         </label>
                     ))}
                 </div>
