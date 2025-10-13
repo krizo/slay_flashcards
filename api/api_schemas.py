@@ -259,6 +259,7 @@ class FlashcardQuestionBase(BaseModel):
     difficulty: Optional[int] = Field(None, ge=1, le=5)
     emoji: Optional[str] = Field(None, max_length=10)
     image: Optional[str] = Field(None, max_length=500)
+    examples: Optional[List[str]] = Field(None, max_items=5, description="Example answers to guide the user")
 
 
 class FlashcardAnswerBase(BaseModel):
@@ -303,6 +304,7 @@ class Flashcard(BaseModel):
     question_difficulty: Optional[int]
     question_emoji: Optional[str]
     question_image: Optional[str]
+    question_examples: Optional[List[str]]
     answer_text: str
     answer_lang: Optional[str]
     answer_type: str
@@ -359,6 +361,9 @@ class Session(SessionBase):
     score: Optional[float]
     completed_at: Optional[datetime] = None
     completed: bool = False
+    quiz_name: Optional[str] = None
+    quiz_category: Optional[str] = None
+    quiz_level: Optional[str] = None
 
 
 class SessionStats(BaseModel):

@@ -1,4 +1,6 @@
 import { FlashcardData, SessionFeedback } from '../../types';
+import AnswerInput from './AnswerInput';
+import './AnswerInput.css';
 
 interface FlashcardDisplayProps {
     flashcard: FlashcardData | null;
@@ -39,6 +41,57 @@ function getLanguageFlag(lang: string | null | undefined): string {
     };
 
     return flagMap[lang || 'en'] || '🇬🇧';
+}
+
+// Helper function to get difficulty stars
+function getDifficultyStars(difficulty: number | null | undefined) {
+    if (!difficulty) return null;
+
+    const difficultyConfig: Record<number, { stars: number; label: string; className: string }> = {
+        1: { stars: 1, label: 'Easy', className: 'difficulty-easy' },
+        2: { stars: 2, label: 'Medium', className: 'difficulty-medium' },
+        3: { stars: 3, label: 'Medium+', className: 'difficulty-medium-plus' },
+        4: { stars: 4, label: 'Hard', className: 'difficulty-hard' },
+        5: { stars: 5, label: 'Very Hard', className: 'difficulty-very-hard' },
+    };
+
+    const config = difficultyConfig[difficulty];
+    if (!config) return null;
+
+    return (
+        <span className={`difficulty-stars ${config.className}`}>
+            <span className="difficulty-label">Difficulty:</span>
+            {Array.from({ length: 5 }).map((_, index) => (
+                <span key={index} className={index < config.stars ? 'star-filled' : 'star-empty'}>
+                    ★
+                </span>
+            ))}
+        </span>
+    );
+}
+
+// Helper function to format answer text for choice/multiple_choice types
+function getFormattedAnswerText(answer: any): string {
+    const { type, text, options } = answer;
+
+    // For choice and multiple_choice, format with full option labels
+    if ((type === 'choice' || type === 'multiple_choice') && options && options.length > 0) {
+        const answerValues = type === 'multiple_choice'
+            ? text.split(',').map((v: string) => v.trim())
+            : [text];
+
+        const formattedOptions = answerValues
+            .map((value: string) => {
+                const option = options.find((opt: any) => opt.value === value);
+                return option ? `${value}. ${option.label}` : value;
+            })
+            .join('\n');
+
+        return formattedOptions;
+    }
+
+    // For all other types, return text as-is
+    return text;
 }
 
 function FlashcardDisplay({
@@ -138,28 +191,19 @@ function FlashcardDisplay({
                     </span>
                     <span className="flashcard-quiz-name">{quizName}</span>
                 </div>
-                <div className="flashcard-progress-dots">
-                    {Array.from({ length: totalFlashcards }).map((_, index) => (
-                        <div
-                            key={index}
-                            className={`progress-dot ${
-                                index < flashcardsCompleted ? 'progress-dot--active' : ''
-                            }`}
-                        />
-                    ))}
+                {/* Progress Counter */}
+                <div className="flashcard-progress-counter">
+                    {flashcardsCompleted} / {totalFlashcards} cards ({percentage}%)
                 </div>
-            </div>
-
-            {/* Progress Counter */}
-            <div className="flashcard-progress-counter">
-                {flashcardsCompleted} / {totalFlashcards} cards ({percentage}%)
             </div>
 
             {/* Question Section */}
             <div className="flashcard-question-section">
                 <div className="flashcard-question-header">
                     <div className="flashcard-emoji">{flashcard.question.emoji}</div>
-                    <h2 className="flashcard-question-title">{flashcard.question.title}</h2>
+                    <h2 className="flashcard-question-title">
+                        {flashcard.question.title}
+                    </h2>
                     <button
                         className="speaker-icon"
                         onClick={() => onSpeak(flashcard.question.text, flashcard.question.lang)}
@@ -168,8 +212,26 @@ function FlashcardDisplay({
                     >
                         🔊 {getLanguageFlag(flashcard.question.lang)} <span className="speaker-text">Click to listen</span>
                     </button>
+                    {getDifficultyStars(flashcard.question.difficulty)}
                 </div>
                 <p className="flashcard-question-text">{flashcard.question.text}</p>
+
+                {/* Examples Section */}
+                {flashcard.question.examples && flashcard.question.examples.length > 0 && (
+                    <div className="flashcard-examples">
+                        <div className="examples-header">
+                            <span className="examples-icon">💭</span>
+                            <strong>Examples:</strong>
+                        </div>
+                        <ul className="examples-list">
+                            {flashcard.question.examples.map((example, index) => (
+                                <li key={index} className="example-item">
+                                    {example}
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                )}
             </div>
 
             {/* Answer Format Hint */}
@@ -186,11 +248,11 @@ function FlashcardDisplay({
             <div className="flashcard-answer-area">
                 {/* Show input unless there's feedback or answer is revealed */}
                 {!feedback && !showAnswer && (
-                    <textarea
-                        className="flashcard-answer-input"
-                        placeholder="Type your answer here..."
-                        value={userAnswer}
-                        onChange={(e) => onUserAnswerChange(e.target.value)}
+                    <AnswerInput
+                        answer={flashcard.answer}
+                        userAnswer={userAnswer}
+                        onAnswerChange={onUserAnswerChange}
+                        disabled={isSubmitting}
                     />
                 )}
 
@@ -226,7 +288,7 @@ function FlashcardDisplay({
                                 🔊 {getLanguageFlag(flashcard.answer.lang)} <span className="speaker-text">Listen</span>
                             </button>
                         </div>
-                        <p>{flashcard.answer.text}</p>
+                        <p style={{ whiteSpace: 'pre-line' }}>{getFormattedAnswerText(flashcard.answer)}</p>
                     </div>
                 )}
             </div>

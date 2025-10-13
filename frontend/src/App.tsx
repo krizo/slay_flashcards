@@ -1,5 +1,6 @@
 import { Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import { SessionProvider } from './contexts/SessionContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import MainLayout from './components/layout/MainLayout';
 import LoginPage from './pages/LoginPage';
@@ -12,7 +13,8 @@ import SettingsPage from './pages/SettingsPage';
 function App() {
     return (
         <AuthProvider>
-            <Routes>
+            <SessionProvider>
+                <Routes>
                 {/* Public routes */}
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<RegisterPage />} />
@@ -32,6 +34,7 @@ function App() {
                     <Route path="settings" element={<SettingsPage />} />
                 </Route>
             </Routes>
+            </SessionProvider>
         </AuthProvider>
     );
 }

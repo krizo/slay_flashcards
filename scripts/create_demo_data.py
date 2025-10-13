@@ -81,6 +81,118 @@ def get_demo_users():
 USERS = get_demo_users()
 
 
+def get_answer_types_test_quiz():
+    """Get test quiz data covering all answer types."""
+    return {
+        "name": "Test wszystkich typów odpowiedzi",
+        "subject": "Testowanie",
+        "category": "Typy odpowiedzi",
+        "level": "Wszystkie",
+        "description": "Quiz demonstracyjny pokazujący wszystkie możliwe typy odpowiedzi",
+        "favourite": False,
+        "image": "🧪",
+        "flashcards": [
+            # TEXT
+            {
+                "question": {"title": "Pytanie otwarte (text)", "text": "Opisz proces fotosyntezy w roślinach.", "lang": "pl", "difficulty": 3, "emoji": "🌱", "examples": ["Rośliny wykorzystują światło słoneczne...", "Chlorofil w liściach pochłania energię..."]},
+                "answer": {"text": "Fotosynteza to proces, w którym rośliny przekształcają dwutlenek węgla i wodę w glukozę i tlen przy użyciu energii słonecznej. Zachodzi w chloroplastach, gdzie chlorofil pochłania światło.", "type": "text", "lang": "pl", "metadata": {"hint": "Opisz proces w 2-3 zdaniach", "rows": 4, "min_words": 15}}
+            },
+            # SHORT_TEXT
+            {
+                "question": {"title": "Krótka odpowiedź (short_text)", "text": "Jaka jest stolica Francji?", "lang": "pl", "difficulty": 1, "emoji": "🇫🇷", "examples": ["Paryż", "Paris"]},
+                "answer": {"text": "Paryż", "type": "short_text", "lang": "pl", "metadata": {"hint": "Wpisz nazwę miasta", "placeholder": "np. Warszawa", "case_sensitive": False}}
+            },
+            # INTEGER
+            {
+                "question": {"title": "Liczba całkowita (integer)", "text": "Ile dni ma rok przestępny?", "lang": "pl", "difficulty": 1, "emoji": "📅", "examples": ["365", "366"]},
+                "answer": {"text": "366", "type": "integer", "lang": "pl", "metadata": {"hint": "Wpisz liczbę całkowitą", "placeholder": "np. 365", "min": 365, "max": 366}}
+            },
+            # FLOAT
+            {
+                "question": {"title": "Liczba dziesiętna (float)", "text": "Jaka jest wartość liczby π (pi) z dokładnością do 2 miejsc po przecinku?", "lang": "pl", "difficulty": 2, "emoji": "🥧", "examples": ["3.14", "3.141", "3.1415"]},
+                "answer": {"text": "3.14", "type": "float", "lang": "pl", "metadata": {"hint": "Wpisz liczbę z dokładnie 2 miejscami po przecinku", "decimal_places": 2, "step": 0.01, "example": "3.14"}}
+            },
+            # RANGE
+            {
+                "question": {"title": "Zakres liczbowy (range)", "text": "Jaka jest normalna temperatura ciała człowieka w stopniach Celsjusza?", "lang": "pl", "difficulty": 2, "emoji": "🌡️", "examples": ["36.6", "37.0"]},
+                "answer": {"text": "36.6", "type": "range", "lang": "pl", "metadata": {"min": 36.0, "max": 37.5, "step": 0.1, "hint": "Wybierz temperaturę w zakresie 36.0-37.5°C", "labels": {"min": "Niska", "max": "Wysoka"}}}
+            },
+            # BOOLEAN
+            {
+                "question": {"title": "Prawda/Fałsz (boolean)", "text": "Czy Ziemia jest płaska?", "lang": "pl", "difficulty": 1, "emoji": "🌍"},
+                "answer": {"text": "false", "type": "boolean", "lang": "pl", "metadata": {"true_label": "Tak", "false_label": "Nie", "hint": "Wybierz Tak lub Nie"}}
+            },
+            # CHOICE
+            {
+                "question": {"title": "Wybór jednej opcji (choice)", "text": "Która planeta jest największa w Układzie Słonecznym?", "lang": "pl", "difficulty": 2, "emoji": "🪐"},
+                "answer": {"text": "b", "type": "choice", "lang": "pl", "options": [
+                    {"value": "a", "label": "Mars"},
+                    {"value": "b", "label": "Jowisz"},
+                    {"value": "c", "label": "Saturn"},
+                    {"value": "d", "label": "Ziemia"}
+                ], "metadata": {"hint": "Wybierz jedną poprawną odpowiedź"}}
+            },
+            # MULTIPLE_CHOICE
+            {
+                "question": {"title": "Wybór wielu opcji (multiple_choice)", "text": "Które z poniższych są językami programowania?", "lang": "pl", "difficulty": 2, "emoji": "💻"},
+                "answer": {"text": "a,c,d", "type": "multiple_choice", "lang": "pl", "options": [
+                    {"value": "a", "label": "Python"},
+                    {"value": "b", "label": "HTML"},
+                    {"value": "c", "label": "JavaScript"},
+                    {"value": "d", "label": "Java"},
+                    {"value": "e", "label": "CSS"}
+                ], "metadata": {"hint": "Zaznacz wszystkie poprawne odpowiedzi (3 opcje)", "exact_count": 3}}
+            },
+            # TEXT - Another variant
+            {
+                "question": {"title": "Pytanie otwarte 2 (text)", "text": "Wyjaśnij różnicę między sztuczną inteligencją a uczeniem maszynowym.", "lang": "pl", "difficulty": 4, "emoji": "🤖", "examples": ["AI to szersze pojęcie obejmujące...", "Uczenie maszynowe jest podzbiorem AI..."]},
+                "answer": {"text": "Sztuczna inteligencja (AI) to szeroka dziedzina obejmująca wszelkie systemy symulujące ludzką inteligencję. Uczenie maszynowe (ML) jest podzbiorem AI, skupiającym się na algorytmach uczących się z danych bez jawnego programowania.", "type": "text", "lang": "pl", "metadata": {"hint": "Opisz obie koncepcje i ich związek", "rows": 5, "min_words": 20}}
+            },
+            # SHORT_TEXT - Another variant
+            {
+                "question": {"title": "Krótka odpowiedź 2 (short_text)", "text": "Jaki język programowania używa interpretera CPython?", "lang": "pl", "difficulty": 2, "emoji": "🐍", "examples": ["Python"]},
+                "answer": {"text": "Python", "type": "short_text", "lang": "pl", "metadata": {"hint": "Wpisz nazwę języka programowania", "placeholder": "np. Java", "max_length": 20}}
+            },
+            # INTEGER - Another variant
+            {
+                "question": {"title": "Liczba całkowita 2 (integer)", "text": "Ile chromosomów ma człowiek?", "lang": "pl", "difficulty": 2, "emoji": "🧬", "examples": ["46"]},
+                "answer": {"text": "46", "type": "integer", "lang": "pl", "metadata": {"hint": "Wpisz liczbę całkowitą chromosomów", "min": 1, "max": 100, "example": "23"}}
+            },
+            # FLOAT - Another variant
+            {
+                "question": {"title": "Liczba dziesiętna 2 (float)", "text": "Jaka jest wartość przyspieszenia ziemskiego w m/s² (zaokrąglone do 1 miejsca)?", "lang": "pl", "difficulty": 2, "emoji": "🍎", "examples": ["9.8", "9.81"]},
+                "answer": {"text": "9.8", "type": "float", "lang": "pl", "metadata": {"hint": "Wpisz wartość z 1 miejscem po przecinku", "decimal_places": 1, "step": 0.1, "unit": "m/s²", "example": "9.8"}}
+            },
+            # BOOLEAN - Another variant
+            {
+                "question": {"title": "Prawda/Fałsz 2 (boolean)", "text": "Czy wieloryby są rybami?", "lang": "pl", "difficulty": 2, "emoji": "🐋"},
+                "answer": {"text": "false", "type": "boolean", "lang": "pl", "metadata": {"true_label": "Prawda", "false_label": "Fałsz"}}
+            },
+            # CHOICE - Another variant
+            {
+                "question": {"title": "Wybór jednej opcji 2 (choice)", "text": "W którym roku upadł Mur Berliński?", "lang": "pl", "difficulty": 3, "emoji": "🧱"},
+                "answer": {"text": "c", "type": "choice", "lang": "pl", "options": [
+                    {"value": "a", "label": "1987"},
+                    {"value": "b", "label": "1988"},
+                    {"value": "c", "label": "1989"},
+                    {"value": "d", "label": "1990"}
+                ], "metadata": {"hint": "Wybierz rok (4 cyfry)"}}
+            },
+            # MULTIPLE_CHOICE - Another variant
+            {
+                "question": {"title": "Wybór wielu opcji 2 (multiple_choice)", "text": "Które z poniższych to gazy szlachetne?", "lang": "pl", "difficulty": 3, "emoji": "⚗️"},
+                "answer": {"text": "a,c,e", "type": "multiple_choice", "lang": "pl", "options": [
+                    {"value": "a", "label": "Hel (He)"},
+                    {"value": "b", "label": "Tlen (O₂)"},
+                    {"value": "c", "label": "Neon (Ne)"},
+                    {"value": "d", "label": "Azot (N₂)"},
+                    {"value": "e", "label": "Argon (Ar)"}
+                ], "metadata": {"hint": "Zaznacz wszystkie gazy szlachetne", "min_selections": 1, "max_selections": 5}}
+            },
+        ]
+    }
+
+
 # Quiz data for Polish high school students
 QUIZZES = {
     "Emila": [
@@ -92,6 +204,13 @@ QUIZZES = {
             "image": "🏛️"
         },
         {
+            "file": "data/starożytny_egipt.json",
+            "category": "Starożytność",
+            "level": "Klasa 1",
+            "favourite": True,
+            "image": "🏺"
+        },
+        {
             "name": "Funkcje kwadratowe",
             "subject": "Matematyka",
             "category": "Funkcje",
@@ -101,11 +220,11 @@ QUIZZES = {
             "image": "📐",
             "flashcards": [
                 {
-                    "question": {"title": "Postać ogólna", "text": "Jaka jest postać ogólna funkcji kwadratowej?", "lang": "pl", "difficulty": 1, "emoji": "📐"},
+                    "question": {"title": "Postać ogólna", "text": "Jaka jest postać ogólna funkcji kwadratowej?", "lang": "pl", "difficulty": 1, "emoji": "📐", "examples": ["np. f(x) = 2x² + 3x - 5", "np. f(x) = -x² + 4x + 1"]},
                     "answer": {"text": "f(x) = ax² + bx + c", "type": "text", "lang": "pl"}
                 },
                 {
-                    "question": {"title": "Wierzchołek paraboli", "text": "Jak obliczyć współrzędną x wierzchołka paraboli?", "lang": "pl", "difficulty": 2, "emoji": "📊"},
+                    "question": {"title": "Wierzchołek paraboli", "text": "Jak obliczyć współrzędną x wierzchołka paraboli?", "lang": "pl", "difficulty": 2, "emoji": "📊", "examples": ["dla f(x) = 2x² + 8x + 3, x = -8/(2×2) = -2"]},
                     "answer": {"text": "x = -b/(2a)", "type": "text", "lang": "pl"}
                 },
                 {
@@ -117,20 +236,30 @@ QUIZZES = {
                     "answer": {"text": "2", "type": "integer", "lang": "pl"}
                 },
                 {
-                    "question": {"title": "Postać kanoniczna", "text": "Jaka jest postać kanoniczna funkcji kwadratowej?", "lang": "pl", "difficulty": 2, "emoji": "📝"},
-                    "answer": {"text": "f(x) = a(x-p)² + q", "type": "text", "lang": "pl"}
+                    "question": {"title": "Ramiona paraboli w górę", "text": "Czy ramiona paraboli są skierowane w górę gdy a > 0?", "lang": "pl", "difficulty": 1, "emoji": "⬆️"},
+                    "answer": {"text": "true", "type": "boolean", "lang": "pl", "metadata": {"true_label": "Tak", "false_label": "Nie"}}
                 },
                 {
-                    "question": {"title": "Oś symetrii", "text": "Jaka jest oś symetrii paraboli?", "lang": "pl", "difficulty": 2, "emoji": "↕️"},
-                    "answer": {"text": "x = p", "type": "short_text", "lang": "pl", "metadata": {"case_sensitive": False}}
+                    "question": {"title": "Postać kanoniczna", "text": "Wybierz poprawną postać kanoniczną funkcji kwadratowej:", "lang": "pl", "difficulty": 2, "emoji": "📝"},
+                    "answer": {"text": "a", "type": "choice", "lang": "pl", "options": [
+                        {"value": "a", "label": "f(x) = a(x-p)² + q"},
+                        {"value": "b", "label": "f(x) = a(x+p)² - q"},
+                        {"value": "c", "label": "f(x) = ax² + bx + c"},
+                        {"value": "d", "label": "f(x) = (x-p)(x-q)"}
+                    ]}
                 },
                 {
-                    "question": {"title": "Kierunek ramion", "text": "Kiedy ramiona paraboli są skierowane w górę?", "lang": "pl", "difficulty": 1, "emoji": "⬆️"},
-                    "answer": {"text": "Gdy a > 0", "type": "short_text", "lang": "pl", "metadata": {"case_sensitive": False}}
+                    "question": {"title": "Właściwości paraboli", "text": "Wybierz wszystkie prawdziwe właściwości paraboli:", "lang": "pl", "difficulty": 3, "emoji": "✓"},
+                    "answer": {"text": "a,b,d", "type": "multiple_choice", "lang": "pl", "options": [
+                        {"value": "a", "label": "Ma oś symetrii"},
+                        {"value": "b", "label": "Może przecinać oś OX w 0, 1 lub 2 punktach"},
+                        {"value": "c", "label": "Zawsze przechodzi przez początek układu współrzędnych"},
+                        {"value": "d", "label": "Ma wartość ekstremalną (minimum lub maksimum)"}
+                    ]}
                 },
                 {
-                    "question": {"title": "Miejsce zerowe", "text": "Co to są miejsca zerowe funkcji?", "lang": "pl", "difficulty": 1, "emoji": "0️⃣"},
-                    "answer": {"text": "Punkty przecięcia wykresu z osią OX", "type": "short_text", "lang": "pl", "metadata": {"case_sensitive": False}}
+                    "question": {"title": "Ocena trudności", "text": "Oceń swoją znajomość funkcji kwadratowych (1-5):", "lang": "pl", "difficulty": 1, "emoji": "⭐"},
+                    "answer": {"text": "3", "type": "range", "lang": "pl", "metadata": {"min": 1, "max": 5, "step": 1}}
                 }
             ]
         },
@@ -144,15 +273,20 @@ QUIZZES = {
             "image": "🇬🇧",
             "flashcards": [
                 {
-                    "question": {"title": "Present Simple", "text": "Kiedy używamy Present Simple?", "lang": "pl", "difficulty": 1, "emoji": "⏰"},
+                    "question": {"title": "Present Simple", "text": "Kiedy używamy Present Simple?", "lang": "pl", "difficulty": 1, "emoji": "⏰", "examples": ["I play tennis every Sunday", "Water boils at 100°C"]},
                     "answer": {"text": "Czynności regularne, fakty, prawdy ogólne", "type": "text", "lang": "pl"}
                 },
                 {
-                    "question": {"title": "Present Continuous", "text": "Jak tworzymy Present Continuous?", "lang": "pl", "difficulty": 1, "emoji": "🔄"},
-                    "answer": {"text": "am/is/are + czasownik-ing", "type": "text", "lang": "pl"}
+                    "question": {"title": "Present Continuous", "text": "Wybierz poprawną formę Present Continuous:", "lang": "pl", "difficulty": 1, "emoji": "🔄"},
+                    "answer": {"text": "a", "type": "choice", "lang": "pl", "options": [
+                        {"value": "a", "label": "am/is/are + czasownik-ing"},
+                        {"value": "b", "label": "have/has + czasownik-ing"},
+                        {"value": "c", "label": "was/were + czasownik-ed"},
+                        {"value": "d", "label": "will + czasownik-ing"}
+                    ]}
                 },
                 {
-                    "question": {"title": "Past Simple", "text": "Kiedy używamy Past Simple?", "lang": "pl", "difficulty": 1, "emoji": "📅"},
+                    "question": {"title": "Past Simple", "text": "Kiedy używamy Past Simple?", "lang": "pl", "difficulty": 1, "emoji": "📅", "examples": ["I visited Paris last year", "She studied English yesterday"]},
                     "answer": {"text": "Czynności zakończone w przeszłości", "type": "text", "lang": "pl"}
                 },
                 {
@@ -160,12 +294,22 @@ QUIZZES = {
                     "answer": {"text": "have/has + past participle (III forma)", "type": "text", "lang": "pl"}
                 },
                 {
-                    "question": {"title": "Future Simple", "text": "Jak tworzymy Future Simple?", "lang": "pl", "difficulty": 1, "emoji": "🔮"},
-                    "answer": {"text": "will + bezokolicznik", "type": "text", "lang": "pl"}
+                    "question": {"title": "Używamy 'will'", "text": "Czy 'will' używamy do spontanicznych decyzji?", "lang": "pl", "difficulty": 1, "emoji": "💡"},
+                    "answer": {"text": "true", "type": "boolean", "lang": "pl", "metadata": {"true_label": "Tak", "false_label": "Nie"}}
                 },
                 {
-                    "question": {"title": "Going to", "text": "Kiedy używamy 'going to'?", "lang": "pl", "difficulty": 2, "emoji": "🎯"},
-                    "answer": {"text": "Plany, zamiary, przewidywania z dowodem", "type": "text", "lang": "pl"}
+                    "question": {"title": "Słowa kluczowe", "text": "Wybierz wszystkie słowa, które często występują z Present Perfect:", "lang": "pl", "difficulty": 3, "emoji": "🔑"},
+                    "answer": {"text": "a,c,d", "type": "multiple_choice", "lang": "pl", "options": [
+                        {"value": "a", "label": "already"},
+                        {"value": "b", "label": "yesterday"},
+                        {"value": "c", "label": "yet"},
+                        {"value": "d", "label": "just"},
+                        {"value": "e", "label": "last week"}
+                    ]}
+                },
+                {
+                    "question": {"title": "Formy czasownika", "text": "Ile form czasownika nieregularnego musimy znać w angielskim?", "lang": "pl", "difficulty": 1, "emoji": "📝"},
+                    "answer": {"text": "3", "type": "integer", "lang": "pl", "metadata": {"hint": "bezokolicznik, Past Simple, Past Participle"}}
                 }
             ]
         },
@@ -199,7 +343,8 @@ QUIZZES = {
                     "answer": {"text": "Białka", "type": "short_text", "lang": "pl"}
                 }
             ]
-        }
+        },
+        get_answer_types_test_quiz()
     ],
     "Kriz": [
         {
@@ -208,6 +353,13 @@ QUIZZES = {
             "level": "Klasa 1",
             "favourite": False,
             "image": "🇫🇷"
+        },
+        {
+            "file": "data/starożytny_egipt.json",
+            "category": "Starożytność",
+            "level": "Klasa 1",
+            "favourite": False,
+            "image": "🏺"
         },
         {
             "name": "Ruch i siły",
@@ -219,7 +371,7 @@ QUIZZES = {
             "image": "⚛️",
             "flashcards": [
                 {
-                    "question": {"title": "Prędkość", "text": "Jaki jest wzór na prędkość?", "lang": "pl", "difficulty": 1, "emoji": "🏃"},
+                    "question": {"title": "Prędkość", "text": "Jaki jest wzór na prędkość?", "lang": "pl", "difficulty": 1, "emoji": "🏃", "examples": ["jeśli samochód przejedzie 100m w 5s, to v = 100/5 = 20 m/s"]},
                     "answer": {"text": "v = s/t", "type": "text", "lang": "pl"}
                 },
                 {
@@ -227,24 +379,38 @@ QUIZZES = {
                     "answer": {"text": "a = Δv/Δt", "type": "text", "lang": "pl"}
                 },
                 {
-                    "question": {"title": "II zasada dynamiki", "text": "Jaka jest treść II zasady dynamiki Newtona?", "lang": "pl", "difficulty": 2, "emoji": "⚖️"},
-                    "answer": {"text": "F = ma", "type": "text", "lang": "pl"}
+                    "question": {"title": "II zasada dynamiki", "text": "Wybierz poprawne stwierdzenie dotyczące II zasady dynamiki Newtona:", "lang": "pl", "difficulty": 2, "emoji": "⚖️"},
+                    "answer": {"text": "b", "type": "choice", "lang": "pl", "options": [
+                        {"value": "a", "label": "Przyspieszenie jest odwrotnie proporcjonalne do siły"},
+                        {"value": "b", "label": "F = ma (siła równa się masa razy przyspieszenie)"},
+                        {"value": "c", "label": "Masa jest proporcjonalna do prędkości"},
+                        {"value": "d", "label": "Siła jest stała dla każdego ciała"}
+                    ]}
                 },
                 {
-                    "question": {"title": "Energia kinetyczna", "text": "Jaki jest wzór na energię kinetyczną?", "lang": "pl", "difficulty": 2, "emoji": "💨"},
+                    "question": {"title": "Energia kinetyczna", "text": "Jaki jest wzór na energię kinetyczną?", "lang": "pl", "difficulty": 2, "emoji": "💨", "examples": ["dla ciała o masie 4kg i prędkości 10m/s: Ek = 4×10²/2 = 200J"]},
                     "answer": {"text": "Ek = mv²/2", "type": "text", "lang": "pl"}
                 },
                 {
-                    "question": {"title": "Energia potencjalna", "text": "Jaki jest wzór na energię potencjalną?", "lang": "pl", "difficulty": 2, "emoji": "⛰️"},
+                    "question": {"title": "Energia potencjalna", "text": "Jaki jest wzór na energię potencjalną grawitacji?", "lang": "pl", "difficulty": 2, "emoji": "⛰️"},
                     "answer": {"text": "Ep = mgh", "type": "text", "lang": "pl"}
                 },
                 {
-                    "question": {"title": "Siła tarcia", "text": "Od czego zależy siła tarcia?", "lang": "pl", "difficulty": 2, "emoji": "🔥"},
-                    "answer": {"text": "Od siły nacisku i współczynnika tarcia", "type": "text", "lang": "pl"}
+                    "question": {"title": "Ruch jednostajny", "text": "Czy w ruchu jednostajnym prędkość jest stała?", "lang": "pl", "difficulty": 1, "emoji": "➡️"},
+                    "answer": {"text": "true", "type": "boolean", "lang": "pl", "metadata": {"true_label": "Tak", "false_label": "Nie"}}
                 },
                 {
-                    "question": {"title": "Jednostka siły", "text": "Jaka jest jednostka siły w układzie SI?", "lang": "pl", "difficulty": 1, "emoji": "📏"},
-                    "answer": {"text": "Niuton (N)", "type": "short_text", "lang": "pl"}
+                    "question": {"title": "Zasady zachowania", "text": "Wybierz wszystkie wielkości, które zachowują się w układzie izolowanym:", "lang": "pl", "difficulty": 3, "emoji": "♻️"},
+                    "answer": {"text": "a,b,c", "type": "multiple_choice", "lang": "pl", "options": [
+                        {"value": "a", "label": "Energia całkowita"},
+                        {"value": "b", "label": "Pęd"},
+                        {"value": "c", "label": "Masa"},
+                        {"value": "d", "label": "Temperatura"}
+                    ]}
+                },
+                {
+                    "question": {"title": "Przyspieszenie ziemskie", "text": "Ile wynosi przyspieszenie ziemskie w m/s²? (zaokrąglij do liczby całkowitej)", "lang": "pl", "difficulty": 1, "emoji": "🌍"},
+                    "answer": {"text": "10", "type": "integer", "lang": "pl", "metadata": {"hint": "Dokładna wartość to ~9.81 m/s²"}}
                 }
             ]
         },
@@ -313,7 +479,8 @@ QUIZZES = {
                     "answer": {"text": "O(log n)", "type": "text", "lang": "pl"}
                 }
             ]
-        }
+        },
+        get_answer_types_test_quiz()
     ]
 }
 

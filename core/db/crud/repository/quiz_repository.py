@@ -90,6 +90,22 @@ class QuizRepository(BaseRepository[models.Quiz]):
             select(models.Quiz).where(models.Quiz.user_id == user_id).order_by(models.Quiz.created_at.desc())
         )
 
+    def get_by_ids(self, quiz_ids: list[int]) -> Sequence[models.Quiz]:
+        """
+        Get multiple quizzes by their IDs in a single query.
+
+        Args:
+            quiz_ids: List of quiz IDs
+
+        Returns:
+            List of quiz instances
+        """
+        if not quiz_ids:
+            return []
+        return self._execute_query(
+            select(models.Quiz).where(models.Quiz.id.in_(quiz_ids))
+        )
+
     def get_by_name(self, name: str) -> Optional[models.Quiz]:
         """
         Get quiz by exact name (case-sensitive).
