@@ -179,6 +179,9 @@ jobs:
           sudo chown -R $USER:$USER /opt/slayflashcards/
           sudo chmod -R 755 /opt/slayflashcards/
 
+          # Return to repository directory for deployment files
+          cd $GITHUB_WORKSPACE
+
           # Install/update systemd service files
           echo "⚙️ Installing systemd service files..."
           sudo cp deployment/slayflashcards-backend.service /etc/systemd/system/
