@@ -11,8 +11,16 @@ function LoginPage() {
     const navigate = useNavigate();
 
     const buildVersion = import.meta.env.VITE_BUILD_VERSION || 'dev';
-    const buildDate = import.meta.env.VITE_BUILD_DATE || 'local build';
+    const buildDate = import.meta.env.VITE_BUILD_DATE || '';
     const isCI = import.meta.env.VITE_IS_CI === 'true';
+    const environment = import.meta.env.VITE_ENVIRONMENT || 'staging';
+    const branchName = import.meta.env.VITE_BRANCH_NAME || 'main';
+
+    const getEnvironmentEmoji = () => {
+        if (environment === 'production') return '🚀';
+        if (environment === 'staging') return '🧪';
+        return '🔧';
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -99,10 +107,15 @@ function LoginPage() {
                 </div>
 
                 <div className="login-version-info">
-                    <div className="version-label">
-                        {isCI ? `v${buildVersion}` : '🔧 Local'}
-                    </div>
-                    <div className="build-date">{buildDate}</div>
+                    {isCI ? (
+                        <div className="version-label">
+                            {getEnvironmentEmoji()} {environment} : v{buildVersion} : {buildDate}
+                        </div>
+                    ) : (
+                        <div className="version-label">
+                            🔧 Local ({branchName})
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
