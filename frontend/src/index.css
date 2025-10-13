@@ -138,22 +138,15 @@ body {
 }
 
 .version-info {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     color: rgba(255, 255, 255, 0.6);
     text-align: center;
 }
 
 .version-label {
-    font-weight: 600;
+    font-weight: 500;
     color: rgba(255, 255, 255, 0.8);
-}
-
-.build-date {
-    font-size: 0.7rem;
-    color: rgba(255, 255, 255, 0.5);
+    line-height: 1.4;
 }
 
 /* Main Content */
@@ -1440,21 +1433,14 @@ body {
 .login-version-info {
     margin-top: var(--spacing-lg);
     text-align: center;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     color: rgba(255, 255, 255, 0.7);
 }
 
 .login-version-info .version-label {
-    font-weight: 600;
+    font-weight: 500;
     color: rgba(255, 255, 255, 0.9);
-}
-
-.login-version-info .build-date {
-    font-size: 0.7rem;
-    color: rgba(255, 255, 255, 0.6);
+    line-height: 1.4;
 }
 
 .loading-container {

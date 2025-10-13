@@ -98,6 +98,8 @@ jobs:
           export VITE_BUILD_VERSION=$(git rev-parse --short HEAD)
           export VITE_BUILD_DATE=$(date +'%Y-%m-%d %H:%M')
           export VITE_IS_CI=true
+          export VITE_ENVIRONMENT=${{ github.event.inputs.environment || 'staging' }}
+          export VITE_BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
           npm run build
 
       - name: 🚀 Start frontend preview server
