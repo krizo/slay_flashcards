@@ -1,0 +1,16 @@
+[Unit]
+Description=SlayFlashcards Frontend (Staging)
+After=network.target
+
+[Service]
+Type=simple
+User=github
+Group=github
+WorkingDirectory=/opt/slayflashcards/staging/frontend
+Environment="NODE_ENV=staging"
+ExecStart=/usr/bin/npm run preview -- --host 0.0.0.0 --port 3000
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

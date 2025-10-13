@@ -19,6 +19,14 @@ on:
         options:
           - "false"
           - "true"
+      recreate_database:
+        description: "Recreate database and add demo data?"
+        required: true
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
 
 jobs:
   ci:
@@ -26,6 +34,11 @@ jobs:
     env:
       BACKEND_PID_FILE: /tmp/slayflashcards-backend-ci.pid
       FRONTEND_PID_FILE: /tmp/slayflashcards-frontend-ci.pid
+      # Environment-specific configurations
+      DEPLOY_DIR: ${{ github.event.inputs.environment == 'production' && '/opt/slayflashcards/production' || '/opt/slayflashcards/staging' }}
+      BACKEND_PORT: ${{ github.event.inputs.environment == 'production' && '8002' || '8000' }}
+      FRONTEND_PORT: ${{ github.event.inputs.environment == 'production' && '3002' || '3000' }}
+      SERVICE_SUFFIX: ${{ github.event.inputs.environment == 'production' && '-production' || '-staging' }}
 
     steps:
       - name: 📥 Checkout repository
@@ -136,66 +149,82 @@ jobs:
         if: ${{ github.event.inputs.deploy == 'true' }}
         run: |
           echo "=== Deploying to ${{ github.event.inputs.environment }} ==="
+          echo "Deploy directory: $DEPLOY_DIR"
+          echo "Backend port: $BACKEND_PORT"
+          echo "Frontend port: $FRONTEND_PORT"
+          echo "Service suffix: $SERVICE_SUFFIX"
 
           # Create deployment directories
-          sudo mkdir -p /opt/slayflashcards/{frontend,backend}
+          sudo mkdir -p $DEPLOY_DIR/{frontend,backend}
 
           # Deploy frontend (dist folder for serving)
           echo "📦 Deploying frontend..."
-          sudo rsync -av --delete frontend/dist/ /opt/slayflashcards/frontend/dist/
+          sudo rsync -av --delete frontend/dist/ $DEPLOY_DIR/frontend/dist/
 
           # Copy package files needed for vite preview
-          sudo cp frontend/package.json /opt/slayflashcards/frontend/
-          sudo cp frontend/package-lock.json /opt/slayflashcards/frontend/ || true
-          sudo cp frontend/vite.config.ts /opt/slayflashcards/frontend/
+          sudo cp frontend/package.json $DEPLOY_DIR/frontend/
+          sudo cp frontend/package-lock.json $DEPLOY_DIR/frontend/ || true
+          sudo cp frontend/vite.config.ts $DEPLOY_DIR/frontend/
 
           # Install frontend dependencies (including vite for preview server)
           echo "📦 Installing frontend dependencies..."
-          cd /opt/slayflashcards/frontend
+          cd $DEPLOY_DIR/frontend
           sudo npm ci
 
           # Return to repository directory for backend deployment
           cd $GITHUB_WORKSPACE
 
-          # Deploy backend (api + core + requirements)
+          # Deploy backend (api + core + requirements + scripts)
           echo "📦 Deploying backend..."
-          sudo rsync -av --delete api/ /opt/slayflashcards/backend/api/
-          sudo rsync -av --delete core/ /opt/slayflashcards/backend/core/
-          sudo rsync -av requirements.txt /opt/slayflashcards/backend/
+          sudo rsync -av --delete api/ $DEPLOY_DIR/backend/api/
+          sudo rsync -av --delete core/ $DEPLOY_DIR/backend/core/
+          sudo rsync -av --delete scripts/ $DEPLOY_DIR/backend/scripts/
+          sudo rsync -av --delete data/ $DEPLOY_DIR/backend/data/ || true
+          sudo rsync -av requirements.txt $DEPLOY_DIR/backend/
 
-          # Setup Python virtual environment on production
+          # Setup Python virtual environment
           echo "🐍 Setting up Python virtual environment..."
-          sudo python3 -m venv /opt/slayflashcards/backend/.venv
-          sudo /opt/slayflashcards/backend/.venv/bin/pip install --upgrade pip
-          sudo /opt/slayflashcards/backend/.venv/bin/pip install -r /opt/slayflashcards/backend/requirements.txt
-
-          # Initialize/migrate database
-          echo "🗄️ Initializing database..."
-          cd /opt/slayflashcards/backend
-          sudo .venv/bin/python -c "from core.db.database import Base, engine; Base.metadata.create_all(bind=engine); print('Database initialized')" || echo "Database already exists"
+          sudo python3 -m venv $DEPLOY_DIR/backend/.venv
+          sudo $DEPLOY_DIR/backend/.venv/bin/pip install --upgrade pip
+          sudo $DEPLOY_DIR/backend/.venv/bin/pip install -r $DEPLOY_DIR/backend/requirements.txt
 
           # Set proper permissions
           echo "🔐 Setting permissions..."
-          sudo chown -R $USER:$USER /opt/slayflashcards/
-          sudo chmod -R 755 /opt/slayflashcards/
+          sudo chown -R $USER:$USER $DEPLOY_DIR/
+          sudo chmod -R 755 $DEPLOY_DIR/
+
+          # Initialize/reset database based on input
+          echo "🗄️ Database setup..."
+          cd $DEPLOY_DIR/backend
+          if [ "${{ github.event.inputs.recreate_database }}" == "true" ]; then
+            echo "Recreating database with demo data..."
+            sudo -u $USER .venv/bin/python scripts/init_database.py --reset --demo
+          else
+            echo "Initializing database (keeping existing data)..."
+            sudo -u $USER .venv/bin/python scripts/init_database.py
+          fi
 
           # Return to repository directory for deployment files
           cd $GITHUB_WORKSPACE
 
           # Install/update systemd service files
           echo "⚙️ Installing systemd service files..."
-          sudo cp deployment/slayflashcards-backend.service /etc/systemd/system/
-          sudo cp deployment/slayflashcards-frontend.service /etc/systemd/system/
+          sudo cp deployment/slayflashcards-backend$SERVICE_SUFFIX.service /etc/systemd/system/
+          sudo cp deployment/slayflashcards-frontend$SERVICE_SUFFIX.service /etc/systemd/system/
           sudo systemctl daemon-reload
 
           # Restart services
           echo "🔄 Restarting services..."
-          sudo systemctl restart slayflashcards-backend
-          sudo systemctl restart slayflashcards-frontend
+          sudo systemctl restart slayflashcards-backend$SERVICE_SUFFIX
+          sudo systemctl restart slayflashcards-frontend$SERVICE_SUFFIX
 
           # Verify services are running
           echo "✅ Verifying deployment..."
-          sudo systemctl status slayflashcards-backend --no-pager || true
-          sudo systemctl status slayflashcards-frontend --no-pager || true
+          sudo systemctl status slayflashcards-backend$SERVICE_SUFFIX --no-pager || true
+          sudo systemctl status slayflashcards-frontend$SERVICE_SUFFIX --no-pager || true
 
+          echo ""
           echo "=== Deployment complete ==="
+          echo "Environment: ${{ github.event.inputs.environment }}"
+          echo "Backend URL: http://localhost:$BACKEND_PORT"
+          echo "Frontend URL: http://localhost:$FRONTEND_PORT"
