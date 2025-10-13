@@ -64,8 +64,28 @@ function Header() {
                         )}
                         <span className="header-session-name">{sessionInfo.quizName}</span>
                     </div>
+                    {/* Quiz metadata */}
+                    <div className="header-quiz-metadata">
+                        {sessionInfo.subject && (
+                            <span className="quiz-meta-item">
+                                📚 {sessionInfo.subject}
+                            </span>
+                        )}
+                        {sessionInfo.category && (
+                            <span className="quiz-meta-item">
+                                📂 {sessionInfo.category}
+                            </span>
+                        )}
+                        {sessionInfo.level && (
+                            <span className="quiz-meta-item">
+                                📊 {sessionInfo.level}
+                            </span>
+                        )}
+                    </div>
+
+                    {/* Stats tiles */}
                     <div className="header-session-metrics">
-                        <div className="header-metric">
+                        <div className="header-metric-tile">
                             <span className="metric-icon">⭐</span>
                             <div className="metric-content">
                                 <span className="metric-value">
@@ -76,7 +96,7 @@ function Header() {
                                 <span className="metric-label">Your Best</span>
                             </div>
                         </div>
-                        <div className="header-metric">
+                        <div className="header-metric-tile">
                             <span className="metric-icon">📊</span>
                             <div className="metric-content">
                                 <span className="metric-value">
@@ -87,16 +107,27 @@ function Header() {
                                 <span className="metric-label">Your Avg</span>
                             </div>
                         </div>
-                        <div className="header-metric">
+                        <div className="header-metric-tile">
                             <span className="metric-icon">🎯</span>
+                            <div className="metric-content">
+                                <span className="metric-value">
+                                    {sessionInfo.lastScore !== null && sessionInfo.lastScore !== undefined
+                                        ? `${Math.round(sessionInfo.lastScore)}%`
+                                        : '—'}
+                                </span>
+                                <span className="metric-label">Last Score</span>
+                            </div>
+                        </div>
+                        <div className="header-metric-tile">
+                            <span className="metric-icon">🧪</span>
                             <div className="metric-content">
                                 <span className="metric-value">
                                     {sessionInfo.testSessions && sessionInfo.testSessions > 0 ? sessionInfo.testSessions : '—'}
                                 </span>
-                                <span className="metric-label">Test Sessions</span>
+                                <span className="metric-label">Tests</span>
                             </div>
                         </div>
-                        <div className="header-metric">
+                        <div className="header-metric-tile">
                             <span className="metric-icon">🕒</span>
                             <div className="metric-content">
                                 <span className="metric-value">{formatDate(sessionInfo.lastSessionDate)}</span>

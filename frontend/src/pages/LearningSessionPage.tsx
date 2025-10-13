@@ -107,11 +107,25 @@ function LearningSessionPage() {
     // Update session context with current session info
     useEffect(() => {
         if (quiz && performance !== undefined) {
+            // Get last test score (most recent completed test)
+            const testSessions = sessions
+                ?.filter(s => s.mode === 'test' && s.score !== null && s.completed)
+                .sort((a, b) => {
+                    const dateA = a.completed_at ? new Date(a.completed_at) : new Date(a.started_at);
+                    const dateB = b.completed_at ? new Date(b.completed_at) : new Date(b.started_at);
+                    return dateB.getTime() - dateA.getTime();
+                }) || [];
+            const lastScore = testSessions.length > 0 ? testSessions[0].score : null;
+
             setSessionInfo({
                 quizName: quiz.name,
                 quizImage: quiz.image,
+                subject: quiz.subject,
+                category: quiz.category,
+                level: quiz.level,
                 yourBest: performance?.scores.highest ?? null,
                 yourAverage: performance?.scores.average ?? null,
+                lastScore: lastScore,
                 testSessions: performance?.test_sessions ?? 0,
                 lastSessionDate: lastSessionDate,
                 onCloseSession: endSession,
@@ -122,7 +136,7 @@ function LearningSessionPage() {
         return () => {
             setSessionInfo(null);
         };
-    }, [quiz, performance, lastSessionDate, endSession, setSessionInfo]);
+    }, [quiz, performance, lastSessionDate, sessions, endSession, setSessionInfo]);
 
     // Show loading state during initialization
     if (isLoading && !currentFlashcard) {
