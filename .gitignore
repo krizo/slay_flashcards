@@ -12,3 +12,10 @@ results.json
 node_modules/
 frontend/dist/
 frontend/.vite
+
+# Secrets - NEVER commit these files
+deployment/secrets.staging.json
+deployment/secrets.production.json
+deployment/secrets.*.json
+**/secrets.json
+!deployment/secrets.example.json

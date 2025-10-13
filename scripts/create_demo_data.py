@@ -23,21 +23,62 @@ from core.db.models import Session as SessionModel
 from api.api_schemas import UserCreate
 
 
-# User credentials (simple passwords for demo)
-USERS = [
+def get_demo_users():
+    """
+    Get demo users configuration from environment variable or use defaults.
+
+    Environment variable DEMO_SECRETS should contain JSON like:
     {
-        "username": "Emila",
-        "email": "emila@demo.pl",
-        "password": "Emila123!",
-        "full_name": "Emila Kowalska"
-    },
-    {
-        "username": "Kriz",
-        "email": "kriz@demo.pl",
-        "password": "Kriz123!",
-        "full_name": "Kriz Nowak"
+        "demo_users": [
+            {
+                "username": "Emila",
+                "email": "emila@demo.pl",
+                "password": "SecurePassword123!",
+                "full_name": "Emila Kowalska"
+            }
+        ]
     }
-]
+    """
+    import os
+    import json
+
+    # Default fallback users (for local development)
+    default_users = [
+        {
+            "username": "Emila",
+            "email": "emila@demo.pl",
+            "password": "Emila123!",
+            "full_name": "Emila Kowalska"
+        },
+        {
+            "username": "Kriz",
+            "email": "kriz@demo.pl",
+            "password": "Kriz123!",
+            "full_name": "Kriz Nowak"
+        }
+    ]
+
+    # Try to load from environment variable
+    secrets_json = os.environ.get('DEMO_SECRETS')
+    if secrets_json:
+        try:
+            secrets = json.loads(secrets_json)
+            users = secrets.get('demo_users', [])
+            if users:
+                print("   ℹ️  Using demo users from DEMO_SECRETS environment variable")
+                return users
+            else:
+                print("   ⚠️  No demo_users found in DEMO_SECRETS, using defaults")
+        except json.JSONDecodeError as e:
+            print(f"   ⚠️  Failed to parse DEMO_SECRETS JSON: {e}, using defaults")
+    else:
+        print("   ℹ️  DEMO_SECRETS not set, using default demo users")
+
+    return default_users
+
+
+# User credentials - loaded from environment or defaults
+USERS = get_demo_users()
 
 
 # Quiz data for Polish high school students
