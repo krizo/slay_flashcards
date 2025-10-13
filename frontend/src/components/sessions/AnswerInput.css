@@ -188,3 +188,73 @@
 .answer-input--float {
     -moz-appearance: textfield;
 }
+
+/* Difficulty Badge */
+.difficulty-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    margin-left: 10px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    vertical-align: middle;
+}
+
+.difficulty-easy {
+    background: #e8f5e9;
+    color: #2e7d32;
+}
+
+.difficulty-medium {
+    background: #fff9c4;
+    color: #f57f17;
+}
+
+.difficulty-medium-plus {
+    background: #ffe0b2;
+    color: #e65100;
+}
+
+.difficulty-hard {
+    background: #ffebee;
+    color: #c62828;
+}
+
+.difficulty-very-hard {
+    background: #f5f5f5;
+    color: #424242;
+}
+
+/* Examples Section */
+.flashcard-examples {
+    margin-top: 16px;
+    padding: 14px 16px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    border-left: 4px solid #2196f3;
+}
+
+.examples-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+    color: #1976d2;
+}
+
+.examples-icon {
+    font-size: 1.2rem;
+}
+
+.examples-list {
+    margin: 0;
+    padding-left: 24px;
+}
+
+.example-item {
+    margin: 6px 0;
+    color: #555;
+    font-style: italic;
+}

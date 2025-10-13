@@ -1,4 +1,6 @@
 import { FlashcardData, SessionFeedback } from '../../types';
+import AnswerInput from './AnswerInput';
+import './AnswerInput.css';
 
 interface FlashcardDisplayProps {
     flashcard: FlashcardData | null;
@@ -39,6 +41,28 @@ function getLanguageFlag(lang: string | null | undefined): string {
     };
 
     return flagMap[lang || 'en'] || '🇬🇧';
+}
+
+// Helper function to get difficulty badge
+function getDifficultyBadge(difficulty: number | null | undefined) {
+    if (!difficulty) return null;
+
+    const difficultyConfig: Record<number, { label: string; emoji: string; className: string }> = {
+        1: { label: 'Easy', emoji: '🟢', className: 'difficulty-easy' },
+        2: { label: 'Medium', emoji: '🟡', className: 'difficulty-medium' },
+        3: { label: 'Medium+', emoji: '🟠', className: 'difficulty-medium-plus' },
+        4: { label: 'Hard', emoji: '🔴', className: 'difficulty-hard' },
+        5: { label: 'Very Hard', emoji: '⚫', className: 'difficulty-very-hard' },
+    };
+
+    const config = difficultyConfig[difficulty];
+    if (!config) return null;
+
+    return (
+        <span className={`difficulty-badge ${config.className}`}>
+            {config.emoji} {config.label}
+        </span>
+    );
 }
 
 function FlashcardDisplay({
@@ -159,7 +183,10 @@ function FlashcardDisplay({
             <div className="flashcard-question-section">
                 <div className="flashcard-question-header">
                     <div className="flashcard-emoji">{flashcard.question.emoji}</div>
-                    <h2 className="flashcard-question-title">{flashcard.question.title}</h2>
+                    <h2 className="flashcard-question-title">
+                        {flashcard.question.title}
+                        {getDifficultyBadge(flashcard.question.difficulty)}
+                    </h2>
                     <button
                         className="speaker-icon"
                         onClick={() => onSpeak(flashcard.question.text, flashcard.question.lang)}
@@ -170,6 +197,23 @@ function FlashcardDisplay({
                     </button>
                 </div>
                 <p className="flashcard-question-text">{flashcard.question.text}</p>
+
+                {/* Examples Section */}
+                {flashcard.question.examples && flashcard.question.examples.length > 0 && (
+                    <div className="flashcard-examples">
+                        <div className="examples-header">
+                            <span className="examples-icon">💭</span>
+                            <strong>Examples:</strong>
+                        </div>
+                        <ul className="examples-list">
+                            {flashcard.question.examples.map((example, index) => (
+                                <li key={index} className="example-item">
+                                    {example}
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                )}
             </div>
 
             {/* Answer Format Hint */}
@@ -186,11 +230,11 @@ function FlashcardDisplay({
             <div className="flashcard-answer-area">
                 {/* Show input unless there's feedback or answer is revealed */}
                 {!feedback && !showAnswer && (
-                    <textarea
-                        className="flashcard-answer-input"
-                        placeholder="Type your answer here..."
-                        value={userAnswer}
-                        onChange={(e) => onUserAnswerChange(e.target.value)}
+                    <AnswerInput
+                        answer={flashcard.answer}
+                        userAnswer={userAnswer}
+                        onAnswerChange={onUserAnswerChange}
+                        disabled={isSubmitting}
                     />
                 )}
 
