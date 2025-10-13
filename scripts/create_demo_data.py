@@ -472,7 +472,8 @@ def create_learning_history(db, users, user_quizzes):
                     mode=mode,
                     started_at=session_date,
                     completed_at=session_date + timedelta(minutes=random.randint(5, 30)),
-                    score=score
+                    score=score,
+                    completed=True
                 )
                 db.add(session)
                 session_count += 1
