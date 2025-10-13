@@ -152,7 +152,7 @@ describe('AnswerInput', () => {
     };
 
     const mockOnChange = vi.fn();
-    render(<AnswerInput answer={answer} userAnswer="" onAnswerChange={mockOnChange} />);
+    render(<AnswerInput answer={answer} userAnswer={[]} onAnswerChange={mockOnChange} />);
 
     expect(screen.getByText('Python')).toBeInTheDocument();
     expect(screen.getByText('HTML')).toBeInTheDocument();
@@ -214,13 +214,13 @@ describe('AnswerInput', () => {
     };
 
     const mockOnChange = vi.fn();
-    render(<AnswerInput answer={answer} userAnswer="" onAnswerChange={mockOnChange} />);
+    render(<AnswerInput answer={answer} userAnswer={[]} onAnswerChange={mockOnChange} />);
 
     const pythonCheckbox = screen.getByLabelText('Python');
     fireEvent.click(pythonCheckbox);
 
-    // Should be called with comma-separated values
-    expect(mockOnChange).toHaveBeenCalledWith('a');
+    // Should be called with array containing selected value
+    expect(mockOnChange).toHaveBeenCalledWith(['a']);
   });
 
   it('deselects checkbox when clicked again', () => {
@@ -238,13 +238,13 @@ describe('AnswerInput', () => {
     };
 
     const mockOnChange = vi.fn();
-    render(<AnswerInput answer={answer} userAnswer="a" onAnswerChange={mockOnChange} />);
+    render(<AnswerInput answer={answer} userAnswer={['a']} onAnswerChange={mockOnChange} />);
 
     const pythonCheckbox = screen.getByLabelText('Python');
     fireEvent.click(pythonCheckbox);
 
-    // Should be called with empty string (Python deselected)
-    expect(mockOnChange).toHaveBeenCalledWith('');
+    // Should be called with empty array (Python deselected)
+    expect(mockOnChange).toHaveBeenCalledWith([]);
   });
 
   it('displays user answer in text input', () => {
