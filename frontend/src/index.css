@@ -188,22 +188,22 @@ body {
 }
 
 .header-session-icon {
-    font-size: 2rem;
+    font-size: 3rem; /* Increased from 2rem */
     flex-shrink: 0;
 }
 
 .header-session-image {
-    width: 48px;
-    height: 48px;
-    border-radius: 8px;
+    width: 64px; /* Increased from 48px */
+    height: 64px; /* Increased from 48px */
+    border-radius: 10px; /* Slightly larger radius */
     object-fit: cover;
     flex-shrink: 0;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
 }
 
 .header-session-name {
     font-weight: 700;
-    font-size: 1.1em;
+    font-size: 1.4em; /* Increased from 1.1em */
     color: var(--color-text-dark);
     white-space: nowrap;
     overflow: hidden;
@@ -213,23 +213,40 @@ body {
 .header-session-metrics {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 20px; /* Increased from 16px */
     flex-wrap: wrap;
 }
 
 .header-metric {
     display: flex;
     align-items: center;
-    gap: 6px;
-    font-size: 0.9em;
-    color: var(--color-text-light);
-    font-weight: 500;
-    white-space: nowrap;
+    gap: 8px; /* Increased from 6px */
 }
 
 .metric-icon {
-    font-size: 1.1em;
+    font-size: 1.5em; /* Increased from 1.1em */
     flex-shrink: 0;
+}
+
+.metric-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.metric-value {
+    font-size: 0.95em;
+    font-weight: 600;
+    color: var(--color-text-dark);
+    line-height: 1;
+}
+
+.metric-label {
+    font-size: 0.75em;
+    font-weight: 500;
+    color: var(--color-text-light);
+    line-height: 1;
+    white-space: nowrap;
 }
 
 .header-user-info {
