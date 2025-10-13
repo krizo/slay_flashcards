@@ -8,5 +8,6 @@ export default defineConfig({
     environment: 'jsdom',
     css: true,
     setupFiles: './vitest.setup.ts',
+    pool: 'forks',
   },
 });
