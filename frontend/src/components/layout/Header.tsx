@@ -42,15 +42,27 @@ function Header() {
     };
 
     // Check if image is base64 string or emoji
-    // Base64 images are very long (500+ chars), emoji/text is short
-    const looksLikeBase64 = sessionInfo?.quizImage
-        && sessionInfo.quizImage.length > 50 // Real base64 images are much longer
-        && /^[A-Za-z0-9+/=]+$/.test(sessionInfo.quizImage);
-    const isBase64 = looksLikeBase64 || (sessionInfo?.quizImage?.startsWith('data:image'));
-    const isEmoji = sessionInfo?.quizImage && !looksLikeBase64 && !sessionInfo.quizImage.startsWith('data:');
+    // Try to decode short base64 strings - they might be encoded emoji
+    let displayEmoji = sessionInfo?.quizImage;
+    if (sessionInfo?.quizImage && sessionInfo.quizImage.length < 50 && /^[A-Za-z0-9+/=]+$/.test(sessionInfo.quizImage)) {
+        try {
+            // Try to decode as base64 - might be encoded emoji
+            displayEmoji = atob(sessionInfo.quizImage);
+        } catch (e) {
+            // If decode fails, use as-is
+            displayEmoji = sessionInfo.quizImage;
+        }
+    }
 
-    // Add data URL prefix if it's base64 without prefix
-    const imageUrl = looksLikeBase64 && sessionInfo?.quizImage
+    // Base64 images are very long (500+ chars)
+    const looksLikeBase64Image = sessionInfo?.quizImage
+        && sessionInfo.quizImage.length > 50
+        && /^[A-Za-z0-9+/=]+$/.test(sessionInfo.quizImage);
+    const isBase64 = looksLikeBase64Image || (sessionInfo?.quizImage?.startsWith('data:image'));
+    const isEmoji = sessionInfo?.quizImage && !looksLikeBase64Image && !sessionInfo.quizImage.startsWith('data:');
+
+    // Add data URL prefix if it's base64 image without prefix
+    const imageUrl = looksLikeBase64Image && sessionInfo?.quizImage
         ? `data:image/png;base64,${sessionInfo.quizImage}`
         : sessionInfo?.quizImage;
 
@@ -68,7 +80,7 @@ function Header() {
                                     className="header-session-image"
                                 />
                             ) : isEmoji ? (
-                                <span className="header-session-icon">{sessionInfo.quizImage}</span>
+                                <span className="header-session-icon">{displayEmoji}</span>
                             ) : (
                                 <span className="header-session-icon">📚</span>
                             )}
