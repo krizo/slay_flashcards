@@ -183,7 +183,7 @@ jobs:
           sudo rsync -av --delete api/ $DEPLOY_DIR/backend/api/
           sudo rsync -av --delete core/ $DEPLOY_DIR/backend/core/
           sudo rsync -av --delete scripts/ $DEPLOY_DIR/backend/scripts/
-          sudo rsync -av --delete data/ $DEPLOY_DIR/backend/data/ || true
+          sudo rsync -av --delete data/ $DEPLOY_DIR/backend/data/
           sudo rsync -av requirements.txt $DEPLOY_DIR/backend/
 
           # Setup Python virtual environment
