@@ -3,6 +3,9 @@
 /slayflashcards.egg-info/
 *.db
 /data/*.json
+# Allow reference files
+!/data/answer_types_reference.json
+!/data/README.md
 .env
 /frontend/node_modules
 /frontend/dist
