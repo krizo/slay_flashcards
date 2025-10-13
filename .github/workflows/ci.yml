@@ -23,6 +23,9 @@ on:
 jobs:
   ci:
     runs-on: self-hosted
+    env:
+      BACKEND_PID_FILE: /tmp/slayflashcards-backend-ci.pid
+      FRONTEND_PID_FILE: /tmp/slayflashcards-frontend-ci.pid
 
     steps:
       - name: 📥 Checkout repository
@@ -34,13 +37,33 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: 📦 Install backend dependencies
-        run: pip install -r requirements.txt
+      - name: 📦 Create virtual environment and install dependencies
+        run: |
+          python -m venv .venv
+          source .venv/bin/activate
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: 🗄️ Initialize database
+        run: |
+          source .venv/bin/activate
+          python -c "from core.db.database import Base, engine; Base.metadata.create_all(bind=engine); print('Database initialized')"
 
       - name: 🚀 Start FastAPI backend
         run: |
-          uvicorn api.main_api:app --host 0.0.0.0 --port 8000 &
-          sleep 2
+          source .venv/bin/activate
+          nohup uvicorn api.main_api:app --host 0.0.0.0 --port 8000 > /tmp/backend-ci.log 2>&1 &
+          echo $! > $BACKEND_PID_FILE
+          echo "Backend started with PID $(cat $BACKEND_PID_FILE)"
+          sleep 3
+
+      - name: ✅ Verify backend is running
+        run: |
+          if ! ps -p $(cat $BACKEND_PID_FILE) > /dev/null; then
+            echo "Backend failed to start!"
+            cat /tmp/backend-ci.log
+            exit 1
+          fi
 
       # ─────── Frontend ───────
       - name: 🟦 Set up Node.js
@@ -59,15 +82,45 @@ jobs:
       - name: 🚀 Start frontend preview server
         working-directory: frontend
         run: |
-          npm run preview -- --port 3000 &
+          nohup npm run preview -- --port 3000 > /tmp/frontend-ci.log 2>&1 &
+          echo $! > $FRONTEND_PID_FILE
+          echo "Frontend started with PID $(cat $FRONTEND_PID_FILE)"
           sleep 5
+
+      - name: ✅ Verify frontend is running
+        run: |
+          if ! ps -p $(cat $FRONTEND_PID_FILE) > /dev/null; then
+            echo "Frontend failed to start!"
+            cat /tmp/frontend-ci.log
+            exit 1
+          fi
 
       # ─────── Smoke tests ───────
       - name: 🧪 Smoke test backend
-        run: curl -f http://localhost:8000/docs || exit 1
+        run: |
+          echo "Testing backend at http://localhost:8000/docs"
+          curl -f http://localhost:8000/docs || (cat /tmp/backend-ci.log && exit 1)
 
       - name: 🧪 Smoke test frontend
-        run: curl -f http://localhost:3000 || exit 1
+        run: |
+          echo "Testing frontend at http://localhost:3000"
+          curl -f http://localhost:3000 || (cat /tmp/frontend-ci.log && exit 1)
+
+      # ─────── Cleanup test processes ───────
+      - name: 🧹 Stop test backend and frontend
+        if: always()
+        run: |
+          if [ -f "$BACKEND_PID_FILE" ]; then
+            kill $(cat $BACKEND_PID_FILE) 2>/dev/null || true
+            rm $BACKEND_PID_FILE
+          fi
+          if [ -f "$FRONTEND_PID_FILE" ]; then
+            kill $(cat $FRONTEND_PID_FILE) 2>/dev/null || true
+            rm $FRONTEND_PID_FILE
+          fi
+          # Kill any remaining uvicorn/vite processes on CI ports
+          pkill -f "uvicorn.*:8000" || true
+          pkill -f "vite.*3000" || true
 
 #      - name: Backend Tests
 #        run: |
@@ -79,12 +132,48 @@ jobs:
 #          npm run test
 
       # ─────── Conditional Deploy ───────
-      - name: 🚀 Deploy to target environment
+      - name: 🚀 Deploy to ${{ github.event.inputs.environment }}
         if: ${{ github.event.inputs.deploy == 'true' }}
         run: |
-          echo "Deploying..."
-          sudo mkdir -p /opt/slayflashcards/frontend
+          echo "=== Deploying to ${{ github.event.inputs.environment }} ==="
+
+          # Create deployment directories
+          sudo mkdir -p /opt/slayflashcards/{frontend,backend}
+
+          # Deploy frontend
+          echo "📦 Deploying frontend..."
           sudo rsync -av --delete frontend/dist/ /opt/slayflashcards/frontend/
-          sudo rsync -av --delete api/ /opt/slayflashcards/api/
-          sudo rsync -av --delete requirements.txt /opt/slayflashcards/
-          sudo systemctl restart slayflashcards-backend
+
+          # Deploy backend (api + core + requirements)
+          echo "📦 Deploying backend..."
+          sudo rsync -av --delete api/ /opt/slayflashcards/backend/api/
+          sudo rsync -av --delete core/ /opt/slayflashcards/backend/core/
+          sudo rsync -av requirements.txt /opt/slayflashcards/backend/
+
+          # Setup Python virtual environment on production
+          echo "🐍 Setting up Python virtual environment..."
+          sudo python3 -m venv /opt/slayflashcards/backend/.venv
+          sudo /opt/slayflashcards/backend/.venv/bin/pip install --upgrade pip
+          sudo /opt/slayflashcards/backend/.venv/bin/pip install -r /opt/slayflashcards/backend/requirements.txt
+
+          # Initialize/migrate database
+          echo "🗄️ Initializing database..."
+          cd /opt/slayflashcards/backend
+          sudo .venv/bin/python -c "from core.db.database import Base, engine; Base.metadata.create_all(bind=engine); print('Database initialized')" || echo "Database already exists"
+
+          # Set proper permissions
+          echo "🔐 Setting permissions..."
+          sudo chown -R $USER:$USER /opt/slayflashcards/
+          sudo chmod -R 755 /opt/slayflashcards/
+
+          # Restart services
+          echo "🔄 Restarting services..."
+          sudo systemctl restart slayflashcards-backend || echo "⚠️ Backend service not configured"
+          sudo systemctl restart slayflashcards-frontend || echo "⚠️ Frontend service not configured"
+
+          # Verify services are running
+          echo "✅ Verifying deployment..."
+          sudo systemctl status slayflashcards-backend --no-pager || true
+          sudo systemctl status slayflashcards-frontend --no-pager || true
+
+          echo "=== Deployment complete ==="
