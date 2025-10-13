@@ -1,6 +1,6 @@
 import datetime
 
-from sqlalchemy import JSON, Boolean, Column, DateTime, ForeignKey, Integer, LargeBinary, String, Text, UniqueConstraint, \
+from sqlalchemy import JSON, Boolean, Column, DateTime, Float, ForeignKey, Integer, LargeBinary, String, Text, UniqueConstraint, \
     func  # pylint: disable=import-error
 from sqlalchemy.orm import relationship  # pylint: disable=import-error
 
@@ -80,7 +80,7 @@ class Session(Base):
     mode = Column(String(20), nullable=False)  # "learn" or "test"
     started_at = Column(DateTime(timezone=True), server_default=func.now())  # pylint: disable=not-callable
     completed_at = Column(DateTime(timezone=True), nullable=True)
-    score = Column(Integer, nullable=True)
+    score = Column(Float, nullable=True)
     completed = Column(Boolean, default=False, nullable=False)  # Session completion status
 
     # Relationships
