@@ -146,6 +146,62 @@ async def get_subjects(
         ) from e
 
 
+@router.get("/categories", response_model=dict)
+async def get_categories(
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    """Get all unique categories with quiz counts."""
+    try:
+        quiz_service = QuizService(db)
+        all_quizzes = quiz_service.get_all_quizzes(user_id=current_user.id)
+
+        categories = {}
+        for quiz in all_quizzes:
+            if quiz.category:
+                categories[quiz.category] = categories.get(quiz.category, 0) + 1
+
+        return {
+            "success": True,
+            "data": categories,
+            "message": f"Found {len(categories)} unique categories"
+        }
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to retrieve categories: {str(e)}"
+        ) from e
+
+
+@router.get("/levels", response_model=dict)
+async def get_levels(
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    """Get all unique levels with quiz counts."""
+    try:
+        quiz_service = QuizService(db)
+        all_quizzes = quiz_service.get_all_quizzes(user_id=current_user.id)
+
+        levels = {}
+        for quiz in all_quizzes:
+            if quiz.level:
+                levels[quiz.level] = levels.get(quiz.level, 0) + 1
+
+        return {
+            "success": True,
+            "data": levels,
+            "message": f"Found {len(levels)} unique levels"
+        }
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to retrieve levels: {str(e)}"
+        ) from e
+
+
 @router.get("/search", response_model=QuizzesResponse)
 async def search_quizzes(
     q: str = Query(..., min_length=1, description="Search query"),
