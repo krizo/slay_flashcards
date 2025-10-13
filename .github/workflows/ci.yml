@@ -228,7 +228,7 @@ jobs:
 
           if [ "${{ github.event.inputs.recreate_database }}" == "true" ]; then
             echo "Recreating database with demo data..."
-            sudo -u $USER DATABASE_URL="$DATABASE_URL" DEMO_SECRETS="$DEMO_SECRETS" .venv/bin/python scripts/init_database.py --reset --demo
+            sudo -u $USER DATABASE_URL="$DATABASE_URL" DEMO_SECRETS="$DEMO_SECRETS" CI="true" .venv/bin/python scripts/init_database.py --reset --demo
           else
             echo "Initializing database (keeping existing data)..."
             sudo -u $USER DATABASE_URL="$DATABASE_URL" .venv/bin/python scripts/init_database.py
