@@ -191,16 +191,6 @@ function LearningSessionPage() {
     // Main session view
     return (
         <div className="session-page">
-            <SessionHeader
-                quizName={quiz?.name || 'Loading...'}
-                quizImage={quiz?.image}
-                yourBest={performance?.scores.highest ?? null}
-                yourAverage={performance?.scores.average ?? null}
-                testSessions={performance?.test_sessions ?? 0}
-                lastSessionDate={lastSessionDate}
-                onCloseSession={endSession}
-            />
-
             <div className="session-content-wrapper">
                 <FlashcardDisplay
                     flashcard={currentFlashcard}
