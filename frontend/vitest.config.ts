@@ -14,5 +14,14 @@ export default defineConfig({
         isolate: true,
       },
     },
+    reporters: [
+      ['default', {
+        summary: true,
+        verbose: false,
+      }]
+    ],
+    // Compact output settings
+    hideSkippedTests: true,
+    onConsoleLog: () => false, // Hide console logs during tests
   },
 });
