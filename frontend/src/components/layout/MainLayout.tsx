@@ -1,5 +1,6 @@
 import { Outlet, NavLink } from 'react-router-dom';
 import Header from './Header';
+import Footer from './Footer';
 
 function MainLayout() {
     return (
@@ -37,6 +38,7 @@ function MainLayout() {
                         </li>
                     </ul>
                 </nav>
+                <Footer />
             </aside>
 
             {/* Main Content Area with Header */}
