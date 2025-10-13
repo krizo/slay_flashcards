@@ -81,6 +81,118 @@ def get_demo_users():
 USERS = get_demo_users()
 
 
+def get_answer_types_test_quiz():
+    """Get test quiz data covering all answer types."""
+    return {
+        "name": "Test wszystkich typów odpowiedzi",
+        "subject": "Testowanie",
+        "category": "Typy odpowiedzi",
+        "level": "Wszystkie",
+        "description": "Quiz demonstracyjny pokazujący wszystkie możliwe typy odpowiedzi",
+        "favourite": False,
+        "image": "🧪",
+        "flashcards": [
+            # TEXT
+            {
+                "question": {"title": "Pytanie otwarte (text)", "text": "Opisz proces fotosyntezy w roślinach.", "lang": "pl", "difficulty": 3, "emoji": "🌱", "examples": ["Rośliny wykorzystują światło słoneczne...", "Chlorofil w liściach pochłania energię..."]},
+                "answer": {"text": "Fotosynteza to proces, w którym rośliny przekształcają dwutlenek węgla i wodę w glukozę i tlen przy użyciu energii słonecznej. Zachodzi w chloroplastach, gdzie chlorofil pochłania światło.", "type": "text", "lang": "pl", "metadata": {"hint": "Opisz proces w 2-3 zdaniach", "rows": 4, "min_words": 15}}
+            },
+            # SHORT_TEXT
+            {
+                "question": {"title": "Krótka odpowiedź (short_text)", "text": "Jaka jest stolica Francji?", "lang": "pl", "difficulty": 1, "emoji": "🇫🇷", "examples": ["Paryż", "Paris"]},
+                "answer": {"text": "Paryż", "type": "short_text", "lang": "pl", "metadata": {"hint": "Wpisz nazwę miasta", "placeholder": "np. Warszawa", "case_sensitive": False}}
+            },
+            # INTEGER
+            {
+                "question": {"title": "Liczba całkowita (integer)", "text": "Ile dni ma rok przestępny?", "lang": "pl", "difficulty": 1, "emoji": "📅", "examples": ["365", "366"]},
+                "answer": {"text": "366", "type": "integer", "lang": "pl", "metadata": {"hint": "Wpisz liczbę całkowitą", "placeholder": "np. 365", "min": 365, "max": 366}}
+            },
+            # FLOAT
+            {
+                "question": {"title": "Liczba dziesiętna (float)", "text": "Jaka jest wartość liczby π (pi) z dokładnością do 2 miejsc po przecinku?", "lang": "pl", "difficulty": 2, "emoji": "🥧", "examples": ["3.14", "3.141", "3.1415"]},
+                "answer": {"text": "3.14", "type": "float", "lang": "pl", "metadata": {"hint": "Wpisz liczbę z dokładnie 2 miejscami po przecinku", "decimal_places": 2, "step": 0.01, "example": "3.14"}}
+            },
+            # RANGE
+            {
+                "question": {"title": "Zakres liczbowy (range)", "text": "Jaka jest normalna temperatura ciała człowieka w stopniach Celsjusza?", "lang": "pl", "difficulty": 2, "emoji": "🌡️", "examples": ["36.6", "37.0"]},
+                "answer": {"text": "36.6", "type": "range", "lang": "pl", "metadata": {"min": 36.0, "max": 37.5, "step": 0.1, "hint": "Wybierz temperaturę w zakresie 36.0-37.5°C", "labels": {"min": "Niska", "max": "Wysoka"}}}
+            },
+            # BOOLEAN
+            {
+                "question": {"title": "Prawda/Fałsz (boolean)", "text": "Czy Ziemia jest płaska?", "lang": "pl", "difficulty": 1, "emoji": "🌍"},
+                "answer": {"text": "false", "type": "boolean", "lang": "pl", "metadata": {"true_label": "Tak", "false_label": "Nie", "hint": "Wybierz Tak lub Nie"}}
+            },
+            # CHOICE
+            {
+                "question": {"title": "Wybór jednej opcji (choice)", "text": "Który planet jest największy w Układzie Słonecznym?", "lang": "pl", "difficulty": 2, "emoji": "🪐"},
+                "answer": {"text": "b", "type": "choice", "lang": "pl", "options": [
+                    {"value": "a", "label": "Mars"},
+                    {"value": "b", "label": "Jowisz"},
+                    {"value": "c", "label": "Saturn"},
+                    {"value": "d", "label": "Ziemia"}
+                ], "metadata": {"hint": "Wybierz jedną poprawną odpowiedź"}}
+            },
+            # MULTIPLE_CHOICE
+            {
+                "question": {"title": "Wybór wielu opcji (multiple_choice)", "text": "Które z poniższych są językami programowania?", "lang": "pl", "difficulty": 2, "emoji": "💻"},
+                "answer": {"text": "a,c,d", "type": "multiple_choice", "lang": "pl", "options": [
+                    {"value": "a", "label": "Python"},
+                    {"value": "b", "label": "HTML"},
+                    {"value": "c", "label": "JavaScript"},
+                    {"value": "d", "label": "Java"},
+                    {"value": "e", "label": "CSS"}
+                ], "metadata": {"hint": "Zaznacz wszystkie poprawne odpowiedzi (3 opcje)", "exact_count": 3}}
+            },
+            # TEXT - Another variant
+            {
+                "question": {"title": "Pytanie otwarte 2 (text)", "text": "Wyjaśnij różnicę między sztuczną inteligencją a uczeniem maszynowym.", "lang": "pl", "difficulty": 4, "emoji": "🤖", "examples": ["AI to szersze pojęcie obejmujące...", "Uczenie maszynowe jest podzbiorem AI..."]},
+                "answer": {"text": "Sztuczna inteligencja (AI) to szeroka dziedzina obejmująca wszelkie systemy symulujące ludzką inteligencję. Uczenie maszynowe (ML) jest podzbiorem AI, skupiającym się na algorytmach uczących się z danych bez jawnego programowania.", "type": "text", "lang": "pl", "metadata": {"hint": "Opisz obie koncepcje i ich związek", "rows": 5, "min_words": 20}}
+            },
+            # SHORT_TEXT - Another variant
+            {
+                "question": {"title": "Krótka odpowiedź 2 (short_text)", "text": "Jaki język programowania używa interpretera CPython?", "lang": "pl", "difficulty": 2, "emoji": "🐍", "examples": ["Python"]},
+                "answer": {"text": "Python", "type": "short_text", "lang": "pl", "metadata": {"hint": "Wpisz nazwę języka programowania", "placeholder": "np. Java", "max_length": 20}}
+            },
+            # INTEGER - Another variant
+            {
+                "question": {"title": "Liczba całkowita 2 (integer)", "text": "Ile chromosomów ma człowiek?", "lang": "pl", "difficulty": 2, "emoji": "🧬", "examples": ["46"]},
+                "answer": {"text": "46", "type": "integer", "lang": "pl", "metadata": {"hint": "Wpisz liczbę całkowitą chromosomów", "min": 1, "max": 100, "example": "23"}}
+            },
+            # FLOAT - Another variant
+            {
+                "question": {"title": "Liczba dziesiętna 2 (float)", "text": "Jaka jest wartość przyspieszenia ziemskiego w m/s² (zaokrąglone do 1 miejsca)?", "lang": "pl", "difficulty": 2, "emoji": "🍎", "examples": ["9.8", "9.81"]},
+                "answer": {"text": "9.8", "type": "float", "lang": "pl", "metadata": {"hint": "Wpisz wartość z 1 miejscem po przecinku", "decimal_places": 1, "step": 0.1, "unit": "m/s²", "example": "9.8"}}
+            },
+            # BOOLEAN - Another variant
+            {
+                "question": {"title": "Prawda/Fałsz 2 (boolean)", "text": "Czy wieloryby są rybami?", "lang": "pl", "difficulty": 2, "emoji": "🐋"},
+                "answer": {"text": "false", "type": "boolean", "lang": "pl", "metadata": {"true_label": "Prawda", "false_label": "Fałsz"}}
+            },
+            # CHOICE - Another variant
+            {
+                "question": {"title": "Wybór jednej opcji 2 (choice)", "text": "W którym roku upadł Mur Berliński?", "lang": "pl", "difficulty": 3, "emoji": "🧱"},
+                "answer": {"text": "c", "type": "choice", "lang": "pl", "options": [
+                    {"value": "a", "label": "1987"},
+                    {"value": "b", "label": "1988"},
+                    {"value": "c", "label": "1989"},
+                    {"value": "d", "label": "1990"}
+                ], "metadata": {"hint": "Wybierz rok (4 cyfry)"}}
+            },
+            # MULTIPLE_CHOICE - Another variant
+            {
+                "question": {"title": "Wybór wielu opcji 2 (multiple_choice)", "text": "Które z poniższych to gazy szlachetne?", "lang": "pl", "difficulty": 3, "emoji": "⚗️"},
+                "answer": {"text": "a,c,e", "type": "multiple_choice", "lang": "pl", "options": [
+                    {"value": "a", "label": "Hel (He)"},
+                    {"value": "b", "label": "Tlen (O₂)"},
+                    {"value": "c", "label": "Neon (Ne)"},
+                    {"value": "d", "label": "Azot (N₂)"},
+                    {"value": "e", "label": "Argon (Ar)"}
+                ], "metadata": {"hint": "Zaznacz wszystkie gazy szlachetne", "min_selections": 1, "max_selections": 5}}
+            },
+        ]
+    }
+
+
 # Quiz data for Polish high school students
 QUIZZES = {
     "Emila": [
@@ -224,7 +336,8 @@ QUIZZES = {
                     "answer": {"text": "Białka", "type": "short_text", "lang": "pl"}
                 }
             ]
-        }
+        },
+        get_answer_types_test_quiz()
     ],
     "Kriz": [
         {
@@ -352,7 +465,8 @@ QUIZZES = {
                     "answer": {"text": "O(log n)", "type": "text", "lang": "pl"}
                 }
             ]
-        }
+        },
+        get_answer_types_test_quiz()
     ]
 }
 
