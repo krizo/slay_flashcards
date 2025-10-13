@@ -173,7 +173,7 @@ Stary format - wymaga konwersji za pomocą `scripts/convert_quiz_format.py`
 ### MULTIPLE_CHOICE (wybór wielu opcji)
 ```json
 "answer": {
-  "text": "a,c,d",  // przecinek-separated (lowercase!)
+  "text": "a,c,d",  // coma-separated (lowercase!)
   "type": "multiple_choice",
   "options": [
     {"value": "a", "label": "Opcja A"},
