@@ -13,11 +13,54 @@ from core.db.models import Quiz, Flashcard
 from datetime import datetime
 
 
-def create_answer_types_quiz():
-    """Create a quiz with examples of all answer types"""
+def create_answer_types_quiz(user_id=None):
+    """Create a quiz with examples of all answer types
+
+    Args:
+        user_id: ID of the user who will own the quiz. If None, prompts for selection.
+    """
     db = SessionLocal()
 
     try:
+        # Select user if not provided
+        if user_id is None:
+            users = db.query(Quiz).distinct(Quiz.user_id).all()
+            user_ids = list(set([q.user_id for q in users]))
+
+            # Get all users
+            from core.db.models import User
+            all_users = db.query(User).all()
+
+            if not all_users:
+                print("❌ No users found in database!")
+                return
+
+            print("\n👥 Available users:")
+            for user in all_users:
+                print(f"   {user.id}: {user.name}")
+
+            while True:
+                try:
+                    user_input = input("\nEnter user ID (or press Enter for user 1): ").strip()
+                    if user_input == "":
+                        user_id = 1
+                        break
+                    user_id = int(user_input)
+                    if any(u.id == user_id for u in all_users):
+                        break
+                    print(f"❌ User ID {user_id} not found. Try again.")
+                except ValueError:
+                    print("❌ Invalid input. Please enter a number.")
+
+        # Verify user exists
+        from core.db.models import User
+        user = db.query(User).filter(User.id == user_id).first()
+        if not user:
+            print(f"❌ User with ID {user_id} not found!")
+            return
+
+        print(f"\n✅ Creating quiz for user: {user.name} (ID: {user_id})")
+
         # Create quiz
         quiz = Quiz(
             name="Test wszystkich typów odpowiedzi",
@@ -25,7 +68,7 @@ def create_answer_types_quiz():
             category="Typy odpowiedzi",
             level="Wszystkie",
             description="Quiz demonstracyjny pokazujący wszystkie możliwe typy odpowiedzi",
-            user_id=1,  # Assuming user with ID 1 exists
+            user_id=user_id,
             created_at=datetime.now(),
             image="🧪".encode('utf-8')
         )
@@ -46,7 +89,7 @@ def create_answer_types_quiz():
                 "answer_text": "Fotosynteza to proces, w którym rośliny przekształcają dwutlenek węgla i wodę w glukozę i tlen przy użyciu energii słonecznej. Zachodzi w chloroplastach, gdzie chlorofil pochłania światło.",
                 "answer_type": "text",
                 "answer_options": None,
-                "answer_metadata": None
+                "answer_metadata": {"hint": "Opisz proces w 2-3 zdaniach", "rows": 4, "min_words": 15}
             },
 
             # 2. SHORT_TEXT - Short answer
@@ -59,7 +102,7 @@ def create_answer_types_quiz():
                 "answer_text": "Paryż",
                 "answer_type": "short_text",
                 "answer_options": None,
-                "answer_metadata": None
+                "answer_metadata": {"hint": "Wpisz nazwę miasta", "placeholder": "np. Warszawa", "case_sensitive": False}
             },
 
             # 3. INTEGER - Whole number
@@ -72,7 +115,7 @@ def create_answer_types_quiz():
                 "answer_text": "366",
                 "answer_type": "integer",
                 "answer_options": None,
-                "answer_metadata": None
+                "answer_metadata": {"hint": "Wpisz liczbę całkowitą", "placeholder": "np. 365", "min": 365, "max": 366}
             },
 
             # 4. FLOAT - Decimal number
@@ -85,7 +128,7 @@ def create_answer_types_quiz():
                 "answer_text": "3.14",
                 "answer_type": "float",
                 "answer_options": None,
-                "answer_metadata": None
+                "answer_metadata": {"hint": "Wpisz liczbę z dokładnie 2 miejscami po przecinku", "decimal_places": 2, "step": 0.01, "example": "3.14"}
             },
 
             # 5. RANGE - Number within range
@@ -98,7 +141,7 @@ def create_answer_types_quiz():
                 "answer_text": "36.6",
                 "answer_type": "range",
                 "answer_options": None,
-                "answer_metadata": {"min": 36.0, "max": 37.5}
+                "answer_metadata": {"min": 36.0, "max": 37.5, "step": 0.1, "hint": "Wybierz temperaturę w zakresie 36.0-37.5°C", "labels": {"min": "Niska", "max": "Wysoka"}}
             },
 
             # 6. BOOLEAN - True/False
@@ -111,7 +154,7 @@ def create_answer_types_quiz():
                 "answer_text": "false",
                 "answer_type": "boolean",
                 "answer_options": None,
-                "answer_metadata": None
+                "answer_metadata": {"true_label": "Tak", "false_label": "Nie", "hint": "Wybierz Tak lub Nie"}
             },
 
             # 7. CHOICE - Single choice
@@ -129,7 +172,7 @@ def create_answer_types_quiz():
                     {"value": "c", "label": "Saturn"},
                     {"value": "d", "label": "Ziemia"}
                 ],
-                "answer_metadata": None
+                "answer_metadata": {"hint": "Wybierz jedną poprawną odpowiedź"}
             },
 
             # 8. MULTIPLE_CHOICE - Multiple selections
@@ -148,7 +191,7 @@ def create_answer_types_quiz():
                     {"value": "d", "label": "Java"},
                     {"value": "e", "label": "CSS"}
                 ],
-                "answer_metadata": None
+                "answer_metadata": {"hint": "Zaznacz wszystkie poprawne odpowiedzi (3 opcje)", "exact_count": 3}
             },
 
             # 9. TEXT - Another variant
@@ -164,7 +207,7 @@ def create_answer_types_quiz():
                 "answer_text": "Sztuczna inteligencja (AI) to szeroka dziedzina obejmująca wszelkie systemy symulujące ludzką inteligencję. Uczenie maszynowe (ML) jest podzbiorem AI, skupiającym się na algorytmach uczących się z danych bez jawnego programowania.",
                 "answer_type": "text",
                 "answer_options": None,
-                "answer_metadata": None
+                "answer_metadata": {"hint": "Opisz obie koncepcje i ich związek", "rows": 5, "min_words": 20}
             },
 
             # 10. SHORT_TEXT - Another variant
@@ -177,7 +220,7 @@ def create_answer_types_quiz():
                 "answer_text": "Python",
                 "answer_type": "short_text",
                 "answer_options": None,
-                "answer_metadata": None
+                "answer_metadata": {"hint": "Wpisz nazwę języka programowania", "placeholder": "np. Java", "max_length": 20}
             },
 
             # 11. INTEGER - Another variant
@@ -190,7 +233,7 @@ def create_answer_types_quiz():
                 "answer_text": "46",
                 "answer_type": "integer",
                 "answer_options": None,
-                "answer_metadata": None
+                "answer_metadata": {"hint": "Wpisz liczbę całkowitą chromosomów", "min": 1, "max": 100, "example": "23"}
             },
 
             # 12. FLOAT - Another variant
@@ -203,7 +246,7 @@ def create_answer_types_quiz():
                 "answer_text": "9.8",
                 "answer_type": "float",
                 "answer_options": None,
-                "answer_metadata": None
+                "answer_metadata": {"hint": "Wpisz wartość z 1 miejscem po przecinku", "decimal_places": 1, "step": 0.1, "unit": "m/s²", "example": "9.8"}
             },
 
             # 13. BOOLEAN - Another variant
@@ -216,7 +259,7 @@ def create_answer_types_quiz():
                 "answer_text": "false",
                 "answer_type": "boolean",
                 "answer_options": None,
-                "answer_metadata": None
+                "answer_metadata": {"true_label": "Prawda", "false_label": "Fałsz"}
             },
 
             # 14. CHOICE - Another variant
@@ -234,7 +277,7 @@ def create_answer_types_quiz():
                     {"value": "c", "label": "1989"},
                     {"value": "d", "label": "1990"}
                 ],
-                "answer_metadata": None
+                "answer_metadata": {"hint": "Wybierz rok (4 cyfry)"}
             },
 
             # 15. MULTIPLE_CHOICE - Another variant
@@ -253,7 +296,7 @@ def create_answer_types_quiz():
                     {"value": "d", "label": "Azot (N₂)"},
                     {"value": "e", "label": "Argon (Ar)"}
                 ],
-                "answer_metadata": None
+                "answer_metadata": {"hint": "Zaznacz wszystkie gazy szlachetne", "min_selections": 1, "max_selections": 5}
             },
         ]
 
@@ -296,4 +339,10 @@ def create_answer_types_quiz():
 
 
 if __name__ == "__main__":
-    create_answer_types_quiz()
+    import argparse
+
+    parser = argparse.ArgumentParser(description='Create a comprehensive answer types test quiz')
+    parser.add_argument('--user-id', type=int, help='User ID who will own the quiz')
+    args = parser.parse_args()
+
+    create_answer_types_quiz(user_id=args.user_id)
