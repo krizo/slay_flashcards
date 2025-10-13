@@ -8,6 +8,7 @@ User=github
 Group=github
 WorkingDirectory=/opt/slayflashcards/production/frontend
 Environment="NODE_ENV=production"
+Environment="BACKEND_PORT=8002"
 ExecStart=/usr/bin/npm run preview -- --host 0.0.0.0 --port 3002
 Restart=always
 RestartSec=3
