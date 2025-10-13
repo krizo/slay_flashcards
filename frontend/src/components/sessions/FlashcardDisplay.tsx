@@ -43,24 +43,29 @@ function getLanguageFlag(lang: string | null | undefined): string {
     return flagMap[lang || 'en'] || '🇬🇧';
 }
 
-// Helper function to get difficulty badge
-function getDifficultyBadge(difficulty: number | null | undefined) {
+// Helper function to get difficulty stars
+function getDifficultyStars(difficulty: number | null | undefined) {
     if (!difficulty) return null;
 
-    const difficultyConfig: Record<number, { label: string; emoji: string; className: string }> = {
-        1: { label: 'Easy', emoji: '🟢', className: 'difficulty-easy' },
-        2: { label: 'Medium', emoji: '🟡', className: 'difficulty-medium' },
-        3: { label: 'Medium+', emoji: '🟠', className: 'difficulty-medium-plus' },
-        4: { label: 'Hard', emoji: '🔴', className: 'difficulty-hard' },
-        5: { label: 'Very Hard', emoji: '⚫', className: 'difficulty-very-hard' },
+    const difficultyConfig: Record<number, { stars: number; label: string; className: string }> = {
+        1: { stars: 1, label: 'Easy', className: 'difficulty-easy' },
+        2: { stars: 2, label: 'Medium', className: 'difficulty-medium' },
+        3: { stars: 3, label: 'Medium+', className: 'difficulty-medium-plus' },
+        4: { stars: 4, label: 'Hard', className: 'difficulty-hard' },
+        5: { stars: 5, label: 'Very Hard', className: 'difficulty-very-hard' },
     };
 
     const config = difficultyConfig[difficulty];
     if (!config) return null;
 
     return (
-        <span className={`difficulty-badge ${config.className}`}>
-            {config.emoji} {config.label}
+        <span className={`difficulty-stars ${config.className}`}>
+            <span className="difficulty-label">Difficulty:</span>
+            {Array.from({ length: 5 }).map((_, index) => (
+                <span key={index} className={index < config.stars ? 'star-filled' : 'star-empty'}>
+                    ★
+                </span>
+            ))}
         </span>
     );
 }
@@ -186,21 +191,10 @@ function FlashcardDisplay({
                     </span>
                     <span className="flashcard-quiz-name">{quizName}</span>
                 </div>
-                <div className="flashcard-progress-dots">
-                    {Array.from({ length: totalFlashcards }).map((_, index) => (
-                        <div
-                            key={index}
-                            className={`progress-dot ${
-                                index < flashcardsCompleted ? 'progress-dot--active' : ''
-                            }`}
-                        />
-                    ))}
+                {/* Progress Counter */}
+                <div className="flashcard-progress-counter">
+                    {flashcardsCompleted} / {totalFlashcards} cards ({percentage}%)
                 </div>
-            </div>
-
-            {/* Progress Counter */}
-            <div className="flashcard-progress-counter">
-                {flashcardsCompleted} / {totalFlashcards} cards ({percentage}%)
             </div>
 
             {/* Question Section */}
@@ -209,7 +203,6 @@ function FlashcardDisplay({
                     <div className="flashcard-emoji">{flashcard.question.emoji}</div>
                     <h2 className="flashcard-question-title">
                         {flashcard.question.title}
-                        {getDifficultyBadge(flashcard.question.difficulty)}
                     </h2>
                     <button
                         className="speaker-icon"
@@ -219,6 +212,7 @@ function FlashcardDisplay({
                     >
                         🔊 {getLanguageFlag(flashcard.question.lang)} <span className="speaker-text">Click to listen</span>
                     </button>
+                    {getDifficultyStars(flashcard.question.difficulty)}
                 </div>
                 <p className="flashcard-question-text">{flashcard.question.text}</p>
 

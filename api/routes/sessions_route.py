@@ -601,21 +601,36 @@ async def get_user_recent_sessions(
 
         # Get recent sessions
         session_repo = SessionRepository(db)
+        quiz_service = QuizService(db)
 
         if mode:
             sessions = session_repo.get_by_mode(user_id, mode.value)
         else:
-            sessions = session_repo.get_recent_sessions(user_id, limit)
+            # Get many more sessions to account for filtering incomplete test sessions
+            # Increase limit significantly as user may have many incomplete test sessions
+            sessions = session_repo.get_recent_sessions(user_id, 100)
 
-        # Filter by completed sessions only
-        sessions = [s for s in sessions if getattr(s, 'completed', False)]
+        # Filter by completed sessions (test sessions MUST be completed, learn sessions can be incomplete)
+        # For test sessions: only show completed ones with scores
+        # For learn sessions: show all (completed or not)
+        filtered_sessions = []
+        for s in sessions:
+            if s.mode == 'learn':
+                # Include all learn sessions
+                filtered_sessions.append(s)
+            elif s.mode == 'test' and getattr(s, 'completed', False):
+                # Only include completed test sessions
+                filtered_sessions.append(s)
 
-        # Limit results
-        sessions = sessions[:limit]
+        # Limit results after filtering
+        sessions = filtered_sessions[:limit]
 
-        # Convert to response format
+        # Convert to response format with quiz info
         session_data = []
         for session in sessions:
+            # Get quiz details
+            quiz = quiz_service.get_quiz_by_id(session.quiz_id)
+
             session_dict = {
                 "id": session.id,
                 "user_id": session.user_id,
@@ -624,7 +639,10 @@ async def get_user_recent_sessions(
                 "started_at": session.started_at,
                 "score": session.score,
                 "completed_at": getattr(session, 'completed_at', None),
-                "completed": getattr(session, 'completed', False)
+                "completed": getattr(session, 'completed', False),
+                "quiz_name": quiz.name if quiz else None,
+                "quiz_category": quiz.category if quiz else None,
+                "quiz_level": quiz.level if quiz else None,
             }
             session_data.append(Session(**session_dict))
 

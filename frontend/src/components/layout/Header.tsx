@@ -46,8 +46,13 @@ function Header() {
     let displayEmoji = sessionInfo?.quizImage;
     if (sessionInfo?.quizImage && sessionInfo.quizImage.length < 50 && /^[A-Za-z0-9+/=]+$/.test(sessionInfo.quizImage)) {
         try {
-            // Try to decode as base64 - might be encoded emoji
-            displayEmoji = atob(sessionInfo.quizImage);
+            // Properly decode base64 to UTF-8 for emoji
+            const binaryString = atob(sessionInfo.quizImage);
+            const bytes = new Uint8Array(binaryString.length);
+            for (let i = 0; i < binaryString.length; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
+            displayEmoji = new TextDecoder('utf-8').decode(bytes);
         } catch (e) {
             // If decode fails, use as-is
             displayEmoji = sessionInfo.quizImage;
