@@ -154,6 +154,9 @@ jobs:
           cd /opt/slayflashcards/frontend
           sudo npm ci --omit=dev
 
+          # Return to repository directory for backend deployment
+          cd $GITHUB_WORKSPACE
+
           # Deploy backend (api + core + requirements)
           echo "📦 Deploying backend..."
           sudo rsync -av --delete api/ /opt/slayflashcards/backend/api/
