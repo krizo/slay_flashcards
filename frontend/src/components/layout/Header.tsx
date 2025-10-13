@@ -20,21 +20,30 @@ function Header() {
         }
     };
 
-    // Format date helper
+    // Format date helper (same as SessionHeader)
     const formatDate = (dateString: string | null | undefined) => {
-        if (!dateString) return 'Never';
+        if (!dateString) return 'First time!';
         const date = new Date(dateString);
         const now = new Date();
-        const diffInDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
+        const diffMs = now.getTime() - date.getTime();
+        const diffSecs = Math.floor(diffMs / 1000);
+        const diffMins = Math.floor(diffMs / 60000);
+        const diffHours = Math.floor(diffMs / 3600000);
+        const diffDays = Math.floor(diffMs / 86400000);
 
-        if (diffInDays === 0) return 'Today';
-        if (diffInDays === 1) return 'Yesterday';
-        if (diffInDays < 7) return `${diffInDays} days ago`;
+        if (diffSecs < 30) return 'Just now';
+        if (diffMins < 1) return `${diffSecs} sec ago`;
+        if (diffMins < 60) return `${diffMins} min ago`;
+        if (diffHours < 24) return `${diffHours}h ago`;
+        if (diffDays === 1) return 'Yesterday';
+        if (diffDays < 7) return `${diffDays} days ago`;
+        if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
         return date.toLocaleDateString();
     };
 
-    // Check if image is valid base64 data URL
+    // Check if image is valid base64 data URL or emoji
     const hasValidImage = sessionInfo?.quizImage && sessionInfo.quizImage.startsWith('data:image');
+    const hasEmoji = sessionInfo?.quizImage && !sessionInfo.quizImage.startsWith('data:image') && sessionInfo.quizImage.length < 10;
 
     return (
         <header className="app-header">
@@ -48,32 +57,52 @@ function Header() {
                                 alt={sessionInfo.quizName}
                                 className="header-session-image"
                             />
+                        ) : hasEmoji ? (
+                            <span className="header-session-icon">{sessionInfo.quizImage}</span>
                         ) : (
                             <span className="header-session-icon">📚</span>
                         )}
                         <span className="header-session-name">{sessionInfo.quizName}</span>
                     </div>
                     <div className="header-session-metrics">
-                        <span className="header-metric">
+                        <div className="header-metric">
                             <span className="metric-icon">⭐</span>
-                            {sessionInfo.yourBest !== null && sessionInfo.yourBest !== undefined
-                                ? `${Math.round(sessionInfo.yourBest)}%`
-                                : '—'}
-                        </span>
-                        <span className="header-metric">
+                            <div className="metric-content">
+                                <span className="metric-value">
+                                    {sessionInfo.yourBest !== null && sessionInfo.yourBest !== undefined
+                                        ? `${Math.round(sessionInfo.yourBest)}%`
+                                        : '—'}
+                                </span>
+                                <span className="metric-label">Your Best</span>
+                            </div>
+                        </div>
+                        <div className="header-metric">
                             <span className="metric-icon">📊</span>
-                            {sessionInfo.yourAverage !== null && sessionInfo.yourAverage !== undefined
-                                ? `${Math.round(sessionInfo.yourAverage)}%`
-                                : '—'}
-                        </span>
-                        <span className="header-metric">
+                            <div className="metric-content">
+                                <span className="metric-value">
+                                    {sessionInfo.yourAverage !== null && sessionInfo.yourAverage !== undefined
+                                        ? `${Math.round(sessionInfo.yourAverage)}%`
+                                        : '—'}
+                                </span>
+                                <span className="metric-label">Your Avg</span>
+                            </div>
+                        </div>
+                        <div className="header-metric">
                             <span className="metric-icon">🎯</span>
-                            {sessionInfo.testSessions && sessionInfo.testSessions > 0 ? sessionInfo.testSessions : '—'}
-                        </span>
-                        <span className="header-metric">
+                            <div className="metric-content">
+                                <span className="metric-value">
+                                    {sessionInfo.testSessions && sessionInfo.testSessions > 0 ? sessionInfo.testSessions : '—'}
+                                </span>
+                                <span className="metric-label">Test Sessions</span>
+                            </div>
+                        </div>
+                        <div className="header-metric">
                             <span className="metric-icon">🕒</span>
-                            {formatDate(sessionInfo.lastSessionDate)}
-                        </span>
+                            <div className="metric-content">
+                                <span className="metric-value">{formatDate(sessionInfo.lastSessionDate)}</span>
+                                <span className="metric-label">Last Session</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             )}
