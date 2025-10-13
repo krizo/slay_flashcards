@@ -2808,7 +2808,7 @@ body {
     justify-content: center;
     width: 100%;
     padding: 20px 40px;
-    padding-top: 220px; /* Account for fixed session-header */
+    padding-top: 110px; /* Account for fixed header (session-header removed) */
     padding-bottom: 40px;
     margin-left: 280px; /* Account for sidebar */
     margin-right: 340px; /* Account for timeline + margin */
@@ -3309,7 +3309,7 @@ body {
 @media (max-width: 768px) {
     .session-content-wrapper {
         padding: 15px;
-        padding-top: 120px; /* Reduced top padding for small screens */
+        padding-top: 90px; /* Reduced top padding for small screens (session-header removed) */
         padding-bottom: 20px;
         margin-left: 0; /* Remove sidebar margin */
         margin-right: 0; /* Remove timeline margin */
@@ -3418,7 +3418,7 @@ body {
 @media (max-width: 480px) {
     .session-content-wrapper {
         padding: 10px;
-        padding-top: 100px;
+        padding-top: 80px; /* Reduced for very small screens (session-header removed) */
     }
 
     .flashcard-card {
