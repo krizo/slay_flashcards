@@ -2804,15 +2804,16 @@ body {
 .session-content-wrapper {
     flex-grow: 1;
     display: flex;
-    align-items: flex-start;
+    align-items: center; /* Center vertically */
     justify-content: center;
     width: 100%;
     padding: 20px 40px;
     padding-top: 220px; /* Account for fixed session-header */
+    padding-bottom: 40px;
     margin-left: 280px; /* Account for sidebar */
     margin-right: 340px; /* Account for timeline + margin */
-    overflow-y: auto; /* Allow scrolling */
-    min-height: 0; /* Important for flexbox scrolling */
+    min-height: 0; /* Important for flexbox */
+    height: calc(100vh - 100px); /* Full viewport minus header */
 }
 
 /* Flashcard Card */
@@ -2823,11 +2824,14 @@ body {
     padding: 30px;
     width: 70%;
     max-width: 1400px;
+    height: 100%; /* Fill available height */
+    max-height: calc(100vh - 140px); /* Prevent overflow */
     display: flex;
     flex-direction: column;
     gap: 20px;
     border: 1px solid rgba(106, 63, 251, 0.1);
     margin-right: 280px; /* Account for timeline width to center properly */
+    overflow: hidden; /* Prevent card itself from scrolling */
 }
 
 @media (max-width: 1600px) {
@@ -2849,6 +2853,7 @@ body {
     align-items: center;
     padding: 10px 0 25px 0;
     border-bottom: 2px solid rgba(106, 63, 251, 0.15);
+    flex-shrink: 0; /* Never shrink */
 }
 
 .flashcard-quiz-info {
@@ -2906,6 +2911,7 @@ body {
     padding: 8px 12px;
     border-radius: 8px;
     display: inline-block;
+    flex-shrink: 0; /* Never shrink */
 }
 
 /* Question Section */
@@ -2918,6 +2924,9 @@ body {
     padding-top: 25px;
     border-radius: 12px;
     border: 1px solid rgba(106, 63, 251, 0.1);
+    flex: 1 1 auto; /* Grow to fill space */
+    overflow-y: auto; /* Scroll when content too long */
+    min-height: 0; /* Important for flexbox */
 }
 
 .flashcard-question-header {
@@ -3007,6 +3016,7 @@ body {
     align-items: center;
     gap: 10px;
     margin-bottom: 15px;
+    flex-shrink: 0; /* Never shrink */
 }
 
 .flashcard-answer-hint .hint-icon {
@@ -3019,6 +3029,16 @@ body {
     color: #92400e;
     font-weight: 500;
     line-height: 1.4;
+}
+
+/* Answer Area */
+.flashcard-answer-area {
+    flex: 1 1 auto; /* Grow to fill space */
+    overflow-y: auto; /* Scroll when content too long */
+    min-height: 0; /* Important for flexbox */
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
 }
 
 /* Answer Input */
@@ -3140,6 +3160,7 @@ body {
     padding-top: 20px;
     border-top: 2px solid rgba(106, 63, 251, 0.1);
     flex-wrap: wrap;
+    flex-shrink: 0; /* Never shrink - always visible */
 }
 
 /* Session Controls (deprecated - now using flashcard-controls) */
