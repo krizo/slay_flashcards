@@ -1,0 +1,520 @@
+{
+  "quiz": {
+    "name": "Praczłowiek",
+    "subject": "Historia",
+    "created_at": "2025-09-24",
+    "description": "Quiz o ewolucji człowieka na podstawie notatek"
+  },
+  "flashcards": [
+    {
+      "question": {
+        "title": "Hominidy - Okres występowania",
+        "text": "Ile milionów lat temu żyły Hominidy?",
+        "lang": "pl",
+        "difficulty": 1,
+        "emoji": "⏳"
+      },
+      "answer": {
+        "text": "6-4.5",
+        "type": "range",
+        "lang": "pl",
+        "metadata": {
+          "unit": "miliony lat",
+          "overlap_threshold": 0.7
+        }
+      }
+    },
+    {
+      "question": {
+        "title": "Australopitek - Wielkość mózgu",
+        "text": "Ile cm³ wynosiła wielkość mózgu u Australopiteka?",
+        "lang": "pl",
+        "difficulty": 2,
+        "emoji": "🧠"
+      },
+      "answer": {
+        "text": "500",
+        "type": "integer",
+        "lang": "pl",
+        "metadata": {
+          "tolerance": 25,
+          "unit": "cm³"
+        }
+      }
+    },
+    {
+      "question": {
+        "title": "Homo habilis - Cechy",
+        "text": "Jakie były główne cechy Homo habilis?",
+        "lang": "pl",
+        "difficulty": 2,
+        "emoji": "🛠️"
+      },
+      "answer": {
+        "text": "Wytwarzanie narzędzi",
+        "type": "short_text",
+        "lang": "pl",
+        "metadata": {
+          "case_sensitive": false,
+          "max_length": 50
+        }
+      }
+    },
+    {
+      "question": {
+        "title": "Homo erectus - Okres występowania",
+        "text": "Ile milionów lat temu żył Homo erectus?",
+        "lang": "pl",
+        "difficulty": 1,
+        "emoji": "🕰️"
+      },
+      "answer": {
+        "text": "1.8",
+        "type": "float",
+        "lang": "pl",
+        "metadata": {
+          "tolerance": 0.2,
+          "unit": "miliony lat"
+        }
+      }
+    },
+    {
+      "question": {
+        "title": "Neandertalczyk - Okres występowania",
+        "text": "Ile tysięcy lat temu żył Neandertalczyk?",
+        "lang": "pl",
+        "difficulty": 1,
+        "emoji": "⏳"
+      },
+      "answer": {
+        "text": "600-300",
+        "type": "range",
+        "lang": "pl",
+        "metadata": {
+          "unit": "tysiące lat",
+          "overlap_threshold": 0.6
+        }
+      }
+    },
+    {
+      "question": {
+        "title": "Homo sapiens - Droga do Azji",
+        "text": "Ile tysięcy lat temu Homo sapiens dotarł do Azji?",
+        "lang": "pl",
+        "difficulty": 3,
+        "emoji": "🌏"
+      },
+      "answer": {
+        "text": "100",
+        "type": "integer",
+        "lang": "pl",
+        "metadata": {
+          "tolerance": 10,
+          "unit": "tysiące lat"
+        }
+      }
+    },
+    {
+      "question": {
+        "title": "Epoki kamienia",
+        "text": "Jakie były epoki kamienia?",
+        "lang": "pl",
+        "difficulty": 2,
+        "emoji": "🗿"
+      },
+      "answer": {
+        "text": "Paleolit, mezolit, neolit",
+        "type": "text",
+        "lang": "pl",
+        "metadata": {
+          "case_sensitive": false,
+          "alternative_answers": [
+            "paleolit mezolit neolit",
+            "epoka kamienia łupanego, środkowego, gładzonego"
+          ]
+        }
+      }
+    },
+    {
+      "question": {
+        "title": "Rewolucja neolityczna",
+        "text": "Co to jest rewolucja neolityczna?",
+        "lang": "pl",
+        "difficulty": 3,
+        "emoji": "💡"
+      },
+      "answer": {
+        "text": "Zmiana 10 tys. lat p.n.e. w obrębie żyznego półksiężyca",
+        "type": "text",
+        "lang": "pl",
+        "metadata": {
+          "case_sensitive": false,
+          "keywords": ["10 tys", "żyzny półksiężyc", "zmiana"]
+        }
+      }
+    },
+    {
+      "question": {
+        "title": "Człowiek — ewolucja",
+        "text": "Jak nazywa się nauka, która bada ewolucję człowieka?",
+        "lang": "pl",
+        "difficulty": 1,
+        "emoji": "🧬"
+      },
+      "answer": {
+        "text": "Antropologia",
+        "type": "short_text",
+        "lang": "pl",
+        "metadata": {
+          "case_sensitive": false,
+          "max_length": 30
+        }
+      }
+    },
+    {
+      "question": {
+        "title": "Karol Darwin",
+        "text": "Jaka jest teoria Karola Darwina?",
+        "lang": "pl",
+        "difficulty": 2,
+        "emoji": "📚"
+      },
+      "answer": {
+        "text": "Teoria ewolucji i teoria kreacjonizmu",
+        "type": "text",
+        "lang": "pl",
+        "metadata": {
+          "case_sensitive": false,
+          "alternative_answers": [
+            "teoria ewolucji",
+            "ewolucja gatunków"
+          ]
+        }
+      }
+    },
+    {
+      "question": {
+        "title": "Homo Erectus - wielkość mózgu",
+        "text": "Ile cm³ wynosiła wielkość mózgu u Homo Erectusa?",
+        "lang": "pl",
+        "difficulty": 2,
+        "emoji": "🧠"
+      },
+      "answer": {
+        "text": "800-1200",
+        "type": "range",
+        "lang": "pl",
+        "metadata": {
+          "unit": "cm³",
+          "overlap_threshold": 0.5
+        }
+      }
+    },
+    {
+      "question": {
+        "title": "Neandertalczyk - pochówek",
+        "text": "W jaki sposób Neandertalczyk chował swoich zmarłych?",
+        "lang": "pl",
+        "difficulty": 2,
+        "emoji": "⚰️"
+      },
+      "answer": {
+        "text": "Grzebał zmarłych, a miejsca pochówku dekorował kwiatami",
+        "type": "text",
+        "lang": "pl",
+        "metadata": {
+          "case_sensitive": false,
+          "keywords": ["grzebał", "kwiaty", "dekorował"]
+        }
+      }
+    },
+    {
+      "question": {
+        "title": "Paleolit",
+        "text": "Ile milionów lat temu rozpoczął się Paleolit?",
+        "lang": "pl",
+        "difficulty": 3,
+        "emoji": "🗓️"
+      },
+      "answer": {
+        "text": "2.5",
+        "type": "float",
+        "lang": "pl",
+        "metadata": {
+          "tolerance": 0.2,
+          "unit": "miliony lat"
+        }
+      }
+    },
+    {
+      "question": {
+        "title": "Mezolit",
+        "text": "Ile tysięcy lat temu rozpoczął się Mezolit?",
+        "lang": "pl",
+        "difficulty": 3,
+        "emoji": "🗓️"
+      },
+      "answer": {
+        "text": "11",
+        "type": "integer",
+        "lang": "pl",
+        "metadata": {
+          "tolerance": 1,
+          "unit": "tysiące lat"
+        }
+      }
+    },
+    {
+      "question": {
+        "title": "Neolit",
+        "text": "Ile tysięcy lat temu rozpoczął się Neolit?",
+        "lang": "pl",
+        "difficulty": 3,
+        "emoji": "🗓️"
+      },
+      "answer": {
+        "text": "8.5",
+        "type": "float",
+        "lang": "pl",
+        "metadata": {
+          "tolerance": 0.5,
+          "unit": "tysiące lat"
+        }
+      }
+    },
+    {
+      "question": {
+        "title": "Epoka brązu i żelaza",
+        "text": "Ile tysięcy lat temu rozpoczęła się epoka brązu i żelaza?",
+        "lang": "pl",
+        "difficulty": 3,
+        "emoji": "🗓️"
+      },
+      "answer": {
+        "text": "3.5",
+        "type": "float",
+        "lang": "pl",
+        "metadata": {
+          "tolerance": 0.3,
+          "unit": "tysiące lat"
+        }
+      }
+    },
+    {
+      "question": {
+        "title": "Migracja - Hominidy",
+        "text": "Dokąd Hominidy migrowały z Afryki?",
+        "lang": "pl",
+        "difficulty": 2,
+        "emoji": "🗺️"
+      },
+      "answer": {
+        "text": "Na wschód i zachód",
+        "type": "short_text",
+        "lang": "pl",
+        "metadata": {
+          "case_sensitive": false,
+          "alternative_answers": ["wschód zachód", "wschód i zachód"]
+        }
+      }
+    },
+    {
+      "question": {
+        "title": "Paleolit - nazwa",
+        "text": "Jaką inną nazwę ma epoka Paleolitu?",
+        "lang": "pl",
+        "difficulty": 1,
+        "emoji": "🏷️"
+      },
+      "answer": {
+        "text": "Epoka kamienia łupanego",
+        "type": "short_text",
+        "lang": "pl",
+        "metadata": {
+          "case_sensitive": false,
+          "max_length": 50
+        }
+      }
+    },
+    {
+      "question": {
+        "title": "Mezolit - nazwa",
+        "text": "Jaką inną nazwę ma epoka Mezolitu?",
+        "lang": "pl",
+        "difficulty": 1,
+        "emoji": "🏷️"
+      },
+      "answer": {
+        "text": "Epoka kamienia środkowego",
+        "type": "short_text",
+        "lang": "pl",
+        "metadata": {
+          "case_sensitive": false,
+          "max_length": 50
+        }
+      }
+    },
+    {
+      "question": {
+        "title": "Neolit - nazwa",
+        "text": "Jaką inną nazwę ma epoka Neolitu?",
+        "lang": "pl",
+        "difficulty": 1,
+        "emoji": "🏷️"
+      },
+      "answer": {
+        "text": "Epoka kamienia gładzonego",
+        "type": "short_text",
+        "lang": "pl",
+        "metadata": {
+          "case_sensitive": false,
+          "max_length": 50
+        }
+      }
+    },
+    {
+      "question": {
+        "title": "Homo sapiens - dotarcie do Europy",
+        "text": "Ile tysięcy lat temu Homo sapiens dotarł do Europy?",
+        "lang": "pl",
+        "difficulty": 3,
+        "emoji": "🌍"
+      },
+      "answer": {
+        "text": "45",
+        "type": "integer",
+        "lang": "pl",
+        "metadata": {
+          "tolerance": 5,
+          "unit": "tysiące lat"
+        }
+      }
+    },
+    {
+      "question": {
+        "title": "Homo sapiens - dotarcie do Australii",
+        "text": "Ile tysięcy lat temu Homo sapiens dotarł do Australii?",
+        "lang": "pl",
+        "difficulty": 3,
+        "emoji": "🦘"
+      },
+      "answer": {
+        "text": "60",
+        "type": "integer",
+        "lang": "pl",
+        "metadata": {
+          "tolerance": 5,
+          "unit": "tysiące lat"
+        }
+      }
+    },
+    {
+      "question": {
+        "title": "Homo sapiens - dotarcie do Ameryki",
+        "text": "Ile tysięcy lat temu Homo sapiens dotarł do Ameryki?",
+        "lang": "pl",
+        "difficulty": 3,
+        "emoji": "🦅"
+      },
+      "answer": {
+        "text": "20",
+        "type": "integer",
+        "lang": "pl",
+        "metadata": {
+          "tolerance": 3,
+          "unit": "tysiące lat"
+        }
+      }
+    },
+    {
+      "question": {
+        "title": "Homo sapiens - dotarcie do Afryki",
+        "text": "Ile tysięcy lat temu Homo sapiens dotarł do Afryki?",
+        "lang": "pl",
+        "difficulty": 3,
+        "emoji": "🦁"
+      },
+      "answer": {
+        "text": "200",
+        "type": "integer",
+        "lang": "pl",
+        "metadata": {
+          "tolerance": 20,
+          "unit": "tysiące lat"
+        }
+      }
+    },
+    {
+      "question": {
+        "title": "Australopitek - Cechy",
+        "text": "Jakie cechy posiadał Australopitek?",
+        "lang": "pl",
+        "difficulty": 2,
+        "emoji": "🚶"
+      },
+      "answer": {
+        "text": "Niski wzrost, poruszał się w postawie pionowej",
+        "type": "text",
+        "lang": "pl",
+        "metadata": {
+          "case_sensitive": false,
+          "keywords": ["niski wzrost", "postawa pionowa"]
+        }
+      }
+    },
+    {
+      "question": {
+        "title": "Homo erectus - Cechy",
+        "text": "Jakie były główne cechy Homo erectus?",
+        "lang": "pl",
+        "difficulty": 2,
+        "emoji": "🔥"
+      },
+      "answer": {
+        "text": "Wątki nadrozo-towe, wytwarzanie narzędzi, odkrycie ognia",
+        "type": "text",
+        "lang": "pl",
+        "metadata": {
+          "case_sensitive": false,
+          "keywords": ["narzędzia", "ogień", "wątki nadrozo"]
+        }
+      }
+    },
+    {
+      "question": {
+        "title": "Zmiany klimatyczne w Afryce",
+        "text": "Co doprowadziło do zmian klimatycznych w Afryce 40 mln lat temu?",
+        "lang": "pl",
+        "difficulty": 3,
+        "emoji": "⛰️"
+      },
+      "answer": {
+        "text": "Wypiętrzenie rowu tektonicznego",
+        "type": "short_text",
+        "lang": "pl",
+        "metadata": {
+          "case_sensitive": false,
+          "max_length": 60
+        }
+      }
+    },
+    {
+      "question": {
+        "title": "Epoka lodowcowa",
+        "text": "Jakie tereny uległy zlodowaceniu?",
+        "lang": "pl",
+        "difficulty": 1,
+        "emoji": "❄️"
+      },
+      "answer": {
+        "text": "Reszta terenów",
+        "type": "short_text",
+        "lang": "pl",
+        "metadata": {
+          "case_sensitive": false,
+          "max_length": 30
+        }
+      }
+    }
+  ]
+}

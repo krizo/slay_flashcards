@@ -1,0 +1,920 @@
+{
+  "quiz": {
+    "name": "French-Polish Vocabulary",
+    "subject": "French",
+    "created_at": "2025-09-23",
+    "description": "French vocabulary with Polish translations based on handwritten notes."
+  },
+  "flashcards": [
+    {
+      "question": {
+        "title": "ville",
+        "text": "ville",
+        "lang": "fr",
+        "difficulty": 1,
+        "emoji": "🏙️"
+      },
+      "answer": {
+        "text": "miasto",
+        "lang": "pl"
+      }
+    },
+    {
+      "question": {
+        "title": "pyjama",
+        "text": "pyjama",
+        "lang": "fr",
+        "difficulty": 1,
+        "emoji": "😴"
+      },
+      "answer": {
+        "text": "piżama",
+        "lang": "pl"
+      }
+    },
+    {
+      "question": {
+        "title": "parler",
+        "text": "parler",
+        "lang": "fr",
+        "difficulty": 1,
+        "emoji": "💬"
+      },
+      "answer": {
+        "text": "rozmawiać",
+        "lang": "pl"
+      }
+    },
+    {
+      "question": {
+        "title": "été",
+        "text": "été",
+        "lang": "fr",
+        "difficulty": 1,
+        "emoji": "☀️"
+      },
+      "answer": {
+        "text": "lato",
+        "lang": "pl"
+      }
+    },
+    {
+      "question": {
+        "title": "être",
+        "text": "être",
+        "lang": "fr",
+        "difficulty": 2,
+        "emoji": "📝"
+      },
+      "answer": {
+        "text": "być",
+        "lang": "pl"
+      }
+    },
+    {
+      "question": {
+        "title": "crème",
+        "text": "crème",
+        "lang": "fr",
+        "difficulty": 1,
+        "emoji": "🧴"
+      },
+      "answer": {
+        "text": "krem",
+        "lang": "pl"
+      }
+    },
+    {
+      "question": {
+        "title": "mère",
+        "text": "mère",
+        "lang": "fr",
+        "difficulty": 1,
+        "emoji": "👩‍👧"
+      },
+      "answer": {
+        "text": "matka",
+        "lang": "pl"
+      }
+    },
+    {
+      "question": {
+        "title": "mais",
+        "text": "mais",
+        "lang": "fr",
+        "difficulty": 1,
+        "emoji": "🤔"
+      },
+      "answer": {
+        "text": "ale",
+        "lang": "pl"
+      }
+    },
+    {
+      "question": {
+        "title": "frais",
+        "text": "frais",
+        "lang": "fr",
+        "difficulty": 1,
+        "emoji": "🍃"
+      },
+      "answer": {
+        "text": "świeży",
+        "lang": "pl"
+      }
+    },
+    {
+      "question": {
+        "title": "patte",
+        "text": "patte",
+        "lang": "fr",
+        "difficulty": 1,
+        "emoji": "🐾"
+      },
+      "answer": {
+        "text": "łapa",
+        "lang": "pl"
+      }
+    },
+    {
+      "question": {
+        "title": "table",
+        "text": "table",
+        "lang": "fr",
+        "difficulty": 1,
+        "emoji": "🍽️"
+      },
+      "answer": {
+        "text": "stół",
+        "lang": "pl"
+      }
+    },
+    {
+      "question": {
+        "title": "papa",
+        "text": "papa",
+        "lang": "fr",
+        "difficulty": 1,
+        "emoji": "👨‍👦"
+      },
+      "answer": {
+        "text": "tata",
+        "lang": "pl"
+      }
+    },
+    {
+      "question": {
+        "title": "or",
+        "text": "or",
+        "lang": "fr",
+        "difficulty": 1,
+        "emoji": "🪙"
+      },
+      "answer": {
+        "text": "złoto",
+        "lang": "pl"
+      }
+    },
+    {
+      "question": {
+        "title": "zéro",
+        "text": "zéro",
+        "lang": "fr",
+        "difficulty": 1,
+        "emoji": "0️⃣"
+      },
+      "answer": {
+        "text": "zero",
+        "lang": "pl"
+      }
+    },
+    {
+      "question": {
+        "title": "fort",
+        "text": "fort",
+        "lang": "fr",
+        "difficulty": 1,
+        "emoji": "💪"
+      },
+      "answer": {
+        "text": "silny",
+        "lang": "pl"
+      }
+    },
+    {
+      "question": {
+        "title": "beau",
+        "text": "beau",
+        "lang": "fr",
+        "difficulty": 1,
+        "emoji": "🤩"
+      },
+      "answer": {
+        "text": "piękny",
+        "lang": "pl"
+      }
+    },
+    {
+      "question": {
+        "title": "tableau",
+        "text": "tableau",
+        "lang": "fr",
+        "difficulty": 1,
+        "emoji": "🖼️"
+      },
+      "answer": {
+        "text": "obraz",
+        "lang": "pl"
+      }
+    },
+    {
+      "question": {
+        "title": "château",
+        "text": "château",
+        "lang": "fr",
+        "difficulty": 1,
+        "emoji": "🏰"
+      },
+      "answer": {
+        "text": "zamek",
+        "lang": "pl"
+      }
+    },
+    {
+      "question": {
+        "title": "chapeau",
+        "text": "chapeau",
+        "lang": "fr",
+        "difficulty": 1,
+        "emoji": "👒"
+      },
+      "answer": {
+        "text": "kapelusz",
+        "lang": "pl"
+      }
+    },
+    {
+      "question": {
+        "title": "gâteau",
+        "text": "gâteau",
+        "lang": "fr",
+        "difficulty": 1,
+        "emoji": "🎂"
+      },
+      "answer": {
+        "text": "ciasto",
+        "lang": "pl"
+      }
+    },
+    {
+      "question": {
+        "title": "cadeau",
+        "text": "cadeau",
+        "lang": "fr",
+        "difficulty": 1,
+        "emoji": "🎁"
+      },
+      "answer": {
+        "text": "prezent",
+        "lang": "pl"
+      }
+    },
+    {
+      "question": {
+        "title": "pomme",
+        "text": "pomme",
+        "lang": "fr",
+        "difficulty": 1,
+        "emoji": "🍎"
+      },
+      "answer": {
+        "text": "jabłko",
+        "lang": "pl"
+      }
+    },
+    {
+      "question": {
+        "title": "vous",
+        "text": "vous",
+        "lang": "fr",
+        "difficulty": 1,
+        "emoji": "👥"
+      },
+      "answer": {
+        "text": "wy",
+        "lang": "pl"
+      }
+    },
+    {
+      "question": {
+        "title": "tu",
+        "text": "tu",
+        "lang": "fr",
+        "difficulty": 1,
+        "emoji": "👤"
+      },
+      "answer": {
+        "text": "ty",
+        "lang": "pl"
+      }
+    },
+    {
+      "question": {
+        "title": "bleu",
+        "text": "bleu",
+        "lang": "fr",
+        "difficulty": 1,
+        "emoji": "🔵"
+      },
+      "answer": {
+        "text": "niebieski",
+        "lang": "pl"
+      }
+    },
+    {
+      "question": {
+        "title": "jeune",
+        "text": "jeune",
+        "lang": "fr",
+        "difficulty": 1,
+        "emoji": "👶"
+      },
+      "answer": {
+        "text": "młody",
+        "lang": "pl"
+      }
+    },
+    {
+      "question": {
+        "title": "leçon",
+        "text": "leçon",
+        "lang": "fr",
+        "difficulty": 1,
+        "emoji": "📖"
+      },
+      "answer": {
+        "text": "lekcja",
+        "lang": "pl"
+      }
+    },
+    {
+      "question": {
+        "title": "premier",
+        "text": "premier",
+        "lang": "fr",
+        "difficulty": 1,
+        "emoji": "🥇"
+      },
+      "answer": {
+        "text": "pierwszy",
+        "lang": "pl"
+      }
+    },
+    {
+      "question": {
+        "title": "France",
+        "text": "France",
+        "lang": "fr",
+        "difficulty": 1,
+        "emoji": "🇫🇷"
+      },
+      "answer": {
+        "text": "Francja",
+        "lang": "pl"
+      }
+    },
+    {
+      "question": {
+        "title": "temps",
+        "text": "temps",
+        "lang": "fr",
+        "difficulty": 1,
+        "emoji": "⏱️"
+      },
+      "answer": {
+        "text": "czas",
+        "lang": "pl"
+      }
+    },
+    {
+      "question": {
+        "title": "vin",
+        "text": "vin",
+        "lang": "fr",
+        "difficulty": 1,
+        "emoji": "🍷"
+      },
+      "answer": {
+        "text": "wino",
+        "lang": "pl"
+      }
+    },
+    {
+      "question": {
+        "title": "bonbon",
+        "text": "bonbon",
+        "lang": "fr",
+        "difficulty": 1,
+        "emoji": "🍬"
+      },
+      "answer": {
+        "text": "cukierek",
+        "lang": "pl"
+      }
+    },
+    {
+      "question": {
+        "title": "un",
+        "text": "un",
+        "lang": "fr",
+        "difficulty": 1,
+        "emoji": "1️⃣"
+      },
+      "answer": {
+        "text": "jeden",
+        "lang": "pl"
+      }
+    },
+    {
+      "question": {
+        "title": "brun",
+        "text": "brun",
+        "lang": "fr",
+        "difficulty": 1,
+        "emoji": "🟤"
+      },
+      "answer": {
+        "text": "brązowy",
+        "lang": "pl"
+      }
+    },
+    {
+      "question": {
+        "title": "lundi",
+        "text": "lundi",
+        "lang": "fr",
+        "difficulty": 1,
+        "emoji": "📅"
+      },
+      "answer": {
+        "text": "poniedziałek",
+        "lang": "pl"
+      }
+    },
+    {
+      "question": {
+        "title": "qui",
+        "text": "qui",
+        "lang": "fr",
+        "difficulty": 1,
+        "emoji": "❓"
+      },
+      "answer": {
+        "text": "kto",
+        "lang": "pl"
+      }
+    },
+    {
+      "question": {
+        "title": "jouer",
+        "text": "jouer",
+        "lang": "fr",
+        "difficulty": 1,
+        "emoji": "⚽"
+      },
+      "answer": {
+        "text": "bawić się",
+        "lang": "pl"
+      }
+    },
+    {
+      "question": {
+        "title": "nuit",
+        "text": "nuit",
+        "lang": "fr",
+        "difficulty": 1,
+        "emoji": "🌃"
+      },
+      "answer": {
+        "text": "noc",
+        "lang": "pl"
+      }
+    },
+    {
+      "question": {
+        "title": "ciel",
+        "text": "ciel",
+        "lang": "fr",
+        "difficulty": 1,
+        "emoji": "☁️"
+      },
+      "answer": {
+        "text": "niebo",
+        "lang": "pl"
+      }
+    },
+    {
+      "question": {
+        "title": "pied",
+        "text": "pied",
+        "lang": "fr",
+        "difficulty": 1,
+        "emoji": "🦶"
+      },
+      "answer": {
+        "text": "stopa",
+        "lang": "pl"
+      }
+    },
+    {
+      "question": {
+        "title": "bas",
+        "text": "bas",
+        "lang": "fr",
+        "difficulty": 1,
+        "emoji": "⬇️"
+      },
+      "answer": {
+        "text": "niski",
+        "lang": "pl"
+      }
+    },
+    {
+      "question": {
+        "title": "dur",
+        "text": "dur",
+        "lang": "fr",
+        "difficulty": 1,
+        "emoji": "💪"
+      },
+      "answer": {
+        "text": "ciężki",
+        "lang": "pl"
+      }
+    },
+    {
+      "question": {
+        "title": "brzydki",
+        "text": "brzydki",
+        "lang": "fr",
+        "difficulty": 1,
+        "emoji": "🤢"
+      },
+      "answer": {
+        "text": "brzydki",
+        "lang": "pl"
+      }
+    },
+    {
+      "question": {
+        "title": "fort",
+        "text": "fort",
+        "lang": "fr",
+        "difficulty": 1,
+        "emoji": "🏰"
+      },
+      "answer": {
+        "text": "silny",
+        "lang": "pl"
+      }
+    },
+    {
+      "question": {
+        "title": "femme",
+        "text": "femme",
+        "lang": "fr",
+        "difficulty": 1,
+        "emoji": "👩"
+      },
+      "answer": {
+        "text": "kobieta",
+        "lang": "pl"
+      }
+    },
+    {
+      "question": {
+        "title": "photo",
+        "text": "photo",
+        "lang": "fr",
+        "difficulty": 1,
+        "emoji": "📸"
+      },
+      "answer": {
+        "text": "zdjęcie",
+        "lang": "pl"
+      }
+    },
+    {
+      "question": {
+        "title": "garage",
+        "text": "garage",
+        "lang": "fr",
+        "difficulty": 1,
+        "emoji": "🚗"
+      },
+      "answer": {
+        "text": "garaż",
+        "lang": "pl"
+      }
+    },
+    {
+      "question": {
+        "title": "gorge",
+        "text": "gorge",
+        "lang": "fr",
+        "difficulty": 1,
+        "emoji": "🗣️"
+      },
+      "answer": {
+        "text": "wąwóz",
+        "lang": "pl"
+      }
+    },
+    {
+      "question": {
+        "title": "guerre",
+        "text": "guerre",
+        "lang": "fr",
+        "difficulty": 1,
+        "emoji": "⚔️"
+      },
+      "answer": {
+        "text": "wojna",
+        "lang": "pl"
+      }
+    },
+    {
+      "question": {
+        "title": "groupe",
+        "text": "groupe",
+        "lang": "fr",
+        "difficulty": 1,
+        "emoji": "👥"
+      },
+      "answer": {
+        "text": "grupa",
+        "lang": "pl"
+      }
+    },
+    {
+      "question": {
+        "title": "joli",
+        "text": "joli",
+        "lang": "fr",
+        "difficulty": 1,
+        "emoji": "💖"
+      },
+      "answer": {
+        "text": "ładny",
+        "lang": "pl"
+      }
+    },
+    {
+      "question": {
+        "title": "kilo",
+        "text": "kilo",
+        "lang": "fr",
+        "difficulty": 1,
+        "emoji": "⚖️"
+      },
+      "answer": {
+        "text": "kilo",
+        "lang": "pl"
+      }
+    },
+    {
+      "question": {
+        "title": "cinq",
+        "text": "cinq",
+        "lang": "fr",
+        "difficulty": 1,
+        "emoji": "5️⃣"
+      },
+      "answer": {
+        "text": "pięć",
+        "lang": "pl"
+      }
+    },
+    {
+      "question": {
+        "title": "quatre",
+        "text": "quatre",
+        "lang": "fr",
+        "difficulty": 1,
+        "emoji": "4️⃣"
+      },
+      "answer": {
+        "text": "cztery",
+        "lang": "pl"
+      }
+    },
+    {
+      "question": {
+        "title": "corps",
+        "text": "corps",
+        "lang": "fr",
+        "difficulty": 1,
+        "emoji": "🚶"
+      },
+      "answer": {
+        "text": "ciało",
+        "lang": "pl"
+      }
+    },
+    {
+      "question": {
+        "title": "culture",
+        "text": "culture",
+        "lang": "fr",
+        "difficulty": 1,
+        "emoji": "🎨"
+      },
+      "answer": {
+        "text": "kultura",
+        "lang": "pl"
+      }
+    },
+    {
+      "question": {
+        "title": "lac",
+        "text": "lac",
+        "lang": "fr",
+        "difficulty": 1,
+        "emoji": "🏞️"
+      },
+      "answer": {
+        "text": "jezioro",
+        "lang": "pl"
+      }
+    },
+    {
+      "question": {
+        "title": "mars",
+        "text": "mars",
+        "lang": "fr",
+        "difficulty": 1,
+        "emoji": "🪐"
+      },
+      "answer": {
+        "text": "marzec",
+        "lang": "pl"
+      }
+    },
+    {
+      "question": {
+        "title": "nappe",
+        "text": "nappe",
+        "lang": "fr",
+        "difficulty": 1,
+        "emoji": "🧺"
+      },
+      "answer": {
+        "text": "obrus",
+        "lang": "pl"
+      }
+    },
+    {
+      "question": {
+        "title": "père",
+        "text": "père",
+        "lang": "fr",
+        "difficulty": 1,
+        "emoji": "👨‍👦"
+      },
+      "answer": {
+        "text": "tata",
+        "lang": "pl"
+      }
+    },
+    {
+      "question": {
+        "title": "sept",
+        "text": "sept",
+        "lang": "fr",
+        "difficulty": 1,
+        "emoji": "7️⃣"
+      },
+      "answer": {
+        "text": "siedem",
+        "lang": "pl"
+      }
+    },
+    {
+      "question": {
+        "title": "dix",
+        "text": "dix",
+        "lang": "fr",
+        "difficulty": 1,
+        "emoji": "🔟"
+      },
+      "answer": {
+        "text": "dziesięć",
+        "lang": "pl"
+      }
+    },
+    {
+      "question": {
+        "title": "maison",
+        "text": "maison",
+        "lang": "fr",
+        "difficulty": 1,
+        "emoji": "🏠"
+      },
+      "answer": {
+        "text": "dom",
+        "lang": "pl"
+      }
+    },
+    {
+      "question": {
+        "title": "civilisation",
+        "text": "civilisation",
+        "lang": "fr",
+        "difficulty": 2,
+        "emoji": "🏛️"
+      },
+      "answer": {
+        "text": "cywilizacja",
+        "lang": "pl"
+      }
+    },
+    {
+      "question": {
+        "title": "dixième",
+        "text": "dixième",
+        "lang": "fr",
+        "difficulty": 2,
+        "emoji": "🔟"
+      },
+      "answer": {
+        "text": "dziesiąty",
+        "lang": "pl"
+      }
+    },
+    {
+      "question": {
+        "title": "chat",
+        "text": "chat",
+        "lang": "fr",
+        "difficulty": 1,
+        "emoji": "🐱"
+      },
+      "answer": {
+        "text": "kot",
+        "lang": "pl"
+      }
+    },
+    {
+      "question": {
+        "title": "chien",
+        "text": "chien",
+        "lang": "fr",
+        "difficulty": 1,
+        "emoji": "🐶"
+      },
+      "answer": {
+        "text": "pies",
+        "lang": "pl"
+      }
+    },
+    {
+      "question": {
+        "title": "chanter",
+        "text": "chanter",
+        "lang": "fr",
+        "difficulty": 1,
+        "emoji": "🎤"
+      },
+      "answer": {
+        "text": "śpiewać",
+        "lang": "pl"
+      }
+    },
+    {
+      "question": {
+        "title": "Pologne",
+        "text": "Pologne",
+        "lang": "fr",
+        "difficulty": 1,
+        "emoji": "🇵🇱"
+      },
+      "answer": {
+        "text": "Polska",
+        "lang": "pl"
+      }
+    },
+    {
+      "question": {
+        "title": "peigne",
+        "text": "peigne",
+        "lang": "fr",
+        "difficulty": 1,
+        "emoji": "🪮"
+      },
+      "answer": {
+        "text": "grzebień",
+        "lang": "pl"
+      }
+    }
+  ]
+}
