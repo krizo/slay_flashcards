@@ -1,6 +1,10 @@
 name: CI – Backend + Frontend + Smoke test
 
 on:
+  push:
+    branches:
+      - staging
+  pull_request:
   workflow_dispatch:
     inputs:
       environment:
@@ -14,7 +18,7 @@ on:
       deploy:
         description: "Deploy after build?"
         required: true
-        default: "false"
+        default: "true"
         type: choice
         options:
           - "false"
@@ -22,7 +26,7 @@ on:
       recreate_database:
         description: "Recreate database and add demo data?"
         required: true
-        default: "false"
+        default: "true"
         type: choice
         options:
           - "false"
@@ -135,14 +139,14 @@ jobs:
           pkill -f "uvicorn.*:8001" || true
           pkill -f "vite.*3001" || true
 
-#      - name: Backend Tests
-#        run: |
-#          pytest tests
+      #      - name: Backend Tests
+      #        run: |
+      #          pytest tests
 
-#      - name: Frontend Tests
-#        working-directory: frontend
-#        run: |
-#          npm run test
+      #      - name: Frontend Tests
+      #        working-directory: frontend
+      #        run: |
+      #          npm run test
 
       # ─────── Conditional Deploy ───────
       - name: 🚀 Deploy to ${{ github.event.inputs.environment }}
