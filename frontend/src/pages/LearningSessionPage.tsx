@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useSession } from '../hooks/useSession';
 import { useQuiz } from '../hooks/useQuiz';
@@ -30,17 +30,19 @@ function LearningSessionPage() {
 
     // Calculate last session date (only include completed sessions)
     // Exclude sessions completed in the last 30 seconds (likely the one we just finished before starting this one)
-    const now = new Date();
-    const sortedSessions = sessions ? [...sessions]
-        .filter(s => {
-            if (!s.completed) return false;
-            const completedAt = s.completed_at ? new Date(s.completed_at) : new Date(s.started_at);
-            const secondsAgo = (now.getTime() - completedAt.getTime()) / 1000;
-            return secondsAgo > 30; // Only show sessions completed more than 30 seconds ago
-        })
-        .sort((a, b) => new Date(b.started_at).getTime() - new Date(a.started_at).getTime())
-    : [];
-    const lastSessionDate = sortedSessions.length > 0 ? sortedSessions[0].started_at : null;
+    const lastSessionDate = useMemo(() => {
+        const now = new Date();
+        const sortedSessions = sessions ? [...sessions]
+            .filter(s => {
+                if (!s.completed) return false;
+                const completedAt = s.completed_at ? new Date(s.completed_at) : new Date(s.started_at);
+                const secondsAgo = (now.getTime() - completedAt.getTime()) / 1000;
+                return secondsAgo > 30; // Only show sessions completed more than 30 seconds ago
+            })
+            .sort((a, b) => new Date(b.started_at).getTime() - new Date(a.started_at).getTime())
+        : [];
+        return sortedSessions.length > 0 ? sortedSessions[0].started_at : null;
+    }, [sessions]);
 
     // Use session hook for all session logic
     const {
@@ -136,7 +138,8 @@ function LearningSessionPage() {
         return () => {
             setSessionInfo(null);
         };
-    }, [quiz, performance, lastSessionDate, sessions, endSession, setSessionInfo]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [quiz, performance, lastSessionDate]);
 
     // Show loading state during initialization
     if (isLoading && !currentFlashcard) {
