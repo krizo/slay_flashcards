@@ -69,7 +69,14 @@ jobs:
       - name: 🧪 Run backend tests
         run: |
           source .venv/bin/activate
-          pytest tests/ -v -n auto
+          echo "======================================"
+          echo "🧪 Running Backend Tests"
+          echo "======================================"
+          pytest tests/ --durations=10 --durations-min=0.5 -v -n auto
+          echo ""
+          echo "======================================"
+          echo "✅ Backend Tests Complete"
+          echo "======================================"
 
       - name: 🚀 Start FastAPI backend
         run: |

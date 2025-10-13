@@ -74,4 +74,17 @@ testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
-addopts = "-v --tb=short"
+addopts = [
+    "-v",                          # Verbose output
+    "--tb=short",                  # Shorter traceback format
+    "--strict-markers",            # Strict marker usage
+    "--disable-warnings",          # Disable warning summary
+    "-ra",                         # Show summary of all test outcomes except passed
+    "--color=yes",                 # Colorized output
+]
+console_output_style = "progress" # Progress bar during test execution
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+    "unit: marks tests as unit tests",
+]
