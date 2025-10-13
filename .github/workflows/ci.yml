@@ -66,6 +66,11 @@ jobs:
           source .venv/bin/activate
           python -c "from core.db.database import Base, engine; Base.metadata.create_all(bind=engine); print('Database initialized')"
 
+      - name: 🧪 Run backend tests
+        run: |
+          source .venv/bin/activate
+          pytest tests/ -v
+
       - name: 🚀 Start FastAPI backend
         run: |
           source .venv/bin/activate
@@ -91,6 +96,10 @@ jobs:
       - name: 📦 Install frontend dependencies
         working-directory: frontend
         run: npm ci
+
+      - name: 🧪 Run frontend tests
+        working-directory: frontend
+        run: npm run test -- --run
 
       - name: 🛠 Build frontend
         working-directory: frontend
@@ -143,15 +152,6 @@ jobs:
           # Kill any remaining uvicorn/vite processes on CI ports
           pkill -f "uvicorn.*:8001" || true
           pkill -f "vite.*3001" || true
-
-      #      - name: Backend Tests
-      #        run: |
-      #          pytest tests
-
-      #      - name: Frontend Tests
-      #        working-directory: frontend
-      #        run: |
-      #          npm run test
 
       # ─────── Conditional Deploy ───────
       - name: 🚀 Deploy to ${{ github.event.inputs.environment }}
