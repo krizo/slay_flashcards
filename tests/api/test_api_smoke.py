@@ -1,26 +1,9 @@
 """
 API smoke tests with proper fixtures and email validation
 """
-import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy.orm import sessionmaker
 
-from api.main_api import app
-from core.db.database import Base, engine
-
-client = TestClient(app)
-
-SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
-TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-
-@pytest.fixture(scope="function", autouse=True)
-def setup_database():
-    """Setup and teardown the database for each test."""
-    Base.metadata.drop_all(bind=engine)
-    Base.metadata.create_all(bind=engine)
-    yield
-    Base.metadata.drop_all(bind=engine)
+from tests.api.conftest import client  # Use client from conftest
 
 
 def test_health_check():
