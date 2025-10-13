@@ -149,10 +149,10 @@ jobs:
           sudo cp frontend/package-lock.json /opt/slayflashcards/frontend/ || true
           sudo cp frontend/vite.config.ts /opt/slayflashcards/frontend/
 
-          # Install production dependencies for frontend
+          # Install frontend dependencies (including vite for preview server)
           echo "📦 Installing frontend dependencies..."
           cd /opt/slayflashcards/frontend
-          sudo npm ci --omit=dev
+          sudo npm ci
 
           # Return to repository directory for backend deployment
           cd $GITHUB_WORKSPACE
