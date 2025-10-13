@@ -2811,6 +2811,8 @@ body {
     padding-top: 220px; /* Account for fixed session-header */
     margin-left: 280px; /* Account for sidebar */
     margin-right: 340px; /* Account for timeline + margin */
+    overflow-y: auto; /* Allow scrolling */
+    min-height: 0; /* Important for flexbox scrolling */
 }
 
 /* Flashcard Card */
@@ -3284,13 +3286,55 @@ body {
 
 /* Responsive Design for Sessions */
 @media (max-width: 768px) {
-    .flashcard-card {
-        padding: 25px;
-        width: 95%;
+    .session-content-wrapper {
+        padding: 15px;
+        padding-top: 120px; /* Reduced top padding for small screens */
+        padding-bottom: 20px;
+        margin-left: 0; /* Remove sidebar margin */
+        margin-right: 0; /* Remove timeline margin */
     }
 
-    .flashcard-question {
+    .flashcard-card {
+        padding: 20px;
+        width: 100%;
+        max-width: 100%;
+        margin-right: 0;
+        /* Ensure card doesn't overflow viewport height */
+        max-height: calc(100vh - 140px);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .flashcard-question-section {
+        /* Allow scrolling if content is too long */
+        overflow-y: auto;
+        flex: 1 1 auto;
+        min-height: 0;
+    }
+
+    .flashcard-question-title {
         font-size: 1.3em;
+    }
+
+    .flashcard-question-text {
+        font-size: 1.2em;
+        padding: 15px;
+    }
+
+    .flashcard-answer-area {
+        overflow-y: auto;
+        flex: 0 1 auto;
+        max-height: 40vh; /* Limit answer area height */
+    }
+
+    .flashcard-controls {
+        flex-shrink: 0; /* Never shrink controls */
+        position: sticky;
+        bottom: 0;
+        background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
+        padding: 15px 0 5px 0;
+        margin-top: 15px;
+        z-index: 10;
     }
 
     .session-controls {
@@ -3301,6 +3345,9 @@ body {
 
     .control-button {
         width: 100%;
+        min-width: auto;
+        padding: 12px 20px;
+        font-size: 0.95em;
     }
 
     .session-header {
@@ -3309,6 +3356,101 @@ body {
 
     .session-title {
         font-size: 1em;
+    }
+
+    .flashcard-quiz-name {
+        font-size: 1.1rem;
+    }
+
+    .flashcard-progress-dots {
+        display: none; /* Hide on very small screens */
+    }
+
+    .speaker-icon {
+        font-size: 1.2rem;
+        padding: 4px 8px;
+    }
+
+    .speaker-text {
+        display: none; /* Hide "Click to listen" text on small screens */
+    }
+
+    .flashcard-header-row {
+        padding: 8px 0 15px 0;
+    }
+
+    /* Hide timeline and adjust sidebar on small screens */
+    .flashcard-timeline {
+        display: none !important;
+    }
+
+    .sidebar {
+        width: 60px; /* Collapsed sidebar on mobile */
+    }
+
+    .sidebar .nav-item-text {
+        display: none;
+    }
+}
+
+/* Very small screens (phones in portrait) */
+@media (max-width: 480px) {
+    .session-content-wrapper {
+        padding: 10px;
+        padding-top: 100px;
+    }
+
+    .flashcard-card {
+        padding: 15px;
+        max-height: calc(100vh - 120px);
+        gap: 15px;
+    }
+
+    .flashcard-question-title {
+        font-size: 1.1em;
+    }
+
+    .flashcard-question-text {
+        font-size: 1.1em;
+        padding: 12px;
+    }
+
+    .flashcard-emoji {
+        font-size: 2rem;
+    }
+
+    .control-button {
+        padding: 10px 16px;
+        font-size: 0.9em;
+    }
+
+    .flashcard-mode-badge {
+        padding: 8px 16px;
+        font-size: 0.95rem;
+    }
+
+    .flashcard-answer-hint {
+        padding: 10px 12px;
+        font-size: 0.85rem;
+    }
+
+    .flashcard-progress-counter {
+        font-size: 0.85rem;
+    }
+}
+
+/* Medium screens (tablets) */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .session-content-wrapper {
+        padding: 15px 20px;
+        padding-top: 160px;
+        margin-left: 100px;
+        margin-right: 100px;
+    }
+
+    .flashcard-card {
+        width: 90%;
+        max-height: calc(100vh - 180px);
     }
 }
 
