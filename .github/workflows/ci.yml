@@ -97,6 +97,7 @@ jobs:
         run: |
           export VITE_BUILD_VERSION=$(git rev-parse --short HEAD)
           export VITE_BUILD_DATE=$(date +'%Y-%m-%d %H:%M')
+          export VITE_IS_CI=true
           npm run build
 
       - name: 🚀 Start frontend preview server
