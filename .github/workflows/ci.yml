@@ -215,14 +215,23 @@ jobs:
           # Return to repository directory for deployment files
           cd $GITHUB_WORKSPACE
 
+          # Stop and disable old non-environment-specific services
+          echo "🧹 Cleaning up old services..."
+          sudo systemctl stop slayflashcards-backend.service 2>/dev/null || true
+          sudo systemctl stop slayflashcards-frontend.service 2>/dev/null || true
+          sudo systemctl disable slayflashcards-backend.service 2>/dev/null || true
+          sudo systemctl disable slayflashcards-frontend.service 2>/dev/null || true
+
           # Install/update systemd service files
           echo "⚙️ Installing systemd service files..."
           sudo cp deployment/slayflashcards-backend$SERVICE_SUFFIX.service /etc/systemd/system/
           sudo cp deployment/slayflashcards-frontend$SERVICE_SUFFIX.service /etc/systemd/system/
           sudo systemctl daemon-reload
 
-          # Restart services
-          echo "🔄 Restarting services..."
+          # Enable and restart services
+          echo "🔄 Starting services..."
+          sudo systemctl enable slayflashcards-backend$SERVICE_SUFFIX
+          sudo systemctl enable slayflashcards-frontend$SERVICE_SUFFIX
           sudo systemctl restart slayflashcards-backend$SERVICE_SUFFIX
           sudo systemctl restart slayflashcards-frontend$SERVICE_SUFFIX
 
