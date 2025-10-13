@@ -1,0 +1,16 @@
+[Unit]
+Description=SlayFlashcards Backend API
+After=network.target
+
+[Service]
+Type=simple
+User=github
+Group=github
+WorkingDirectory=/opt/slayflashcards/backend
+Environment="PATH=/opt/slayflashcards/backend/.venv/bin"
+ExecStart=/opt/slayflashcards/backend/.venv/bin/uvicorn api.main_api:app --host 0.0.0.0 --port 8000
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

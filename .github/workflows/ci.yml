@@ -140,9 +140,19 @@ jobs:
           # Create deployment directories
           sudo mkdir -p /opt/slayflashcards/{frontend,backend}
 
-          # Deploy frontend
+          # Deploy frontend (dist folder for serving)
           echo "📦 Deploying frontend..."
-          sudo rsync -av --delete frontend/dist/ /opt/slayflashcards/frontend/
+          sudo rsync -av --delete frontend/dist/ /opt/slayflashcards/frontend/dist/
+
+          # Copy package files needed for vite preview
+          sudo cp frontend/package.json /opt/slayflashcards/frontend/
+          sudo cp frontend/package-lock.json /opt/slayflashcards/frontend/ || true
+          sudo cp frontend/vite.config.ts /opt/slayflashcards/frontend/
+
+          # Install production dependencies for frontend
+          echo "📦 Installing frontend dependencies..."
+          cd /opt/slayflashcards/frontend
+          sudo npm ci --omit=dev
 
           # Deploy backend (api + core + requirements)
           echo "📦 Deploying backend..."
@@ -166,10 +176,16 @@ jobs:
           sudo chown -R $USER:$USER /opt/slayflashcards/
           sudo chmod -R 755 /opt/slayflashcards/
 
+          # Install/update systemd service files
+          echo "⚙️ Installing systemd service files..."
+          sudo cp deployment/slayflashcards-backend.service /etc/systemd/system/
+          sudo cp deployment/slayflashcards-frontend.service /etc/systemd/system/
+          sudo systemctl daemon-reload
+
           # Restart services
           echo "🔄 Restarting services..."
-          sudo systemctl restart slayflashcards-backend || echo "⚠️ Backend service not configured"
-          sudo systemctl restart slayflashcards-frontend || echo "⚠️ Frontend service not configured"
+          sudo systemctl restart slayflashcards-backend
+          sudo systemctl restart slayflashcards-frontend
 
           # Verify services are running
           echo "✅ Verifying deployment..."
