@@ -1,9 +1,10 @@
+import { useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useSession } from '../hooks/useSession';
 import { useQuiz } from '../hooks/useQuiz';
 import { useQuizPerformance } from '../hooks/useQuizPerformance';
 import { useQuizSessions } from '../hooks/useQuizSessions';
-import SessionHeader from '../components/sessions/SessionHeader';
+import { useSessionContext } from '../contexts/SessionContext';
 import FlashcardDisplay from '../components/sessions/FlashcardDisplay';
 import FlashcardTimeline from '../components/sessions/FlashcardTimeline';
 import TestResultsPage from '../components/sessions/TestResultsPage';
@@ -12,6 +13,7 @@ import { SessionMode } from '../types';
 function LearningSessionPage() {
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
+    const { setSessionInfo } = useSessionContext();
     const quizId = searchParams.get('quizId');
     const mode = (searchParams.get('mode') as SessionMode) || 'learn';
 
@@ -101,6 +103,26 @@ function LearningSessionPage() {
             window.speechSynthesis.speak(utterance);
         }
     };
+
+    // Update session context with current session info
+    useEffect(() => {
+        if (quiz && performance !== undefined) {
+            setSessionInfo({
+                quizName: quiz.name,
+                quizImage: quiz.image,
+                yourBest: performance?.scores.highest ?? null,
+                yourAverage: performance?.scores.average ?? null,
+                testSessions: performance?.test_sessions ?? 0,
+                lastSessionDate: lastSessionDate,
+                onCloseSession: endSession,
+            });
+        }
+
+        // Cleanup: clear session info when leaving the page
+        return () => {
+            setSessionInfo(null);
+        };
+    }, [quiz, performance, lastSessionDate, endSession, setSessionInfo]);
 
     // Show loading state during initialization
     if (isLoading && !currentFlashcard) {
