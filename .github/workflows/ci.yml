@@ -200,12 +200,16 @@ jobs:
           # Initialize/reset database based on input
           echo "🗄️ Database setup..."
           cd $DEPLOY_DIR/backend
+          DB_FILE="slayflashcards${{ github.event.inputs.environment == 'production' && '-production' || '-staging' }}.db"
+          export DATABASE_URL="sqlite:///$DEPLOY_DIR/backend/$DB_FILE"
+          echo "Using database: $DATABASE_URL"
+
           if [ "${{ github.event.inputs.recreate_database }}" == "true" ]; then
             echo "Recreating database with demo data..."
-            sudo -u $USER .venv/bin/python scripts/init_database.py --reset --demo
+            sudo -u $USER DATABASE_URL="$DATABASE_URL" .venv/bin/python scripts/init_database.py --reset --demo
           else
             echo "Initializing database (keeping existing data)..."
-            sudo -u $USER .venv/bin/python scripts/init_database.py
+            sudo -u $USER DATABASE_URL="$DATABASE_URL" .venv/bin/python scripts/init_database.py
           fi
 
           # Return to repository directory for deployment files
