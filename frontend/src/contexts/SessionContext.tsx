@@ -3,8 +3,12 @@ import { createContext, useContext, useState, ReactNode } from 'react';
 interface SessionInfo {
     quizName: string;
     quizImage?: string | null;
+    subject?: string;
+    category?: string | null;
+    level?: string | null;
     yourBest?: number | null;
     yourAverage?: number | null;
+    lastScore?: number | null;
     testSessions?: number;
     lastSessionDate?: string | null;
     onCloseSession: () => void;
