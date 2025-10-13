@@ -204,6 +204,13 @@ QUIZZES = {
             "image": "🏛️"
         },
         {
+            "file": "data/starożytny_egipt.json",
+            "category": "Starożytność",
+            "level": "Klasa 1",
+            "favourite": True,
+            "image": "🏺"
+        },
+        {
             "name": "Funkcje kwadratowe",
             "subject": "Matematyka",
             "category": "Funkcje",
@@ -346,6 +353,13 @@ QUIZZES = {
             "level": "Klasa 1",
             "favourite": False,
             "image": "🇫🇷"
+        },
+        {
+            "file": "data/starożytny_egipt.json",
+            "category": "Starożytność",
+            "level": "Klasa 1",
+            "favourite": False,
+            "image": "🏺"
         },
         {
             "name": "Ruch i siły",
