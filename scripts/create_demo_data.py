@@ -565,19 +565,30 @@ def main():
         print("✅ Demo data created successfully!")
         print("=" * 80)
 
-        print("\n👥 User Credentials:")
-        print("-" * 80)
-        for user_data in USERS:
-            user = users[user_data["username"]]
-            quiz_count = len(user_quizzes.get(user_data["username"], []))
-            print(f"\n   Username: {user_data['username']}")
-            print(f"   Email:    {user_data['email']}")
-            print(f"   Password: {user_data['password']}")
-            print(f"   Quizzes:  {quiz_count}")
+        # Only show credentials when not in CI environment
+        import os
+        is_ci = os.environ.get('VITE_IS_CI') == 'true' or os.environ.get('CI') == 'true'
 
-        print("\n" + "=" * 80)
-        print("🚀 You can now login with these credentials!")
-        print("=" * 80)
+        if not is_ci:
+            print("\n👥 User Credentials:")
+            print("-" * 80)
+            for user_data in USERS:
+                user = users[user_data["username"]]
+                quiz_count = len(user_quizzes.get(user_data["username"], []))
+                print(f"\n   Username: {user_data['username']}")
+                print(f"   Email:    {user_data['email']}")
+                print(f"   Password: {user_data['password']}")
+                print(f"   Quizzes:  {quiz_count}")
+
+            print("\n" + "=" * 80)
+            print("🚀 You can now login with these credentials!")
+            print("=" * 80)
+        else:
+            print("\n📊 Summary:")
+            print(f"   Users created: {len(users)}")
+            total_quizzes = sum(len(quizzes) for quizzes in user_quizzes.values())
+            print(f"   Total quizzes: {total_quizzes}")
+            print("=" * 80)
 
     except Exception as e:
         print(f"\n❌ Error: {e}")
