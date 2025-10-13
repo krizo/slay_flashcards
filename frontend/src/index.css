@@ -130,6 +130,32 @@ body {
     flex: 1;
 }
 
+/* Sidebar Footer */
+.sidebar-footer {
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    margin-top: auto;
+}
+
+.version-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.6);
+    text-align: center;
+}
+
+.version-label {
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.build-date {
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.5);
+}
+
 /* Main Content */
 /* Main Content Wrapper (includes Header + Content) */
 .main-content-wrapper {

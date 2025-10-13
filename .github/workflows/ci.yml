@@ -94,7 +94,10 @@ jobs:
 
       - name: 🛠 Build frontend
         working-directory: frontend
-        run: npm run build
+        run: |
+          export VITE_BUILD_VERSION=$(git rev-parse --short HEAD)
+          export VITE_BUILD_DATE=$(date +'%Y-%m-%d %H:%M')
+          npm run build
 
       - name: 🚀 Start frontend preview server
         working-directory: frontend
