@@ -141,6 +141,7 @@ class FlashcardRepository(BaseRepository[models.Flashcard]):
             question_difficulty=question.get("difficulty"),
             question_emoji=question.get("emoji"),
             question_image=question.get("image"),
+            question_examples=question.get("examples"),
             # Answer fields with type support
             answer_text=answer["text"],
             answer_lang=answer.get("lang"),
@@ -191,6 +192,7 @@ class FlashcardRepository(BaseRepository[models.Flashcard]):
                     "question_difficulty": q.get("difficulty"),
                     "question_emoji": q.get("emoji"),
                     "question_image": q.get("image"),
+                    "question_examples": q.get("examples"),
                     # Answer fields with type support
                     "answer_text": a["text"],
                     "answer_lang": a.get("lang"),

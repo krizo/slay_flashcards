@@ -59,6 +59,7 @@ class Flashcard(Base):
     question_difficulty = Column(Integer, nullable=True)
     question_emoji = Column(String, nullable=True)
     question_image = Column(String, nullable=True)
+    question_examples = Column(JSON, nullable=True)  # Examples to guide user (list of strings)
 
     # Answer fields with new type support
     answer_text = Column(Text, nullable=False)
