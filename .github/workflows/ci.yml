@@ -1,4 +1,4 @@
-name: CI – Backend + Frontend + Smoke test
+name: "CI – Backend & Frontend: Tests + Deploy"
 
 on:
   push:
@@ -26,7 +26,7 @@ on:
       recreate_database:
         description: "Recreate database and add demo data?"
         required: true
-        default: "true"
+        default: "false"
         type: choice
         options:
           - "false"
@@ -69,7 +69,7 @@ jobs:
       - name: 🧪 Run backend tests
         run: |
           source .venv/bin/activate
-          pytest tests/ -v
+          pytest tests/ -v -n auto
 
       - name: 🚀 Start FastAPI backend
         run: |
