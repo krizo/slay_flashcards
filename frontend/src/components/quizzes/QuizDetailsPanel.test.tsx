@@ -49,7 +49,6 @@ describe('QuizDetailsPanel', () => {
         description: 'A comprehensive test quiz for algebra',
         category: 'Algebra',
         level: 'Intermediate',
-        user_id: 1,
         flashcard_count: 25,
         created_at: '2025-10-01T10:00:00Z',
         updated_at: '2025-10-05T15:30:00Z',
