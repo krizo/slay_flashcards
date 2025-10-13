@@ -17,6 +17,10 @@ sys.path.insert(0, str(project_root))
 
 from core.db.database import Base, engine, init_database, reset_database
 
+# Import all models to register them with Base.metadata
+# This MUST happen before calling reset_database() or init_database()
+import core.db.models  # noqa: F401
+
 
 def create_demo_data_wrapper():
     """Create demo data by calling the existing create_demo_data script."""
