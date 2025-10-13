@@ -147,7 +147,7 @@ describe('FlashcardDisplay', () => {
             );
 
             const questionHeader = container.querySelector('.flashcard-question-header');
-            const difficultyStars = container.querySelector('.difficulty-stars');
+            const difficultyStars = container.querySelector('.difficulty-stars') as HTMLElement | null;
 
             expect(questionHeader).toContainElement(difficultyStars);
         });
