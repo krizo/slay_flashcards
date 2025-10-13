@@ -10,6 +10,10 @@ function LoginPage() {
     const { login } = useAuth();
     const navigate = useNavigate();
 
+    const buildVersion = import.meta.env.VITE_BUILD_VERSION || 'dev';
+    const buildDate = import.meta.env.VITE_BUILD_DATE || 'local build';
+    const isCI = import.meta.env.VITE_IS_CI === 'true';
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
@@ -92,6 +96,13 @@ function LoginPage() {
                             </Link>
                         </p>
                     </div>
+                </div>
+
+                <div className="login-version-info">
+                    <div className="version-label">
+                        {isCI ? `v${buildVersion}` : '🔧 Local'}
+                    </div>
+                    <div className="build-date">{buildDate}</div>
                 </div>
             </div>
         </div>
