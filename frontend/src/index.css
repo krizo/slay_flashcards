@@ -163,17 +163,83 @@ body {
     background-color: #ffffff;
     padding: var(--spacing-lg) var(--spacing-md);
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between; /* Changed from flex-end to allow session info on left */
     align-items: center;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
     flex-shrink: 0;
     min-height: 84px; /* Match sidebar-header height exactly */
+    gap: 20px; /* Add gap between session info and user info */
+}
+
+/* Header Session Info (left side) */
+.header-session-info {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex: 1;
+    min-width: 0; /* Allow text truncation */
+}
+
+.header-session-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0; /* Allow text truncation */
+}
+
+.header-session-icon {
+    font-size: 2rem;
+    flex-shrink: 0;
+}
+
+.header-session-name {
+    font-weight: 700;
+    font-size: 1.1em;
+    color: var(--color-text-dark);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.header-session-metrics {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.header-metric {
+    font-size: 0.9em;
+    color: var(--color-text-light);
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.header-session-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background-color: transparent;
+    border: none;
+    color: var(--color-text-light);
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    flex-shrink: 0;
+}
+
+.header-session-close:hover {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
 }
 
 .header-user-info {
     display: flex;
     align-items: center;
     gap: 16px;
+    margin-left: auto; /* Push to right when session info is present */
 }
 
 .header-user-name {
