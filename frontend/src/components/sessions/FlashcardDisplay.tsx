@@ -65,6 +65,30 @@ function getDifficultyBadge(difficulty: number | null | undefined) {
     );
 }
 
+// Helper function to format answer text for choice/multiple_choice types
+function getFormattedAnswerText(answer: any): string {
+    const { type, text, options } = answer;
+
+    // For choice and multiple_choice, format with full option labels
+    if ((type === 'choice' || type === 'multiple_choice') && options && options.length > 0) {
+        const answerValues = type === 'multiple_choice'
+            ? text.split(',').map((v: string) => v.trim())
+            : [text];
+
+        const formattedOptions = answerValues
+            .map((value: string) => {
+                const option = options.find((opt: any) => opt.value === value);
+                return option ? `${value}. ${option.label}` : value;
+            })
+            .join('\n');
+
+        return formattedOptions;
+    }
+
+    // For all other types, return text as-is
+    return text;
+}
+
 function FlashcardDisplay({
     flashcard,
     feedback,
@@ -270,7 +294,7 @@ function FlashcardDisplay({
                                 🔊 {getLanguageFlag(flashcard.answer.lang)} <span className="speaker-text">Listen</span>
                             </button>
                         </div>
-                        <p>{flashcard.answer.text}</p>
+                        <p style={{ whiteSpace: 'pre-line' }}>{getFormattedAnswerText(flashcard.answer)}</p>
                     </div>
                 )}
             </div>

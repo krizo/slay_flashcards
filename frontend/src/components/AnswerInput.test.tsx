@@ -113,10 +113,15 @@ describe('AnswerInput', () => {
 
   it('renders radio buttons for choice answer type', () => {
     const answer: AnswerData = {
-      text: 'Blue',
+      text: 'b',
       lang: null,
       type: 'choice',
-      options: ['Red', 'Blue', 'Green', 'Yellow'],
+      options: [
+        { value: 'a', label: 'Red' },
+        { value: 'b', label: 'Blue' },
+        { value: 'c', label: 'Green' },
+        { value: 'd', label: 'Yellow' }
+      ],
       metadata: null,
     };
 
@@ -134,15 +139,20 @@ describe('AnswerInput', () => {
 
   it('renders checkboxes for multiple_choice answer type', () => {
     const answer: AnswerData = {
-      text: 'Python, Java',
+      text: 'a,c',
       lang: null,
       type: 'multiple_choice',
-      options: ['Python', 'HTML', 'Java', 'CSS'],
+      options: [
+        { value: 'a', label: 'Python' },
+        { value: 'b', label: 'HTML' },
+        { value: 'c', label: 'Java' },
+        { value: 'd', label: 'CSS' }
+      ],
       metadata: null,
     };
 
     const mockOnChange = vi.fn();
-    render(<AnswerInput answer={answer} userAnswer={[]} onAnswerChange={mockOnChange} />);
+    render(<AnswerInput answer={answer} userAnswer="" onAnswerChange={mockOnChange} />);
 
     expect(screen.getByText('Python')).toBeInTheDocument();
     expect(screen.getByText('HTML')).toBeInTheDocument();
@@ -191,40 +201,50 @@ describe('AnswerInput', () => {
 
   it('handles multiple checkbox selections correctly', () => {
     const answer: AnswerData = {
-      text: 'Python, Java',
+      text: 'a,c',
       lang: null,
       type: 'multiple_choice',
-      options: ['Python', 'HTML', 'Java', 'CSS'],
+      options: [
+        { value: 'a', label: 'Python' },
+        { value: 'b', label: 'HTML' },
+        { value: 'c', label: 'Java' },
+        { value: 'd', label: 'CSS' }
+      ],
       metadata: null,
     };
 
     const mockOnChange = vi.fn();
-    render(<AnswerInput answer={answer} userAnswer={[]} onAnswerChange={mockOnChange} />);
+    render(<AnswerInput answer={answer} userAnswer="" onAnswerChange={mockOnChange} />);
 
     const pythonCheckbox = screen.getByLabelText('Python');
     fireEvent.click(pythonCheckbox);
 
-    // Should be called with array containing 'Python'
-    expect(mockOnChange).toHaveBeenCalledWith(['Python']);
+    // Should be called with comma-separated values
+    expect(mockOnChange).toHaveBeenCalledWith('a');
   });
 
   it('deselects checkbox when clicked again', () => {
     const answer: AnswerData = {
-      text: 'Python, Java',
+      text: 'a,c',
       lang: null,
       type: 'multiple_choice',
-      options: ['Python', 'HTML', 'Java', 'CSS'],
+      options: [
+        { value: 'a', label: 'Python' },
+        { value: 'b', label: 'HTML' },
+        { value: 'c', label: 'Java' },
+        { value: 'd', label: 'CSS' }
+      ],
       metadata: null,
     };
 
     const mockOnChange = vi.fn();
-    render(<AnswerInput answer={answer} userAnswer={['Python']} onAnswerChange={mockOnChange} />);
+    render(<AnswerInput answer={answer} userAnswer="a" onAnswerChange={mockOnChange} />);
 
     const pythonCheckbox = screen.getByLabelText('Python');
     fireEvent.click(pythonCheckbox);
 
-    // Should be called with empty array (Python deselected)
-    expect(mockOnChange).toHaveBeenCalledWith([]);
+    // Should be called with empty string (Python deselected)
+    expect(mockOnChange).toHaveBeenCalledWith('');
   });
 
   it('displays user answer in text input', () => {
@@ -245,15 +265,20 @@ describe('AnswerInput', () => {
 
   it('checks radio button when userAnswer matches', () => {
     const answer: AnswerData = {
-      text: 'Blue',
+      text: 'b',
       lang: null,
       type: 'choice',
-      options: ['Red', 'Blue', 'Green', 'Yellow'],
+      options: [
+        { value: 'a', label: 'Red' },
+        { value: 'b', label: 'Blue' },
+        { value: 'c', label: 'Green' },
+        { value: 'd', label: 'Yellow' }
+      ],
       metadata: null,
     };
 
     const mockOnChange = vi.fn();
-    render(<AnswerInput answer={answer} userAnswer="Blue" onAnswerChange={mockOnChange} />);
+    render(<AnswerInput answer={answer} userAnswer="b" onAnswerChange={mockOnChange} />);
 
     const blueRadio = screen.getByLabelText('Blue') as HTMLInputElement;
     expect(blueRadio.checked).toBe(true);
