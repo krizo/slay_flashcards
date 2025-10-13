@@ -1,6 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faGear, faRightFromBracket, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faGear, faRightFromBracket } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../../context/AuthContext';
 import { useSessionContext } from '../../contexts/SessionContext';
 
@@ -33,39 +33,48 @@ function Header() {
         return date.toLocaleDateString();
     };
 
+    // Check if image is valid base64 data URL
+    const hasValidImage = sessionInfo?.quizImage && sessionInfo.quizImage.startsWith('data:image');
+
     return (
         <header className="app-header">
             {/* Session info (left side) */}
             {sessionInfo && (
                 <div className="header-session-info">
                     <div className="header-session-title">
-                        {sessionInfo.quizImage && (
-                            <span className="header-session-icon">{sessionInfo.quizImage}</span>
+                        {hasValidImage ? (
+                            <img
+                                src={sessionInfo.quizImage!}
+                                alt={sessionInfo.quizName}
+                                className="header-session-image"
+                            />
+                        ) : (
+                            <span className="header-session-icon">📚</span>
                         )}
                         <span className="header-session-name">{sessionInfo.quizName}</span>
                     </div>
                     <div className="header-session-metrics">
                         <span className="header-metric">
-                            Best: {sessionInfo.yourBest !== null ? `${sessionInfo.yourBest}%` : 'N/A'}
+                            <span className="metric-icon">⭐</span>
+                            {sessionInfo.yourBest !== null && sessionInfo.yourBest !== undefined
+                                ? `${Math.round(sessionInfo.yourBest)}%`
+                                : '—'}
                         </span>
                         <span className="header-metric">
-                            Avg: {sessionInfo.yourAverage !== null && sessionInfo.yourAverage !== undefined ? `${sessionInfo.yourAverage.toFixed(0)}%` : 'N/A'}
+                            <span className="metric-icon">📊</span>
+                            {sessionInfo.yourAverage !== null && sessionInfo.yourAverage !== undefined
+                                ? `${Math.round(sessionInfo.yourAverage)}%`
+                                : '—'}
                         </span>
                         <span className="header-metric">
-                            Tests: {sessionInfo.testSessions}
+                            <span className="metric-icon">🎯</span>
+                            {sessionInfo.testSessions && sessionInfo.testSessions > 0 ? sessionInfo.testSessions : '—'}
                         </span>
                         <span className="header-metric">
-                            Last: {formatDate(sessionInfo.lastSessionDate)}
+                            <span className="metric-icon">🕒</span>
+                            {formatDate(sessionInfo.lastSessionDate)}
                         </span>
                     </div>
-                    <button
-                        onClick={sessionInfo.onCloseSession}
-                        className="header-session-close"
-                        title="Close session"
-                        type="button"
-                    >
-                        <FontAwesomeIcon icon={faTimes} />
-                    </button>
                 </div>
             )}
 
