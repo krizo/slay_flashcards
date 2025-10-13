@@ -86,7 +86,6 @@ export interface Quiz {
     category?: string | null;
     level?: string | null;
     description: string | null;
-    user_id: number;
     flashcard_count?: number;
     created_at?: string;
     updated_at?: string;
