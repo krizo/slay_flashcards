@@ -41,46 +41,59 @@ function Header() {
         return date.toLocaleDateString();
     };
 
-    // Check if image is valid base64 data URL or emoji
-    const hasValidImage = sessionInfo?.quizImage && sessionInfo.quizImage.startsWith('data:image');
-    const hasEmoji = sessionInfo?.quizImage && !sessionInfo.quizImage.startsWith('data:image') && sessionInfo.quizImage.length < 10;
+    // Check if image is base64 string or emoji
+    // Base64 images are very long (500+ chars), emoji/text is short
+    const looksLikeBase64 = sessionInfo?.quizImage
+        && sessionInfo.quizImage.length > 50 // Real base64 images are much longer
+        && /^[A-Za-z0-9+/=]+$/.test(sessionInfo.quizImage);
+    const isBase64 = looksLikeBase64 || (sessionInfo?.quizImage?.startsWith('data:image'));
+    const isEmoji = sessionInfo?.quizImage && !looksLikeBase64 && !sessionInfo.quizImage.startsWith('data:');
+
+    // Add data URL prefix if it's base64 without prefix
+    const imageUrl = looksLikeBase64 && sessionInfo?.quizImage
+        ? `data:image/png;base64,${sessionInfo.quizImage}`
+        : sessionInfo?.quizImage;
 
     return (
         <header className="app-header">
             {/* Session info (left side) */}
             {sessionInfo && (
                 <div className="header-session-info">
-                    <div className="header-session-title">
-                        {hasValidImage ? (
-                            <img
-                                src={sessionInfo.quizImage!}
-                                alt={sessionInfo.quizName}
-                                className="header-session-image"
-                            />
-                        ) : hasEmoji ? (
-                            <span className="header-session-icon">{sessionInfo.quizImage}</span>
-                        ) : (
-                            <span className="header-session-icon">📚</span>
-                        )}
-                        <span className="header-session-name">{sessionInfo.quizName}</span>
-                    </div>
-                    {/* Quiz metadata */}
-                    <div className="header-quiz-metadata">
-                        {sessionInfo.subject && (
-                            <span className="quiz-meta-item">
-                                📚 {sessionInfo.subject}
-                            </span>
-                        )}
-                        {sessionInfo.category && (
-                            <span className="quiz-meta-item">
-                                📂 {sessionInfo.category}
-                            </span>
-                        )}
-                        {sessionInfo.level && (
-                            <span className="quiz-meta-item">
-                                📊 {sessionInfo.level}
-                            </span>
-                        )}
+                    <div className="header-session-left">
+                        <div className="header-session-title">
+                            {isBase64 ? (
+                                <img
+                                    src={imageUrl!}
+                                    alt={sessionInfo.quizName}
+                                    className="header-session-image"
+                                />
+                            ) : isEmoji ? (
+                                <span className="header-session-icon">{sessionInfo.quizImage}</span>
+                            ) : (
+                                <span className="header-session-icon">📚</span>
+                            )}
+                            <div className="header-title-and-meta">
+                                <span className="header-session-name">{sessionInfo.quizName}</span>
+                                {/* Quiz metadata inline */}
+                                <div className="header-quiz-metadata">
+                                    {sessionInfo.subject && (
+                                        <span className="quiz-meta-item">
+                                            📚 {sessionInfo.subject}
+                                        </span>
+                                    )}
+                                    {sessionInfo.category && (
+                                        <span className="quiz-meta-item">
+                                            📂 {sessionInfo.category}
+                                        </span>
+                                    )}
+                                    {sessionInfo.level && (
+                                        <span className="quiz-meta-item">
+                                            📊 {sessionInfo.level}
+                                        </span>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     {/* Stats tiles */}
