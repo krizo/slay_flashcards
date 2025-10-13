@@ -16,6 +16,7 @@ from api.api_schemas import (
 )
 from api.dependencies.auth import get_current_user
 from api.utils.responses import create_response
+from core.db.crud.repository.quiz_repository import QuizRepository
 from core.db.crud.repository.session_repository import SessionRepository
 from core.db.crud.repository.user_repository import UserRepository
 from core.db.database import get_db
@@ -625,11 +626,15 @@ async def get_user_recent_sessions(
         # Limit results after filtering
         sessions = filtered_sessions[:limit]
 
+        # Bulk fetch quiz details to avoid N+1 queries
+        quiz_ids = list(set(s.quiz_id for s in sessions))
+        quiz_repo = QuizRepository(db)
+        quizzes = {quiz.id: quiz for quiz in quiz_repo.get_by_ids(quiz_ids)} if quiz_ids else {}
+
         # Convert to response format with quiz info
         session_data = []
         for session in sessions:
-            # Get quiz details
-            quiz = quiz_service.get_quiz_by_id(session.quiz_id)
+            quiz = quizzes.get(session.quiz_id)
 
             session_dict = {
                 "id": session.id,

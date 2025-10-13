@@ -124,7 +124,7 @@ def get_answer_types_test_quiz():
             },
             # CHOICE
             {
-                "question": {"title": "Wybór jednej opcji (choice)", "text": "Który planet jest największy w Układzie Słonecznym?", "lang": "pl", "difficulty": 2, "emoji": "🪐"},
+                "question": {"title": "Wybór jednej opcji (choice)", "text": "Która planeta jest największa w Układzie Słonecznym?", "lang": "pl", "difficulty": 2, "emoji": "🪐"},
                 "answer": {"text": "b", "type": "choice", "lang": "pl", "options": [
                     {"value": "a", "label": "Mars"},
                     {"value": "b", "label": "Jowisz"},
