@@ -136,35 +136,55 @@ const AnswerInput: React.FC<AnswerInputProps> = ({answer, userAnswer, onAnswerCh
         case 'choice':
             return (
                 <div className="flashcard-option-group">
-                    {answer.options?.map((option, index) => (
-                        <label key={index}>
-                            <input
-                                type="radio"
-                                name="choice-answer"
-                                value={option}
-                                checked={userAnswer === option}
-                                onChange={handleChoiceChange}
-                            />
-                            <span>{option}</span>
-                        </label>
-                    ))}
+                    {answer.options?.map((option, index) => {
+                        // Support both string options and {value, label} objects
+                        const optionValue: string = typeof option === 'string'
+                            ? option
+                            : (option.value || option.label || String(option));
+                        const optionLabel: string = typeof option === 'string'
+                            ? option
+                            : (option.label || option.value || String(option));
+
+                        return (
+                            <label key={index}>
+                                <input
+                                    type="radio"
+                                    name="choice-answer"
+                                    value={optionValue}
+                                    checked={userAnswer === optionValue}
+                                    onChange={handleChoiceChange}
+                                />
+                                <span>{optionLabel}</span>
+                            </label>
+                        );
+                    })}
                 </div>
             );
 
         case 'multiple_choice':
             return (
                 <div className="flashcard-option-group">
-                    {answer.options?.map((option, index) => (
-                        <label key={index}>
-                            <input
-                                type="checkbox"
-                                value={option}
-                                checked={selectedOptions.includes(option)}
-                                onChange={() => handleMultipleChoiceChange(option)}
-                            />
-                            <span>{option}</span>
-                        </label>
-                    ))}
+                    {answer.options?.map((option, index) => {
+                        // Support both string options and {value, label} objects
+                        const optionValue: string = typeof option === 'string'
+                            ? option
+                            : (option.value || option.label || String(option));
+                        const optionLabel: string = typeof option === 'string'
+                            ? option
+                            : (option.label || option.value || String(option));
+
+                        return (
+                            <label key={index}>
+                                <input
+                                    type="checkbox"
+                                    value={optionValue}
+                                    checked={selectedOptions.includes(optionValue)}
+                                    onChange={() => handleMultipleChoiceChange(optionValue)}
+                                />
+                                <span>{optionLabel}</span>
+                            </label>
+                        );
+                    })}
                 </div>
             );
 

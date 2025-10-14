@@ -11,11 +11,16 @@ export interface QuestionData {
     image: string | null;
 }
 
+export interface AnswerOption {
+    value: string;
+    label: string;
+}
+
 export interface AnswerData {
     text: string;
     lang?: string | null;
     type: AnswerType;
-    options: string[] | null;
+    options: (string | AnswerOption)[] | null;
     metadata: Record<string, any> | null;
 }
 
@@ -31,6 +36,7 @@ export interface User {
     id: number;
     name: string;
     email: string | null;
+    language?: string;  // User's preferred language (e.g., 'en', 'pl')
     created_at: string | null;
 }
 
