@@ -41,7 +41,9 @@ class CLITestPresenter:
         if answer_type in ["choice", "multiple_choice"] and card.answer_options:
             print("\nOptions:")
             for i, option in enumerate(card.answer_options, 1):
-                print(f"  {i}. {option.get('text', option)}")
+                # Support both 'label' and 'text' fields
+                option_text = option.get('label', option.get('text', option))
+                print(f"  {i}. {option_text}")
 
         # Show format hint
         CLITestPresenter.show_answer_hint(card)
@@ -158,7 +160,8 @@ class StreamlitTypedPresenter:
 
         elif answer_type == "choice":
             if card.answer_options:
-                options = [opt.get("text", str(opt)) for opt in card.answer_options]
+                # Support both 'label' and 'text' fields
+                options = [opt.get("label", opt.get("text", str(opt))) for opt in card.answer_options]
                 selected = st.radio("Select your answer:", options=options, key=key, help="Choose one option")
                 return selected
             else:
@@ -168,7 +171,8 @@ class StreamlitTypedPresenter:
 
         elif answer_type == "multiple_choice":
             if card.answer_options:
-                options = [opt.get("text", str(opt)) for opt in card.answer_options]
+                # Support both 'label' and 'text' fields
+                options = [opt.get("label", opt.get("text", str(opt))) for opt in card.answer_options]
                 selected = st.multiselect(
                     "Select your answers:", options=options, key=key, help="Choose multiple options"
                 )
