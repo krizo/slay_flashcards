@@ -200,13 +200,16 @@ jobs:
           # Return to repository directory for backend deployment
           cd $GITHUB_WORKSPACE
 
-          # Deploy backend (api + core + requirements + scripts)
+          # Deploy backend (api + core + requirements + scripts + migrations)
           echo "📦 Deploying backend..."
           sudo rsync -av --delete api/ $DEPLOY_DIR/backend/api/
           sudo rsync -av --delete core/ $DEPLOY_DIR/backend/core/
           sudo rsync -av --delete scripts/ $DEPLOY_DIR/backend/scripts/
           sudo rsync -av --delete data/ $DEPLOY_DIR/backend/data/
+          sudo rsync -av --delete alembic/ $DEPLOY_DIR/backend/alembic/
           sudo rsync -av requirements.txt $DEPLOY_DIR/backend/
+          sudo rsync -av alembic.ini $DEPLOY_DIR/backend/
+          sudo rsync -av migrate_db.py $DEPLOY_DIR/backend/
 
           # Setup Python virtual environment
           echo "🐍 Setting up Python virtual environment..."
@@ -232,6 +235,16 @@ jobs:
           else
             echo "Initializing database (keeping existing data)..."
             sudo -u $USER DATABASE_URL="$DATABASE_URL" .venv/bin/python scripts/init_database.py
+          fi
+
+          # Run database migrations
+          echo "🔄 Running database migrations..."
+          sudo -u $USER DATABASE_URL="$DATABASE_URL" .venv/bin/python migrate_db.py
+          if [ $? -eq 0 ]; then
+            echo "✅ Database migrations completed successfully"
+          else
+            echo "❌ Database migrations failed!"
+            exit 1
           fi
 
           # Return to repository directory for deployment files
