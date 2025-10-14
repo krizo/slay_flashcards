@@ -2,7 +2,7 @@
 Migration script to add language column to users table.
 
 This script adds a 'language' column to the users table to store user's preferred language.
-Default value is 'en' (English).
+Default value is 'pl' (Polish).
 """
 
 import sys
@@ -37,16 +37,16 @@ def migrate():
     db = next(get_db())
 
     try:
-        # Add language column with default value 'en'
+        # Add language column with default value 'pl'
         db.execute(text("""
             ALTER TABLE users
-            ADD COLUMN language VARCHAR(10) NOT NULL DEFAULT 'en'
+            ADD COLUMN language VARCHAR(10) NOT NULL DEFAULT 'pl'
         """))
 
         db.commit()
         print("✓ Successfully added 'language' column to users table")
         print("  - Type: VARCHAR(10)")
-        print("  - Default: 'en'")
+        print("  - Default: 'pl'")
         print("  - Not Null: True")
 
     except Exception as e:

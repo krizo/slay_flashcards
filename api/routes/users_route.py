@@ -231,7 +231,7 @@ async def update_user(
             "id": updated_user.id,
             "name": updated_user.name,
             "email": getattr(updated_user, 'email', None),
-            "language": getattr(updated_user, 'language', 'en'),
+            "language": getattr(updated_user, 'language', 'pl'),
             "created_at": getattr(updated_user, 'created_at', None)
         }
 

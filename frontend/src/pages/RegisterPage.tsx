@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
@@ -14,11 +14,6 @@ function RegisterPage() {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const { register } = useAuth();
     const navigate = useNavigate();
-
-    // Set initial language to Polish on mount
-    useEffect(() => {
-        i18n.changeLanguage('pl');
-    }, [i18n]);
 
     const handleLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const newLanguage = e.target.value;
