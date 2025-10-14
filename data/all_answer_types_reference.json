@@ -1,0 +1,237 @@
+{
+  "quiz": {
+    "name": "Answer Types Reference - All 8 Types",
+    "subject": "Reference",
+    "created_at": "2025-10-14",
+    "description": "Complete reference showing all 8 answer types supported by SlayFlashcards"
+  },
+  "flashcards": [
+    {
+      "question": {
+        "title": "Type 1: Text (Free-form)",
+        "text": "Describe the process of photosynthesis in your own words.",
+        "lang": "en",
+        "difficulty": 2,
+        "emoji": "📝"
+      },
+      "answer": {
+        "text": "Photosynthesis is the process by which plants convert light energy into chemical energy.",
+        "type": "text",
+        "lang": "en",
+        "options": null,
+        "metadata": {
+          "min_words": 5,
+          "hint": "Write a detailed answer (at least 5 words)",
+          "rows": 4
+        }
+      }
+    },
+    {
+      "question": {
+        "title": "Type 2: Short Text",
+        "text": "What is the capital of France?",
+        "lang": "en",
+        "difficulty": 1,
+        "emoji": "🏛️"
+      },
+      "answer": {
+        "text": "Paris",
+        "type": "short_text",
+        "lang": "en",
+        "options": null,
+        "metadata": {
+          "max_length": 20,
+          "case_sensitive": false,
+          "hint": "Enter a short answer",
+          "placeholder": "e.g., Paris"
+        }
+      }
+    },
+    {
+      "question": {
+        "title": "Type 3: Integer",
+        "text": "In what year did World War II end?",
+        "lang": "en",
+        "difficulty": 1,
+        "emoji": "📅"
+      },
+      "answer": {
+        "text": "1945",
+        "type": "integer",
+        "lang": "en",
+        "options": null,
+        "metadata": {
+          "tolerance": 0,
+          "hint": "Enter a whole number (year)",
+          "placeholder": "e.g., 1945"
+        }
+      }
+    },
+    {
+      "question": {
+        "title": "Type 4: Float (Decimal)",
+        "text": "What is the value of Pi to 2 decimal places?",
+        "lang": "en",
+        "difficulty": 2,
+        "emoji": "🔢"
+      },
+      "answer": {
+        "text": "3.14",
+        "type": "float",
+        "lang": "en",
+        "options": null,
+        "metadata": {
+          "tolerance": 0.01,
+          "hint": "Enter a decimal number",
+          "decimal_places": 2,
+          "step": 0.01,
+          "placeholder": "e.g., 3.14"
+        }
+      }
+    },
+    {
+      "question": {
+        "title": "Type 5: Range",
+        "text": "What is the normal human body temperature range in Celsius?",
+        "lang": "en",
+        "difficulty": 2,
+        "emoji": "🌡️"
+      },
+      "answer": {
+        "text": "36.5-37.5",
+        "type": "range",
+        "lang": "en",
+        "options": null,
+        "metadata": {
+          "hint": "Enter a range (e.g., 36.5-37.5)",
+          "overlap_threshold": 0.5,
+          "placeholder": "e.g., 36.5-37.5"
+        }
+      }
+    },
+    {
+      "question": {
+        "title": "Type 6: Boolean (True/False)",
+        "text": "True or False: The Earth revolves around the Sun.",
+        "lang": "en",
+        "difficulty": 1,
+        "emoji": "🌍"
+      },
+      "answer": {
+        "text": "true",
+        "type": "boolean",
+        "lang": "en",
+        "options": null,
+        "metadata": {
+          "true_label": "True",
+          "false_label": "False",
+          "hint": "Select True or False"
+        }
+      }
+    },
+    {
+      "question": {
+        "title": "Type 7: Choice (Single Selection)",
+        "text": "Which planet is known as the Red Planet?",
+        "lang": "en",
+        "difficulty": 1,
+        "emoji": "🔴"
+      },
+      "answer": {
+        "text": "Mars",
+        "type": "choice",
+        "lang": "en",
+        "options": [
+          "Venus",
+          "Mars",
+          "Jupiter",
+          "Saturn"
+        ],
+        "metadata": {
+          "case_sensitive": false,
+          "hint": "Choose one option"
+        }
+      }
+    },
+    {
+      "question": {
+        "title": "Type 8: Multiple Choice (Multiple Selections)",
+        "text": "Which of the following are programming languages? (Select all that apply)",
+        "lang": "en",
+        "difficulty": 1,
+        "emoji": "💻"
+      },
+      "answer": {
+        "text": "Python,JavaScript,Java",
+        "type": "multiple_choice",
+        "lang": "en",
+        "options": [
+          "Python",
+          "JavaScript",
+          "HTML",
+          "Java",
+          "CSS"
+        ],
+        "metadata": {
+          "case_sensitive": false,
+          "order_matters": false,
+          "min_selections": 1,
+          "exact_count": 3,
+          "hint": "Select all correct answers (3 options)"
+        }
+      }
+    },
+    {
+      "question": {
+        "title": "Advanced: Choice with Value/Label Objects",
+        "text": "What is the chemical symbol for Gold?",
+        "lang": "en",
+        "difficulty": 2,
+        "emoji": "⚗️"
+      },
+      "answer": {
+        "text": "Au",
+        "type": "choice",
+        "lang": "en",
+        "options": [
+          {"value": "Au", "label": "Au (Gold)"},
+          {"value": "Ag", "label": "Ag (Silver)"},
+          {"value": "Fe", "label": "Fe (Iron)"},
+          {"value": "Cu", "label": "Cu (Copper)"}
+        ],
+        "metadata": {
+          "case_sensitive": true,
+          "hint": "Choose one option"
+        }
+      }
+    },
+    {
+      "question": {
+        "title": "Advanced: Multiple Choice with Value/Label Objects",
+        "text": "Which of these are noble gases? (Select all that apply)",
+        "lang": "en",
+        "difficulty": 2,
+        "emoji": "🧪"
+      },
+      "answer": {
+        "text": "He,Ne,Ar",
+        "type": "multiple_choice",
+        "lang": "en",
+        "options": [
+          {"value": "He", "label": "Helium (He)"},
+          {"value": "Ne", "label": "Neon (Ne)"},
+          {"value": "O", "label": "Oxygen (O)"},
+          {"value": "Ar", "label": "Argon (Ar)"},
+          {"value": "N", "label": "Nitrogen (N)"}
+        ],
+        "metadata": {
+          "case_sensitive": false,
+          "order_matters": false,
+          "min_selections": 2,
+          "exact_count": 3,
+          "hint": "Select all correct answers (3 options)"
+        }
+      }
+    }
+  ]
+}
