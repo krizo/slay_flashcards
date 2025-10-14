@@ -633,6 +633,7 @@ async def get_user_recent_sessions(
 
         # Convert to response format with quiz info
         session_data = []
+
         for session in sessions:
             quiz = quizzes.get(session.quiz_id)
 

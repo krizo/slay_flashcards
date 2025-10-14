@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {Session} from '../../types';
 
 interface ActivitySidebarProps {
@@ -7,16 +8,18 @@ interface ActivitySidebarProps {
 }
 
 const ActivitySidebar = ({recentSessions, isLoading, error}: ActivitySidebarProps) => {
+    const { t } = useTranslation();
+
     const formatDate = (dateString: string) => {
         const date = new Date(dateString);
         const now = new Date();
         const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
 
-        if (diffInHours < 1) return 'Just now';
-        if (diffInHours < 24) return `${diffInHours}h ago`;
+        if (diffInHours < 1) return t('dashboard.activity.justNow');
+        if (diffInHours < 24) return t('dashboard.activity.hoursAgo', { count: diffInHours });
         const diffInDays = Math.floor(diffInHours / 24);
-        if (diffInDays === 1) return 'Yesterday';
-        return `${diffInDays}d ago`;
+        if (diffInDays === 1) return t('dashboard.activity.yesterday');
+        return t('dashboard.activity.daysAgo', { count: diffInDays });
     };
 
     return (
@@ -24,14 +27,14 @@ const ActivitySidebar = ({recentSessions, isLoading, error}: ActivitySidebarProp
             {/* Recent Activity Section */}
             <div className="dashboard-card activity-card">
                 <div className="card-header">
-                    <h3 className="card-title">Recent Activity</h3>
+                    <h3 className="card-title">{t('dashboard.activity.recentActivity')}</h3>
                 </div>
 
                 {/* Loading state */}
                 {isLoading && (
                     <div className="loading-state">
                         <div className="loading-spinner"></div>
-                        <p>Loading activity...</p>
+                        <p>{t('dashboard.loadingActivity')}</p>
                     </div>
                 )}
 
@@ -39,7 +42,7 @@ const ActivitySidebar = ({recentSessions, isLoading, error}: ActivitySidebarProp
                 {!isLoading && error && (
                     <div className="error-state">
                         <span className="error-icon">⚠️</span>
-                        <p className="error-message">Failed to load activity</p>
+                        <p className="error-message">{t('dashboard.failedToLoadActivity')}</p>
                         <p className="error-detail">{error.message}</p>
                     </div>
                 )}
@@ -48,7 +51,7 @@ const ActivitySidebar = ({recentSessions, isLoading, error}: ActivitySidebarProp
                 {!isLoading && !error && (!recentSessions || recentSessions.length === 0) && (
                     <div className="empty-state">
                         <span className="empty-icon">📝</span>
-                        <p>No recent activity</p>
+                        <p>{t('dashboard.noRecentActivity')}</p>
                     </div>
                 )}
 
@@ -69,7 +72,7 @@ const ActivitySidebar = ({recentSessions, isLoading, error}: ActivitySidebarProp
                                     </div>
                                     <div className="activity-content">
                                         <div className="activity-quiz-name">
-                                            {session.quiz_name || `Quiz #${session.quiz_id}`}
+                                            {session.quiz_name || t('dashboard.activity.quizNumber', { id: session.quiz_id })}
                                         </div>
                                         {subtitle && (
                                             <div className="activity-quiz-details">
@@ -77,7 +80,7 @@ const ActivitySidebar = ({recentSessions, isLoading, error}: ActivitySidebarProp
                                             </div>
                                         )}
                                         <div className="activity-meta">
-                                            <span className="activity-mode">{session.mode}</span>
+                                            <span className="activity-mode">{t(`session.${session.mode}`)}</span>
                                             {session.score !== null && (
                                                 <span className="activity-score">{Math.round(session.score)}%</span>
                                             )}

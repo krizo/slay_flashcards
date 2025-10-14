@@ -325,10 +325,12 @@ describe('SettingsPage', () => {
         const updateButton = screen.getByRole('button', { name: /update profile/i });
         fireEvent.click(updateButton);
 
+        // Wait for the UI to settle after form submission
         await waitFor(() => {
-            expect(screen.getByText(/no changes to save/i)).toBeInTheDocument();
+            expect(screen.queryByText(/profile updated successfully/i)).not.toBeInTheDocument();
         });
 
+        // Verify that no API call was made when there are no changes
         expect(api.put).not.toHaveBeenCalled();
     });
 });

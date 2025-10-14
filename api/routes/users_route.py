@@ -56,6 +56,8 @@ async def get_users(
             user_dict = {
                 "id": user.id,
                 "name": user.name,
+                "email": getattr(user, 'email', None),
+                "language": getattr(user, 'language', 'pl'),
                 "created_at": getattr(user, 'created_at', None)
             }
             user_data.append(User(**user_dict))
@@ -92,6 +94,8 @@ async def get_user(
         user_dict = {
             "id": user.id,
             "name": user.name,
+            "email": getattr(user, 'email', None),
+            "language": getattr(user, 'language', 'pl'),
             "created_at": getattr(user, 'created_at', None)
         }
 
@@ -129,6 +133,8 @@ async def get_user_by_name(
         user_dict = {
             "id": user.id,
             "name": user.name,
+            "email": getattr(user, 'email', None),
+            "language": getattr(user, 'language', 'pl'),
             "created_at": getattr(user, 'created_at', None)
         }
 
@@ -169,6 +175,8 @@ async def create_user(
         user_dict = {
             "id": user.id,
             "name": user.name,
+            "email": getattr(user, 'email', None),
+            "language": getattr(user, 'language', 'pl'),
             "created_at": getattr(user, 'created_at', None)
         }
 
@@ -222,6 +230,8 @@ async def update_user(
         user_dict = {
             "id": updated_user.id,
             "name": updated_user.name,
+            "email": getattr(updated_user, 'email', None),
+            "language": getattr(updated_user, 'language', 'pl'),
             "created_at": getattr(updated_user, 'created_at', None)
         }
 
@@ -330,6 +340,8 @@ async def ensure_user_exists(
         user_dict = {
             "id": user.id,
             "name": user.name,
+            "email": getattr(user, 'email', None),
+            "language": getattr(user, 'language', 'pl'),
             "created_at": getattr(user, 'created_at', None)
         }
 
@@ -520,6 +532,8 @@ async def search_users(
             user_dict = {
                 "id": user.id,
                 "name": user.name,
+                "email": getattr(user, 'email', None),
+                "language": getattr(user, 'language', 'pl'),
                 "created_at": getattr(user, 'created_at', None)
             }
             user_data.append(User(**user_dict))

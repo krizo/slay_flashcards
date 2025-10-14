@@ -7,7 +7,7 @@ interface AuthContextType {
     isLoading: boolean;
     isAuthenticated: boolean;
     login: (username: string, password: string) => Promise<void>;
-    register: (username: string, password: string, email: string) => Promise<void>;
+    register: (username: string, password: string, email: string, language?: string) => Promise<void>;
     logout: () => Promise<void>;
 }
 
@@ -130,7 +130,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     };
 
     // Register method - calls /auth/register API
-    const register = async (username: string, password: string, email: string): Promise<void> => {
+    const register = async (username: string, password: string, email: string, language: string = 'pl'): Promise<void> => {
         setIsLoading(true);
 
         try {
@@ -140,7 +140,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ username, password, email }),
+                body: JSON.stringify({ username, password, email, language }),
             });
 
             if (!response.ok) {

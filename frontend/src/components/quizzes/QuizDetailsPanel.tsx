@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useQuiz } from '../../hooks/useQuiz';
 import { useQuizPerformance } from '../../hooks/useQuizPerformance';
 import { useQuizSessions } from '../../hooks/useQuizSessions';
@@ -60,6 +61,7 @@ function QuizDetailsPanel({
     onStartLearningSession,
     onStartTestSession,
 }: QuizDetailsPanelProps) {
+    const { t } = useTranslation();
     const { quiz, isLoading, error } = useQuiz(selectedQuizId);
     const { performance, isLoading: perfLoading } = useQuizPerformance(selectedQuizId, 30);
     const { sessions } = useQuizSessions(selectedQuizId, 50);
@@ -145,12 +147,12 @@ function QuizDetailsPanel({
         const diffInMs = now.getTime() - date.getTime();
         const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
 
-        if (diffInDays === 0) return 'Today';
-        if (diffInDays === 1) return 'Yesterday';
-        if (diffInDays < 7) return `${diffInDays}d ago`;
-        if (diffInDays < 30) return `${Math.floor(diffInDays / 7)}w ago`;
-        if (diffInDays < 365) return `${Math.floor(diffInDays / 30)}mo ago`;
-        return `${Math.floor(diffInDays / 365)}y ago`;
+        if (diffInDays === 0) return t('quizDetails.time.today');
+        if (diffInDays === 1) return t('quizDetails.time.yesterday');
+        if (diffInDays < 7) return t('quizDetails.time.daysAgo', { count: diffInDays });
+        if (diffInDays < 30) return t('quizDetails.time.weeksAgo', { count: Math.floor(diffInDays / 7) });
+        if (diffInDays < 365) return t('quizDetails.time.monthsAgo', { count: Math.floor(diffInDays / 30) });
+        return t('quizDetails.time.yearsAgo', { count: Math.floor(diffInDays / 365) });
     };
 
     // Handle export quiz
@@ -180,7 +182,7 @@ function QuizDetailsPanel({
             document.body.removeChild(a);
         } catch (err) {
             console.error('Failed to export quiz:', err);
-            alert('Failed to export quiz. Please try again.');
+            alert(t('quizDetails.export.failed'));
         } finally {
             setIsExporting(false);
         }
@@ -192,8 +194,8 @@ function QuizDetailsPanel({
             <div className="quiz-details-panel quiz-details-panel--compact">
                 <div className="quiz-details-empty-state quiz-details-empty-state--top">
                     <div className="empty-state-icon">📚</div>
-                    <h3>No Quiz Selected</h3>
-                    <p>Select a quiz from the list to view details and start learning</p>
+                    <h3>{t('quizDetails.noQuizSelected')}</h3>
+                    <p>{t('quizDetails.selectQuizPrompt')}</p>
                 </div>
             </div>
         );
@@ -203,7 +205,7 @@ function QuizDetailsPanel({
     if (isLoading) {
         return (
             <div className="quiz-details-panel">
-                <div className="loading-spinner">Loading quiz details...</div>
+                <div className="loading-spinner">{t('quizDetails.loadingDetails')}</div>
             </div>
         );
     }
@@ -213,7 +215,7 @@ function QuizDetailsPanel({
         return (
             <div className="quiz-details-panel">
                 <div className="error-message">
-                    Failed to load quiz details: {error.message}
+                    {t('quizDetails.failedToLoad')}: {error.message}
                 </div>
             </div>
         );
@@ -223,7 +225,7 @@ function QuizDetailsPanel({
     if (!quiz) {
         return (
             <div className="quiz-details-panel">
-                <div className="error-message">Quiz not found</div>
+                <div className="error-message">{t('quizDetails.quizNotFound')}</div>
             </div>
         );
     }
@@ -240,7 +242,7 @@ function QuizDetailsPanel({
                     </div>
                     {quiz.created_at && (
                         <div className="quiz-compact-created">
-                            <FontAwesomeIcon icon={faCalendarPlus} /> Created {new Date(quiz.created_at).toLocaleDateString('en-US', {
+                            <FontAwesomeIcon icon={faCalendarPlus} /> {t('quizDetails.created')} {new Date(quiz.created_at).toLocaleDateString('en-US', {
                                 month: 'short',
                                 day: 'numeric',
                                 year: 'numeric'
@@ -261,7 +263,7 @@ function QuizDetailsPanel({
                         </span>
                     )}
                     <span className="quiz-badge quiz-badge--cards">
-                        <FontAwesomeIcon icon={faLayerGroup} /> {quiz.flashcard_count ?? 0} cards
+                        <FontAwesomeIcon icon={faLayerGroup} /> {quiz.flashcard_count ?? 0} {t('quizDetails.cards')}
                     </span>
                 </div>
                 {quiz.description && (
@@ -276,60 +278,60 @@ function QuizDetailsPanel({
                 <button
                     className="quiz-action-btn quiz-action-btn--learn"
                     onClick={() => onStartLearningSession(quiz.id)}
-                    title="Start Learning Session"
+                    title={t('quizDetails.actions.startLearning')}
                 >
                     <FontAwesomeIcon icon={faGraduationCap} />
-                    <span>Learn</span>
+                    <span>{t('quizDetails.actions.learn')}</span>
                 </button>
                 <button
                     className="quiz-action-btn quiz-action-btn--test"
                     onClick={() => onStartTestSession(quiz.id)}
-                    title="Start Test Session"
+                    title={t('quizDetails.actions.startTest')}
                 >
                     <FontAwesomeIcon icon={faClipboardCheck} />
-                    <span>Test</span>
+                    <span>{t('quizDetails.actions.test')}</span>
                 </button>
                 <button
                     className="quiz-action-btn quiz-action-btn--edit"
                     onClick={() => onEditClick(quiz.id)}
-                    title="Edit Quiz"
+                    title={t('quizDetails.actions.edit')}
                 >
                     <FontAwesomeIcon icon={faEdit} />
-                    <span>Edit</span>
+                    <span>{t('quizDetails.actions.editShort')}</span>
                 </button>
                 <button
                     className="quiz-action-btn quiz-action-btn--export"
                     onClick={handleExport}
                     disabled={isExporting}
-                    title="Export Quiz"
+                    title={t('quizDetails.actions.export')}
                 >
                     <FontAwesomeIcon icon={faDownload} />
-                    <span>{isExporting ? '...' : 'Export'}</span>
+                    <span>{isExporting ? t('quizDetails.actions.exporting') : t('quizDetails.actions.exportShort')}</span>
                 </button>
                 <button
                     className="quiz-action-btn quiz-action-btn--delete"
                     onClick={() => onDeleteClick(quiz.id)}
-                    title="Delete Quiz"
+                    title={t('quizDetails.actions.delete')}
                 >
                     <FontAwesomeIcon icon={faTrash} />
-                    <span>Delete</span>
+                    <span>{t('quizDetails.actions.deleteShort')}</span>
                 </button>
             </div>
 
             {/* Statistics Section */}
             <div className="quiz-section">
                 <div className="quiz-section-header">
-                    <h3 className="quiz-section-title">Statistics</h3>
-                    <p className="quiz-section-caption">Your performance metrics (last 30 days)</p>
+                    <h3 className="quiz-section-title">{t('quizDetails.statistics.title')}</h3>
+                    <p className="quiz-section-caption">{t('quizDetails.statistics.subtitle')}</p>
                 </div>
                 {perfLoading ? (
-                    <div className="loading-spinner">Loading statistics...</div>
+                    <div className="loading-spinner">{t('quizDetails.statistics.loading')}</div>
                 ) : (
                     <div className="quiz-stats-grid quiz-stats-grid--seven">
                         <div className="quiz-stat-card">
                             <FontAwesomeIcon icon={faHashtag} className="quiz-stat-icon" />
                             <div className="quiz-stat-value">{performance?.total_sessions ?? 0}</div>
-                            <div className="quiz-stat-label">Total Sessions</div>
+                            <div className="quiz-stat-label">{t('quizDetails.statistics.totalSessions')}</div>
                         </div>
                         <div className="quiz-stat-card">
                             <FontAwesomeIcon icon={faTrophy} className="quiz-stat-icon" />
@@ -338,11 +340,11 @@ function QuizDetailsPanel({
                                     ? `${Math.round(latestTestSession.score)}%`
                                     : '—'}
                             </div>
-                            <div className="quiz-stat-label">Latest Score</div>
+                            <div className="quiz-stat-label">{t('quizDetails.statistics.latestScore')}</div>
                             <div className="quiz-stat-date">
                                 {latestTestSession?.started_at
                                     ? formatRelativeDate(latestTestSession.started_at)
-                                    : 'No data'}
+                                    : t('quizDetails.statistics.noData')}
                             </div>
                         </div>
                         <div className="quiz-stat-card">
@@ -352,9 +354,9 @@ function QuizDetailsPanel({
                                     ? `${Math.round(performance.scores.highest)}%`
                                     : '—'}
                             </div>
-                            <div className="quiz-stat-label">Max Score</div>
+                            <div className="quiz-stat-label">{t('quizDetails.statistics.maxScore')}</div>
                             <div className="quiz-stat-date">
-                                {performance?.test_sessions ? 'Last 30 days' : 'No data'}
+                                {performance?.test_sessions ? t('quizDetails.statistics.last30Days') : t('quizDetails.statistics.noData')}
                             </div>
                         </div>
                         <div className="quiz-stat-card">
@@ -364,9 +366,9 @@ function QuizDetailsPanel({
                                     ? `${Math.round(performance.scores.lowest)}%`
                                     : '—'}
                             </div>
-                            <div className="quiz-stat-label">Min Score</div>
+                            <div className="quiz-stat-label">{t('quizDetails.statistics.minScore')}</div>
                             <div className="quiz-stat-date">
-                                {performance?.test_sessions ? 'Last 30 days' : 'No data'}
+                                {performance?.test_sessions ? t('quizDetails.statistics.last30Days') : t('quizDetails.statistics.noData')}
                             </div>
                         </div>
                         <div className="quiz-stat-card">
@@ -376,8 +378,8 @@ function QuizDetailsPanel({
                                     ? `${Math.round(performance.scores.average)}%`
                                     : '—'}
                             </div>
-                            <div className="quiz-stat-label">Avg Score</div>
-                            <div className="quiz-stat-date">Last 30 days</div>
+                            <div className="quiz-stat-label">{t('quizDetails.statistics.avgScore')}</div>
+                            <div className="quiz-stat-date">{t('quizDetails.statistics.last30Days')}</div>
                         </div>
                         <div className="quiz-stat-card">
                             <FontAwesomeIcon icon={faCalendarDays} className="quiz-stat-icon" />
@@ -386,17 +388,17 @@ function QuizDetailsPanel({
                                     ? Object.keys(performance.activity_trend).length
                                     : 0}
                             </div>
-                            <div className="quiz-stat-label">Days Active</div>
-                            <div className="quiz-stat-date">Last 30 days</div>
+                            <div className="quiz-stat-label">{t('quizDetails.statistics.daysActive')}</div>
+                            <div className="quiz-stat-date">{t('quizDetails.statistics.last30Days')}</div>
                         </div>
                         <div className="quiz-stat-card">
                             <FontAwesomeIcon icon={faChartBar} className="quiz-stat-icon" />
                             <div className="quiz-stat-value">
                                 {peakScoreInfo.score !== null ? `${peakScoreInfo.score}%` : '—'}
                             </div>
-                            <div className="quiz-stat-label">Peak Score</div>
+                            <div className="quiz-stat-label">{t('quizDetails.statistics.peakScore')}</div>
                             <div className="quiz-stat-date">
-                                {peakScoreInfo.date ? formatRelativeDate(peakScoreInfo.date) : 'No data'}
+                                {peakScoreInfo.date ? formatRelativeDate(peakScoreInfo.date) : t('quizDetails.statistics.noData')}
                             </div>
                         </div>
                         <div className="quiz-stat-card">
@@ -404,9 +406,9 @@ function QuizDetailsPanel({
                             <div className="quiz-stat-value">
                                 {bestStreakInfo.days > 0 ? bestStreakInfo.days : '—'}
                             </div>
-                            <div className="quiz-stat-label">Best Streak</div>
+                            <div className="quiz-stat-label">{t('quizDetails.statistics.bestStreak')}</div>
                             <div className="quiz-stat-date">
-                                {bestStreakInfo.endDate ? `Ended ${formatRelativeDate(bestStreakInfo.endDate)}` : 'No data'}
+                                {bestStreakInfo.endDate ? `${t('quizDetails.statistics.ended')} ${formatRelativeDate(bestStreakInfo.endDate)}` : t('quizDetails.statistics.noData')}
                             </div>
                         </div>
                     </div>
@@ -416,11 +418,11 @@ function QuizDetailsPanel({
             {/* Performance Charts */}
             <div className="quiz-section">
                 <div className="quiz-section-header">
-                    <h3 className="quiz-section-title">Performance Analytics</h3>
-                    <p className="quiz-section-caption">Your learning progress and statistics</p>
+                    <h3 className="quiz-section-title">{t('quizDetails.performance.title')}</h3>
+                    <p className="quiz-section-caption">{t('quizDetails.performance.subtitle')}</p>
                 </div>
                 {perfLoading ? (
-                    <div className="loading-spinner">Loading charts...</div>
+                    <div className="loading-spinner">{t('quizDetails.performance.loading')}</div>
                 ) : (
                     <div className="quiz-charts-grid">
                         {/* Activity Trend Chart */}
@@ -428,8 +430,8 @@ function QuizDetailsPanel({
                             <div className="quiz-chart-header">
                                 <FontAwesomeIcon icon={faChartLine} className="quiz-chart-icon" />
                                 <div>
-                                    <h4 className="quiz-chart-title">Activity Trend</h4>
-                                    <p className="quiz-chart-subtitle">Average scores over the last 30 days</p>
+                                    <h4 className="quiz-chart-title">{t('quizDetails.performance.activityTrend.title')}</h4>
+                                    <p className="quiz-chart-subtitle">{t('quizDetails.performance.activityTrend.subtitle')}</p>
                                 </div>
                             </div>
                             {performance && Object.keys(performance.activity_trend).length > 0 ? (
@@ -475,10 +477,10 @@ function QuizDetailsPanel({
                                                 }}
                                                 formatter={(value, name) => {
                                                     if (name === 'score' && typeof value === 'number') {
-                                                        return [`${Math.round(value)}%`, 'Avg Score'];
+                                                        return [`${Math.round(value)}%`, t('quizDetails.performance.activityTrend.avgScore')];
                                                     }
                                                     if (name === 'sessions' && typeof value === 'number') {
-                                                        return [value, 'Sessions'];
+                                                        return [value, t('quizDetails.performance.activityTrend.sessions')];
                                                     }
                                                     return [value ?? 0, String(name)];
                                                 }}
@@ -498,8 +500,8 @@ function QuizDetailsPanel({
                             ) : (
                                 <div className="quiz-chart-placeholder">
                                     <div className="quiz-chart-placeholder-icon">📈</div>
-                                    <p className="quiz-chart-placeholder-text">No session data available yet</p>
-                                    <p className="quiz-chart-placeholder-hint">Start a learning session to see your progress</p>
+                                    <p className="quiz-chart-placeholder-text">{t('quizDetails.performance.noData')}</p>
+                                    <p className="quiz-chart-placeholder-hint">{t('quizDetails.performance.startSessionPrompt')}</p>
                                 </div>
                             )}
                         </div>
@@ -509,8 +511,8 @@ function QuizDetailsPanel({
                             <div className="quiz-chart-header">
                                 <FontAwesomeIcon icon={faChartBar} className="quiz-chart-icon" />
                                 <div>
-                                    <h4 className="quiz-chart-title">Session Distribution</h4>
-                                    <p className="quiz-chart-subtitle">Learn vs Test sessions</p>
+                                    <h4 className="quiz-chart-title">{t('quizDetails.performance.sessionDistribution.title')}</h4>
+                                    <p className="quiz-chart-subtitle">{t('quizDetails.performance.sessionDistribution.subtitle')}</p>
                                 </div>
                             </div>
                             {performance && performance.total_sessions > 0 ? (
@@ -522,7 +524,7 @@ function QuizDetailsPanel({
                                                 style={{
                                                     width: `${(performance.learn_sessions / performance.total_sessions) * 100}%`
                                                 }}
-                                                title={`Learn: ${performance.learn_sessions} sessions`}
+                                                title={`${t('quizDetails.performance.sessionDistribution.learn')}: ${performance.learn_sessions} ${t('quizDetails.performance.activityTrend.sessions').toLowerCase()}`}
                                             >
                                                 {performance.learn_sessions > 0 && (
                                                     <span className="distribution-bar-label">{performance.learn_sessions}</span>
@@ -533,7 +535,7 @@ function QuizDetailsPanel({
                                                 style={{
                                                     width: `${(performance.test_sessions / performance.total_sessions) * 100}%`
                                                 }}
-                                                title={`Test: ${performance.test_sessions} sessions`}
+                                                title={`${t('quizDetails.performance.sessionDistribution.test')}: ${performance.test_sessions} ${t('quizDetails.performance.activityTrend.sessions').toLowerCase()}`}
                                             >
                                                 {performance.test_sessions > 0 && (
                                                     <span className="distribution-bar-label">{performance.test_sessions}</span>
@@ -543,11 +545,11 @@ function QuizDetailsPanel({
                                         <div className="distribution-legend">
                                             <div className="legend-item">
                                                 <span className="legend-color legend-color--learn"></span>
-                                                <span>Learn ({performance.learn_sessions})</span>
+                                                <span>{t('quizDetails.performance.sessionDistribution.learn')} ({performance.learn_sessions})</span>
                                             </div>
                                             <div className="legend-item">
                                                 <span className="legend-color legend-color--test"></span>
-                                                <span>Test ({performance.test_sessions})</span>
+                                                <span>{t('quizDetails.performance.sessionDistribution.test')} ({performance.test_sessions})</span>
                                             </div>
                                         </div>
                                     </div>
@@ -555,8 +557,8 @@ function QuizDetailsPanel({
                             ) : (
                                 <div className="quiz-chart-placeholder">
                                     <div className="quiz-chart-placeholder-icon">📊</div>
-                                    <p className="quiz-chart-placeholder-text">No session data available yet</p>
-                                    <p className="quiz-chart-placeholder-hint">Complete sessions to view distribution</p>
+                                    <p className="quiz-chart-placeholder-text">{t('quizDetails.performance.noData')}</p>
+                                    <p className="quiz-chart-placeholder-hint">{t('quizDetails.performance.completeSessionPrompt')}</p>
                                 </div>
                             )}
                         </div>

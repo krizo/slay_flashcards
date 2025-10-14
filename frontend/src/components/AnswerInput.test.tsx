@@ -283,4 +283,153 @@ describe('AnswerInput', () => {
     const blueRadio = screen.getByLabelText('Blue') as HTMLInputElement;
     expect(blueRadio.checked).toBe(true);
   });
+
+  // Tests for flexible option formats (value/label objects)
+  describe('Flexible Option Formats', () => {
+    it('renders choice with value/label objects', () => {
+      const answer: AnswerData = {
+        text: 'Au',
+        lang: null,
+        type: 'choice',
+        options: [
+          { value: 'Au', label: 'Au (Gold)' },
+          { value: 'Ag', label: 'Ag (Silver)' },
+          { value: 'Fe', label: 'Fe (Iron)' },
+          { value: 'Cu', label: 'Cu (Copper)' }
+        ],
+        metadata: null,
+      };
+
+      const mockOnChange = vi.fn();
+      render(<AnswerInput answer={answer} userAnswer="" onAnswerChange={mockOnChange} />);
+
+      // Should display labels
+      expect(screen.getByText('Au (Gold)')).toBeInTheDocument();
+      expect(screen.getByText('Ag (Silver)')).toBeInTheDocument();
+      expect(screen.getByText('Fe (Iron)')).toBeInTheDocument();
+      expect(screen.getByText('Cu (Copper)')).toBeInTheDocument();
+
+      const radioButtons = document.querySelectorAll('input[type="radio"]');
+      expect(radioButtons).toHaveLength(4);
+    });
+
+    it('uses value when submitting choice with value/label objects', () => {
+      const answer: AnswerData = {
+        text: 'Au',
+        lang: null,
+        type: 'choice',
+        options: [
+          { value: 'Au', label: 'Au (Gold)' },
+          { value: 'Ag', label: 'Ag (Silver)' }
+        ],
+        metadata: null,
+      };
+
+      const mockOnChange = vi.fn();
+      render(<AnswerInput answer={answer} userAnswer="" onAnswerChange={mockOnChange} />);
+
+      const goldRadio = screen.getByLabelText('Au (Gold)');
+      fireEvent.click(goldRadio);
+
+      // Should call with value, not label
+      expect(mockOnChange).toHaveBeenCalledWith('Au');
+    });
+
+    it('renders multiple_choice with value/label objects', () => {
+      const answer: AnswerData = {
+        text: 'He,Ne,Ar',
+        lang: null,
+        type: 'multiple_choice',
+        options: [
+          { value: 'He', label: 'Helium (He)' },
+          { value: 'Ne', label: 'Neon (Ne)' },
+          { value: 'O', label: 'Oxygen (O)' },
+          { value: 'Ar', label: 'Argon (Ar)' },
+          { value: 'N', label: 'Nitrogen (N)' }
+        ],
+        metadata: null,
+      };
+
+      const mockOnChange = vi.fn();
+      render(<AnswerInput answer={answer} userAnswer={[]} onAnswerChange={mockOnChange} />);
+
+      // Should display labels
+      expect(screen.getByText('Helium (He)')).toBeInTheDocument();
+      expect(screen.getByText('Neon (Ne)')).toBeInTheDocument();
+      expect(screen.getByText('Oxygen (O)')).toBeInTheDocument();
+      expect(screen.getByText('Argon (Ar)')).toBeInTheDocument();
+      expect(screen.getByText('Nitrogen (N)')).toBeInTheDocument();
+
+      const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+      expect(checkboxes).toHaveLength(5);
+    });
+
+    it('uses values when submitting multiple_choice with value/label objects', () => {
+      const answer: AnswerData = {
+        text: 'He,Ne',
+        lang: null,
+        type: 'multiple_choice',
+        options: [
+          { value: 'He', label: 'Helium (He)' },
+          { value: 'Ne', label: 'Neon (Ne)' },
+          { value: 'O', label: 'Oxygen (O)' }
+        ],
+        metadata: null,
+      };
+
+      const mockOnChange = vi.fn();
+      render(<AnswerInput answer={answer} userAnswer={[]} onAnswerChange={mockOnChange} />);
+
+      const heliumCheckbox = screen.getByLabelText('Helium (He)');
+      fireEvent.click(heliumCheckbox);
+
+      // Should be called with array containing value 'He', not label
+      expect(mockOnChange).toHaveBeenCalledWith(['He']);
+    });
+
+    it('correctly checks radio with value/label when userAnswer matches value', () => {
+      const answer: AnswerData = {
+        text: 'Ag',
+        lang: null,
+        type: 'choice',
+        options: [
+          { value: 'Au', label: 'Au (Gold)' },
+          { value: 'Ag', label: 'Ag (Silver)' },
+          { value: 'Fe', label: 'Fe (Iron)' }
+        ],
+        metadata: null,
+      };
+
+      const mockOnChange = vi.fn();
+      render(<AnswerInput answer={answer} userAnswer="Ag" onAnswerChange={mockOnChange} />);
+
+      const silverRadio = screen.getByLabelText('Ag (Silver)') as HTMLInputElement;
+      expect(silverRadio.checked).toBe(true);
+    });
+
+    it('correctly checks checkboxes with value/label when userAnswer includes values', () => {
+      const answer: AnswerData = {
+        text: 'He,Ar',
+        lang: null,
+        type: 'multiple_choice',
+        options: [
+          { value: 'He', label: 'Helium (He)' },
+          { value: 'Ne', label: 'Neon (Ne)' },
+          { value: 'Ar', label: 'Argon (Ar)' }
+        ],
+        metadata: null,
+      };
+
+      const mockOnChange = vi.fn();
+      render(<AnswerInput answer={answer} userAnswer={['He', 'Ar']} onAnswerChange={mockOnChange} />);
+
+      const heliumCheckbox = screen.getByLabelText('Helium (He)') as HTMLInputElement;
+      const neonCheckbox = screen.getByLabelText('Neon (Ne)') as HTMLInputElement;
+      const argonCheckbox = screen.getByLabelText('Argon (Ar)') as HTMLInputElement;
+
+      expect(heliumCheckbox.checked).toBe(true);
+      expect(neonCheckbox.checked).toBe(false);
+      expect(argonCheckbox.checked).toBe(true);
+    });
+  });
 });

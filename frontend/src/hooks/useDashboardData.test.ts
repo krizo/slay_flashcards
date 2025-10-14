@@ -117,31 +117,8 @@ describe('useDashboardData hooks', () => {
 
     describe('useRecentSessions', () => {
         it('should fetch and return recent sessions', async () => {
+            // Mock sessions with quiz details included (backend now returns these fields)
             const mockSessions = [
-                {
-                    id: 1,
-                    user_id: 1,
-                    quiz_id: 7,
-                    mode: 'test' as const,
-                    started_at: '2025-10-08T08:38:52Z',
-                    score: 75,
-                    completed_at: '2025-10-08T09:00:52Z',
-                },
-            ];
-
-            const mockQuizzes = [
-                {
-                    id: 7,
-                    name: 'Test Quiz',
-                    subject: 'Math',
-                    category: 'Algebra',
-                    level: 'Intermediate',
-                    description: 'A test quiz',
-                    user_id: 1,
-                },
-            ];
-
-            const expectedSessions = [
                 {
                     id: 1,
                     user_id: 1,
@@ -156,9 +133,8 @@ describe('useDashboardData hooks', () => {
                 },
             ];
 
-            // Mock both API calls: sessions and quizzes
+            // Mock single API call: sessions endpoint now includes quiz details
             vi.mocked(apiClient.apiClient).mockResolvedValueOnce(mockSessions);
-            vi.mocked(apiClient.apiClient).mockResolvedValueOnce(mockQuizzes);
 
             const { result } = renderHook(() => useRecentSessions(1, 5));
 
@@ -168,10 +144,11 @@ describe('useDashboardData hooks', () => {
                 expect(result.current.isLoading).toBe(false);
             });
 
-            expect(result.current.data).toEqual(expectedSessions);
+            expect(result.current.data).toEqual(mockSessions);
             expect(result.current.error).toBe(null);
             expect(apiClient.apiClient).toHaveBeenCalledWith('/sessions/user/1/recent?limit=5', undefined, 'mock-access-token');
-            expect(apiClient.apiClient).toHaveBeenCalledWith('/quizzes/', undefined, 'mock-access-token');
+            // No longer fetching quizzes separately
+            expect(apiClient.apiClient).toHaveBeenCalledTimes(1);
         });
     });
 

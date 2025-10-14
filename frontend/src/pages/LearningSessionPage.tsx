@@ -1,5 +1,6 @@
 import { useEffect, useMemo } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useSession } from '../hooks/useSession';
 import { useQuiz } from '../hooks/useQuiz';
 import { useQuizPerformance } from '../hooks/useQuizPerformance';
@@ -11,6 +12,7 @@ import TestResultsPage from '../components/sessions/TestResultsPage';
 import { SessionMode } from '../types';
 
 function LearningSessionPage() {
+    const { t } = useTranslation();
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
     const { setSessionInfo } = useSessionContext();
@@ -147,7 +149,7 @@ function LearningSessionPage() {
             <div className="session-page">
                 <div className="session-loading-overlay">
                     <div className="loading-spinner"></div>
-                    <p>Preparing your learning session...</p>
+                    <p>{t('session.preparingSession')}</p>
                 </div>
             </div>
         );
@@ -159,13 +161,13 @@ function LearningSessionPage() {
             <div className="session-page">
                 <div className="session-error-message">
                     <span className="error-icon">⚠️</span>
-                    <h2>Session Error</h2>
+                    <h2>{t('session.sessionError')}</h2>
                     <p>{error.message}</p>
                     <button
                         className="control-button control-button--primary"
                         onClick={endSession}
                     >
-                        Return to Quizzes
+                        {t('session.returnToQuizzes')}
                     </button>
                 </div>
             </div>
@@ -211,16 +213,18 @@ function LearningSessionPage() {
             <div className="session-page">
                 <div className="session-completion-message">
                     <span className="completion-icon">🎉</span>
-                    <h2>Session Complete!</h2>
+                    <h2>{t('session.sessionComplete')}</h2>
                     <p>
-                        You've completed {flashcardsCompleted} of {totalFlashcards}{' '}
-                        flashcards.
+                        {t('session.completedFlashcards', {
+                            completed: flashcardsCompleted,
+                            total: totalFlashcards
+                        })}
                     </p>
                     <button
                         className="control-button control-button--primary"
                         onClick={endSession}
                     >
-                        Finish Session
+                        {t('session.finishSession')}
                     </button>
                 </div>
             </div>
@@ -238,7 +242,7 @@ function LearningSessionPage() {
                     showAnswer={showAnswer}
                     totalFlashcards={totalFlashcards}
                     flashcardsCompleted={flashcardsCompleted}
-                    quizName={quiz?.name || 'Loading...'}
+                    quizName={quiz?.name || t('session.loadingQuiz')}
                     mode={mode}
                     isSubmitting={isSubmitting}
                     onUserAnswerChange={setUserAnswer}

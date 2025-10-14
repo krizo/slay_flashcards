@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {UserStats, Session, ProgressDataPoint} from '../../types';
 import {capitalize} from '../../utils/textUtils';
 
@@ -22,6 +23,7 @@ interface StatsSummaryCardProps {
 }
 
 const StatsSummaryCard = ({stats, userName = 'User', isLoading, error, recentSessions, timePeriod, onTimePeriodChange, progressData, sessionsData}: StatsSummaryCardProps) => {
+    const { t } = useTranslation();
 
     // Get latest test score from recent sessions
     const getLatestScore = (): number | null => {
@@ -124,10 +126,10 @@ const StatsSummaryCard = ({stats, userName = 'User', isLoading, error, recentSes
 
     const getTimePeriodLabel = (): string => {
         switch (timePeriod) {
-            case 'week': return 'Last Week';
-            case 'month': return 'Last Month';
-            case 'year': return 'Last Year';
-            case 'all': return 'All Time';
+            case 'week': return t('dashboard.timePeriods.lastWeek');
+            case 'month': return t('dashboard.timePeriods.lastMonth');
+            case 'year': return t('dashboard.timePeriods.lastYear');
+            case 'all': return t('dashboard.timePeriods.allTimeLower');
         }
     };
 
@@ -137,7 +139,7 @@ const StatsSummaryCard = ({stats, userName = 'User', isLoading, error, recentSes
             <div className="dashboard-card stats-summary-card">
                 <div className="loading-state">
                     <div className="loading-spinner"></div>
-                    <p>Loading statistics...</p>
+                    <p>{t('dashboard.loadingStatistics')}</p>
                 </div>
             </div>
         );
@@ -149,7 +151,7 @@ const StatsSummaryCard = ({stats, userName = 'User', isLoading, error, recentSes
             <div className="dashboard-card stats-summary-card">
                 <div className="error-state">
                     <span className="error-icon">⚠️</span>
-                    <p className="error-message">Failed to load statistics</p>
+                    <p className="error-message">{t('dashboard.failedToLoadStatistics')}</p>
                     <p className="error-detail">{error.message}</p>
                 </div>
             </div>
@@ -162,7 +164,7 @@ const StatsSummaryCard = ({stats, userName = 'User', isLoading, error, recentSes
             <div className="dashboard-card stats-summary-card">
                 <div className="empty-state">
                     <span className="empty-icon">📊</span>
-                    <p>No statistics available</p>
+                    <p>{t('dashboard.noStatisticsAvailable')}</p>
                 </div>
             </div>
         );
@@ -177,34 +179,34 @@ const StatsSummaryCard = ({stats, userName = 'User', isLoading, error, recentSes
                 <div className="welcome-header">
                     <div>
                         <h2 className="welcome-message">
-                            Welcome back, {capitalize(userName)}! 👋
+                            {t('dashboard.welcomeBack', { name: capitalize(userName) })}
                         </h2>
-                        <p className="welcome-subtitle">Here's your learning progress</p>
+                        <p className="welcome-subtitle">{t('dashboard.learningProgress')}</p>
                     </div>
                     <div className="time-period-filter">
                         <button
                             className={`period-btn ${timePeriod === 'week' ? 'active' : ''}`}
                             onClick={() => onTimePeriodChange('week')}
                         >
-                            Week
+                            {t('dashboard.timePeriods.week')}
                         </button>
                         <button
                             className={`period-btn ${timePeriod === 'month' ? 'active' : ''}`}
                             onClick={() => onTimePeriodChange('month')}
                         >
-                            Month
+                            {t('dashboard.timePeriods.month')}
                         </button>
                         <button
                             className={`period-btn ${timePeriod === 'year' ? 'active' : ''}`}
                             onClick={() => onTimePeriodChange('year')}
                         >
-                            Year
+                            {t('dashboard.timePeriods.year')}
                         </button>
                         <button
                             className={`period-btn ${timePeriod === 'all' ? 'active' : ''}`}
                             onClick={() => onTimePeriodChange('all')}
                         >
-                            All Time
+                            {t('dashboard.timePeriods.allTime')}
                         </button>
                     </div>
                 </div>
@@ -216,7 +218,7 @@ const StatsSummaryCard = ({stats, userName = 'User', isLoading, error, recentSes
                     <div className="stat-icon">📚</div>
                     <div className="stat-content">
                         <div className="stat-value">{getPeriodSessions()}</div>
-                        <div className="stat-label">Total Sessions</div>
+                        <div className="stat-label">{t('dashboard.stats.totalSessions')}</div>
                         <div className="stat-subtitle">{getTimePeriodLabel().toLowerCase()}</div>
                     </div>
                 </div>
@@ -225,7 +227,7 @@ const StatsSummaryCard = ({stats, userName = 'User', isLoading, error, recentSes
                     <div className="stat-icon">📖</div>
                     <div className="stat-content">
                         <div className="stat-value">{getLearnSessions()}</div>
-                        <div className="stat-label">Learn Sessions</div>
+                        <div className="stat-label">{t('dashboard.stats.learnSessions')}</div>
                         <div className="stat-subtitle">{getTimePeriodLabel().toLowerCase()}</div>
                     </div>
                 </div>
@@ -234,7 +236,7 @@ const StatsSummaryCard = ({stats, userName = 'User', isLoading, error, recentSes
                     <div className="stat-icon">✅</div>
                     <div className="stat-content">
                         <div className="stat-value">{getTestSessions()}</div>
-                        <div className="stat-label">Test Sessions</div>
+                        <div className="stat-label">{t('dashboard.stats.testSessions')}</div>
                         <div className="stat-subtitle">{getTimePeriodLabel().toLowerCase()}</div>
                     </div>
                 </div>
@@ -243,8 +245,8 @@ const StatsSummaryCard = ({stats, userName = 'User', isLoading, error, recentSes
                     <div className="stat-icon">🎯</div>
                     <div className="stat-content">
                         <div className="stat-value">{stats.unique_quizzes}</div>
-                        <div className="stat-label">Unique Quizzes</div>
-                        <div className="stat-subtitle">all time</div>
+                        <div className="stat-label">{t('dashboard.stats.uniqueQuizzes')}</div>
+                        <div className="stat-subtitle">{t('dashboard.subtitles.allTime')}</div>
                     </div>
                 </div>
 
@@ -255,7 +257,7 @@ const StatsSummaryCard = ({stats, userName = 'User', isLoading, error, recentSes
                         <div className="stat-value">
                             {getAverageScore() !== null ? `${getAverageScore()}%` : '—'}
                         </div>
-                        <div className="stat-label">Average Score</div>
+                        <div className="stat-label">{t('dashboard.stats.averageScore')}</div>
                         <div className="stat-subtitle">{getTimePeriodLabel().toLowerCase()}</div>
                     </div>
                 </div>
@@ -266,7 +268,7 @@ const StatsSummaryCard = ({stats, userName = 'User', isLoading, error, recentSes
                         <div className="stat-value">
                             {getBestScore() !== null ? `${getBestScore()}%` : '—'}
                         </div>
-                        <div className="stat-label">Best Score</div>
+                        <div className="stat-label">{t('dashboard.stats.bestScore')}</div>
                         <div className="stat-subtitle">{getTimePeriodLabel().toLowerCase()}</div>
                     </div>
                 </div>
@@ -277,8 +279,8 @@ const StatsSummaryCard = ({stats, userName = 'User', isLoading, error, recentSes
                         <div className="stat-value">
                             {latestScore !== null ? `${Math.round(latestScore)}%` : '—'}
                         </div>
-                        <div className="stat-label">Latest Score</div>
-                        <div className="stat-subtitle">most recent test</div>
+                        <div className="stat-label">{t('dashboard.stats.latestScore')}</div>
+                        <div className="stat-subtitle">{t('dashboard.subtitles.mostRecentTest')}</div>
                     </div>
                 </div>
 
@@ -286,8 +288,8 @@ const StatsSummaryCard = ({stats, userName = 'User', isLoading, error, recentSes
                     <div className="stat-icon">🔥</div>
                     <div className="stat-content">
                         <div className="stat-value">{stats.study_streak}</div>
-                        <div className="stat-label">Study Streak</div>
-                        <div className="stat-subtitle">consecutive days</div>
+                        <div className="stat-label">{t('dashboard.stats.studyStreak')}</div>
+                        <div className="stat-subtitle">{t('dashboard.subtitles.consecutiveDays')}</div>
                     </div>
                 </div>
 
@@ -296,7 +298,7 @@ const StatsSummaryCard = ({stats, userName = 'User', isLoading, error, recentSes
                     <div className="stat-icon">📅</div>
                     <div className="stat-content">
                         <div className="stat-value">{daysActive}</div>
-                        <div className="stat-label">Days Active</div>
+                        <div className="stat-label">{t('dashboard.stats.daysActive')}</div>
                         <div className="stat-subtitle">{getTimePeriodLabel().toLowerCase()}</div>
                     </div>
                 </div>
@@ -307,7 +309,7 @@ const StatsSummaryCard = ({stats, userName = 'User', isLoading, error, recentSes
                         <div className="stat-value">
                             {getMinScore() !== null ? `${getMinScore()}%` : '—'}
                         </div>
-                        <div className="stat-label">Min Score</div>
+                        <div className="stat-label">{t('dashboard.stats.minScore')}</div>
                         <div className="stat-subtitle">{getTimePeriodLabel().toLowerCase()}</div>
                     </div>
                 </div>
@@ -316,7 +318,7 @@ const StatsSummaryCard = ({stats, userName = 'User', isLoading, error, recentSes
                     <div className="stat-icon">📆</div>
                     <div className="stat-content">
                         <div className="stat-value">{getPeriodSessions()}</div>
-                        <div className="stat-label">Recent Activity</div>
+                        <div className="stat-label">{t('dashboard.stats.recentActivity')}</div>
                         <div className="stat-subtitle">{getTimePeriodLabel().toLowerCase()}</div>
                     </div>
                 </div>
@@ -325,26 +327,26 @@ const StatsSummaryCard = ({stats, userName = 'User', isLoading, error, recentSes
                     <div className="stat-icon">⚡</div>
                     <div className="stat-content">
                         <div className="stat-value">{getDailyAverage()}</div>
-                        <div className="stat-label">Daily Average</div>
-                        <div className="stat-subtitle">sessions per day</div>
+                        <div className="stat-label">{t('dashboard.stats.dailyAverage')}</div>
+                        <div className="stat-subtitle">{t('dashboard.subtitles.sessionsPerDay')}</div>
                     </div>
                 </div>
             </div>
 
             <div className="quick-actions">
-                <h3 className="quick-actions-title">Quick Actions</h3>
+                <h3 className="quick-actions-title">{t('dashboard.quickActions.title')}</h3>
                 <div className="action-buttons">
                     <button className="action-button action-primary">
                         <span className="action-icon">🎓</span>
-                        <span>Start Learning</span>
+                        <span>{t('dashboard.quickActions.startLearning')}</span>
                     </button>
                     <button className="action-button action-secondary">
                         <span className="action-icon">📝</span>
-                        <span>Take a Test</span>
+                        <span>{t('dashboard.quickActions.takeTest')}</span>
                     </button>
                     <button className="action-button action-secondary">
                         <span className="action-icon">➕</span>
-                        <span>Create Quiz</span>
+                        <span>{t('dashboard.quickActions.createQuiz')}</span>
                     </button>
                 </div>
             </div>

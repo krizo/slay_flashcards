@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 type TimePeriod = 'week' | 'month' | 'year' | 'all';
@@ -16,16 +17,18 @@ interface SessionsChartCardProps {
 }
 
 const SessionsChartCard = ({ data, isLoading, error, timePeriod }: SessionsChartCardProps) => {
+    const { t } = useTranslation();
+
     const getRangeLabel = () => {
         switch (timePeriod) {
             case 'week':
-                return 'last week';
+                return t('dashboard.timePeriods.lastWeek');
             case 'month':
-                return 'last month';
+                return t('dashboard.timePeriods.lastMonth');
             case 'year':
-                return 'last year';
+                return t('dashboard.timePeriods.lastYear');
             case 'all':
-                return 'all time';
+                return t('dashboard.timePeriods.allTimeLower');
         }
     };
     // Error state - check first to prioritize errors over loading
@@ -33,12 +36,12 @@ const SessionsChartCard = ({ data, isLoading, error, timePeriod }: SessionsChart
         return (
             <div className="dashboard-card sessions-chart-card">
                 <div className="card-header">
-                    <h3 className="card-title">Sessions Over Time</h3>
-                    <p className="card-subtitle">Your learning and test activity over the {getRangeLabel()}</p>
+                    <h3 className="card-title">{t('dashboard.charts.sessionsOverTime')}</h3>
+                    <p className="card-subtitle">{t('dashboard.charts.learningAndTestActivity', { period: getRangeLabel() })}</p>
                 </div>
                 <div className="error-state">
                     <span className="error-icon">⚠️</span>
-                    <p className="error-message">Failed to load sessions data</p>
+                    <p className="error-message">{t('dashboard.failedToLoadSessionsData')}</p>
                     <p className="error-detail">{error.message}</p>
                 </div>
             </div>
@@ -50,12 +53,12 @@ const SessionsChartCard = ({ data, isLoading, error, timePeriod }: SessionsChart
         return (
             <div className="dashboard-card sessions-chart-card">
                 <div className="card-header">
-                    <h3 className="card-title">Sessions Over Time</h3>
-                    <p className="card-subtitle">Your learning and test activity over the {getRangeLabel()}</p>
+                    <h3 className="card-title">{t('dashboard.charts.sessionsOverTime')}</h3>
+                    <p className="card-subtitle">{t('dashboard.charts.learningAndTestActivity', { period: getRangeLabel() })}</p>
                 </div>
                 <div className="loading-state">
                     <div className="loading-spinner" role="status"></div>
-                    <p>Loading sessions data...</p>
+                    <p>{t('dashboard.loadingSessionsData')}</p>
                 </div>
             </div>
         );
@@ -66,12 +69,12 @@ const SessionsChartCard = ({ data, isLoading, error, timePeriod }: SessionsChart
         return (
             <div className="dashboard-card sessions-chart-card">
                 <div className="card-header">
-                    <h3 className="card-title">Sessions Over Time</h3>
-                    <p className="card-subtitle">Your learning and test activity over the {getRangeLabel()}</p>
+                    <h3 className="card-title">{t('dashboard.charts.sessionsOverTime')}</h3>
+                    <p className="card-subtitle">{t('dashboard.charts.learningAndTestActivity', { period: getRangeLabel() })}</p>
                 </div>
                 <div className="empty-state">
                     <span className="empty-icon">📊</span>
-                    <p>No session data available</p>
+                    <p>{t('dashboard.noSessionData')}</p>
                 </div>
             </div>
         );
@@ -80,8 +83,8 @@ const SessionsChartCard = ({ data, isLoading, error, timePeriod }: SessionsChart
     return (
         <div className="dashboard-card sessions-chart-card">
             <div className="card-header">
-                <h3 className="card-title">Sessions Over Time</h3>
-                <p className="card-subtitle">Your learning and test activity over the {getRangeLabel()} ({data?.length || 0} data points)</p>
+                <h3 className="card-title">{t('dashboard.charts.sessionsOverTime')}</h3>
+                <p className="card-subtitle">{t('dashboard.charts.learningAndTestActivity', { period: getRangeLabel() })} ({t('dashboard.charts.dataPoints', { count: data?.length || 0 })})</p>
             </div>
 
             <div className="chart-container">
@@ -101,7 +104,7 @@ const SessionsChartCard = ({ data, isLoading, error, timePeriod }: SessionsChart
                             stroke="#5B6D83"
                             tick={{ fontSize: 12 }}
                             allowDecimals={false}
-                            label={{ value: 'Sessions', angle: -90, position: 'insideLeft', style: { fontSize: 12, fill: '#5B6D83' } }}
+                            label={{ value: t('dashboard.charts.sessions'), angle: -90, position: 'insideLeft', style: { fontSize: 12, fill: '#5B6D83' } }}
                         />
                         <Tooltip
                             contentStyle={{
@@ -122,13 +125,13 @@ const SessionsChartCard = ({ data, isLoading, error, timePeriod }: SessionsChart
                         <Bar
                             dataKey="learn"
                             fill="#34D399"
-                            name="Learn Sessions"
+                            name={t('dashboard.charts.learnSessions')}
                             radius={[4, 4, 0, 0]}
                         />
                         <Bar
                             dataKey="test"
                             fill="#6A3FFB"
-                            name="Test Sessions"
+                            name={t('dashboard.charts.testSessions')}
                             radius={[4, 4, 0, 0]}
                         />
                     </BarChart>

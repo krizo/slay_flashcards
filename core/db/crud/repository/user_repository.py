@@ -91,7 +91,7 @@ class UserRepository(BaseRepository[models.User]):
     # USER CREATION WITH VALIDATION
     # =========================================================================
 
-    def create_user(self, name: str, email: str, password_hash: Optional[str] = None) -> models.User:
+    def create_user(self, name: str, email: str, password_hash: Optional[str] = None, language: str = 'pl') -> models.User:
         """
         Create a new user with validation.
 
@@ -99,6 +99,7 @@ class UserRepository(BaseRepository[models.User]):
             name: Username (will be trimmed)
             email: Email address (will be lowercased)
             password_hash: Hashed password (optional)
+            language: User's preferred language (default: 'pl')
 
         Returns:
             Created user instance
@@ -124,7 +125,7 @@ class UserRepository(BaseRepository[models.User]):
             raise ValueError(f"Email '{email}' already exists")
 
         # Create user
-        return self.create(name=name, email=email, password_hash=password_hash, created_at=datetime.now())
+        return self.create(name=name, email=email, password_hash=password_hash, language=language, created_at=datetime.now())
 
     def ensure_user_exists(self, name: str, email: Optional[str] = None) -> models.User:
         """
