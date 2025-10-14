@@ -1,0 +1,436 @@
+{
+  "quiz": {
+    "name": "Test wszystkich typów odpowiedzi - Referencja",
+    "subject": "Testowanie",
+    "created_at": "2025-10-13",
+    "category": "Typy odpowiedzi",
+    "level": "Wszystkie",
+    "description": "Kompletny quiz referencyjny pokazujący wszystkie możliwe typy odpowiedzi z pełną metadaną. Użyj tego pliku jako wzorca do tworzenia nowych quizów.",
+    "lang": "pl",
+    "image": "🧪"
+  },
+  "flashcards": [
+    {
+      "question": {
+        "title": "TEXT - Pytanie otwarte (długa odpowiedź)",
+        "text": "Opisz proces fotosyntezy w roślinach. Uwzględnij miejsce zachodzenia reakcji i główne produkty.",
+        "lang": "pl",
+        "difficulty": 3,
+        "emoji": "🌱",
+        "examples": [
+          "Rośliny wykorzystują światło słoneczne...",
+          "Chlorofil w liściach pochłania energię świetlną...",
+          "Proces zachodzi w chloroplastach..."
+        ]
+      },
+      "answer": {
+        "text": "Fotosynteza to proces, w którym rośliny przekształcają dwutlenek węgla i wodę w glukozę i tlen przy użyciu energii słonecznej. Zachodzi w chloroplastach, gdzie chlorofil pochłania światło.",
+        "type": "text",
+        "lang": "pl",
+        "metadata": {
+          "hint": "Opisz proces w 2-3 zdaniach (minimum 15 słów)",
+          "rows": 4,
+          "min_words": 15,
+          "placeholder": "Wpisz szczegółową odpowiedź..."
+        }
+      }
+    },
+    {
+      "question": {
+        "title": "SHORT_TEXT - Krótka odpowiedź (pojedyncza linia)",
+        "text": "Jaka jest stolica Francji?",
+        "lang": "pl",
+        "difficulty": 1,
+        "emoji": "🇫🇷",
+        "examples": [
+          "Paryż",
+          "Paris"
+        ]
+      },
+      "answer": {
+        "text": "Paryż",
+        "type": "short_text",
+        "lang": "pl",
+        "metadata": {
+          "hint": "Wpisz nazwę miasta (bez względu na wielkość liter)",
+          "placeholder": "np. Warszawa",
+          "case_sensitive": false,
+          "max_length": 50
+        }
+      }
+    },
+    {
+      "question": {
+        "title": "INTEGER - Liczba całkowita",
+        "text": "Ile dni ma rok przestępny?",
+        "lang": "pl",
+        "difficulty": 1,
+        "emoji": "📅",
+        "examples": [
+          "365",
+          "366"
+        ]
+      },
+      "answer": {
+        "text": "366",
+        "type": "integer",
+        "lang": "pl",
+        "metadata": {
+          "hint": "Wpisz liczbę całkowitą (365 lub 366)",
+          "placeholder": "np. 365",
+          "min": 365,
+          "max": 366,
+          "example": "366"
+        }
+      }
+    },
+    {
+      "question": {
+        "title": "FLOAT - Liczba dziesiętna",
+        "text": "Jaka jest wartość liczby π (pi) z dokładnością do 2 miejsc po przecinku?",
+        "lang": "pl",
+        "difficulty": 2,
+        "emoji": "🥧",
+        "examples": [
+          "3.14",
+          "3.141",
+          "3.1415"
+        ]
+      },
+      "answer": {
+        "text": "3.14",
+        "type": "float",
+        "lang": "pl",
+        "metadata": {
+          "hint": "Wpisz liczbę z dokładnie 2 miejscami po przecinku",
+          "decimal_places": 2,
+          "step": 0.01,
+          "example": "3.14",
+          "min": 3.0,
+          "max": 3.5
+        }
+      }
+    },
+    {
+      "question": {
+        "title": "FLOAT z jednostką - Przyspieszenie ziemskie",
+        "text": "Jaka jest wartość przyspieszenia ziemskiego w m/s² (zaokrąglone do 1 miejsca po przecinku)?",
+        "lang": "pl",
+        "difficulty": 2,
+        "emoji": "🍎",
+        "examples": [
+          "9.8",
+          "9.81"
+        ]
+      },
+      "answer": {
+        "text": "9.8",
+        "type": "float",
+        "lang": "pl",
+        "metadata": {
+          "hint": "Wpisz wartość z 1 miejscem po przecinku (w m/s²)",
+          "decimal_places": 1,
+          "step": 0.1,
+          "unit": "m/s²",
+          "example": "9.8",
+          "min": 9.0,
+          "max": 10.0
+        }
+      }
+    },
+    {
+      "question": {
+        "title": "RANGE - Zakres liczbowy (suwak)",
+        "text": "Jaka jest normalna temperatura ciała człowieka w stopniach Celsjusza?",
+        "lang": "pl",
+        "difficulty": 2,
+        "emoji": "🌡️",
+        "examples": [
+          "36.6",
+          "37.0"
+        ]
+      },
+      "answer": {
+        "text": "36.6",
+        "type": "range",
+        "lang": "pl",
+        "metadata": {
+          "min": 36.0,
+          "max": 37.5,
+          "step": 0.1,
+          "hint": "Wybierz temperaturę w zakresie 36.0-37.5°C za pomocą suwaka",
+          "labels": {
+            "min": "Niska (36.0°C)",
+            "max": "Wysoka (37.5°C)"
+          }
+        }
+      }
+    },
+    {
+      "question": {
+        "title": "BOOLEAN - Prawda/Fałsz (Tak/Nie)",
+        "text": "Czy Ziemia jest płaska?",
+        "lang": "pl",
+        "difficulty": 1,
+        "emoji": "🌍"
+      },
+      "answer": {
+        "text": "false",
+        "type": "boolean",
+        "lang": "pl",
+        "metadata": {
+          "true_label": "Tak",
+          "false_label": "Nie",
+          "hint": "Wybierz Tak lub Nie"
+        }
+      }
+    },
+    {
+      "question": {
+        "title": "BOOLEAN - Prawda/Fałsz (wariant 2)",
+        "text": "Czy wieloryby są ssakami?",
+        "lang": "pl",
+        "difficulty": 2,
+        "emoji": "🐋"
+      },
+      "answer": {
+        "text": "true",
+        "type": "boolean",
+        "lang": "pl",
+        "metadata": {
+          "true_label": "Prawda",
+          "false_label": "Fałsz",
+          "hint": "Wybierz Prawda lub Fałsz"
+        }
+      }
+    },
+    {
+      "question": {
+        "title": "CHOICE - Wybór jednej opcji (single choice)",
+        "text": "Która planeta jest największa w Układzie Słonecznym?",
+        "lang": "pl",
+        "difficulty": 2,
+        "emoji": "🪐"
+      },
+      "answer": {
+        "text": "b",
+        "type": "choice",
+        "lang": "pl",
+        "options": [
+          {
+            "value": "a",
+            "label": "Mars"
+          },
+          {
+            "value": "b",
+            "label": "Jowisz"
+          },
+          {
+            "value": "c",
+            "label": "Saturn"
+          },
+          {
+            "value": "d",
+            "label": "Ziemia"
+          }
+        ],
+        "metadata": {
+          "hint": "Wybierz jedną poprawną odpowiedź",
+          "randomize_options": false
+        }
+      }
+    },
+    {
+      "question": {
+        "title": "CHOICE - Wybór z randomizacją opcji",
+        "text": "W którym roku upadł Mur Berliński?",
+        "lang": "pl",
+        "difficulty": 3,
+        "emoji": "🧱"
+      },
+      "answer": {
+        "text": "c",
+        "type": "choice",
+        "lang": "pl",
+        "options": [
+          {
+            "value": "a",
+            "label": "1987"
+          },
+          {
+            "value": "b",
+            "label": "1988"
+          },
+          {
+            "value": "c",
+            "label": "1989"
+          },
+          {
+            "value": "d",
+            "label": "1990"
+          }
+        ],
+        "metadata": {
+          "hint": "Wybierz rok (opcje są losowo przemieszane)",
+          "randomize_options": true
+        }
+      }
+    },
+    {
+      "question": {
+        "title": "MULTIPLE_CHOICE - Wybór wielu opcji (dokładna liczba)",
+        "text": "Które z poniższych są językami programowania?",
+        "lang": "pl",
+        "difficulty": 2,
+        "emoji": "💻"
+      },
+      "answer": {
+        "text": "a,c,d",
+        "type": "multiple_choice",
+        "lang": "pl",
+        "options": [
+          {
+            "value": "a",
+            "label": "Python"
+          },
+          {
+            "value": "b",
+            "label": "HTML"
+          },
+          {
+            "value": "c",
+            "label": "JavaScript"
+          },
+          {
+            "value": "d",
+            "label": "Java"
+          },
+          {
+            "value": "e",
+            "label": "CSS"
+          }
+        ],
+        "metadata": {
+          "hint": "Zaznacz wszystkie poprawne odpowiedzi (dokładnie 3 opcje)",
+          "exact_count": 3
+        }
+      }
+    },
+    {
+      "question": {
+        "title": "MULTIPLE_CHOICE - Zakres wyborów (min/max)",
+        "text": "Które z poniższych to gazy szlachetne?",
+        "lang": "pl",
+        "difficulty": 3,
+        "emoji": "⚗️"
+      },
+      "answer": {
+        "text": "a,c,e",
+        "type": "multiple_choice",
+        "lang": "pl",
+        "options": [
+          {
+            "value": "a",
+            "label": "Hel (He)"
+          },
+          {
+            "value": "b",
+            "label": "Tlen (O₂)"
+          },
+          {
+            "value": "c",
+            "label": "Neon (Ne)"
+          },
+          {
+            "value": "d",
+            "label": "Azot (N₂)"
+          },
+          {
+            "value": "e",
+            "label": "Argon (Ar)"
+          }
+        ],
+        "metadata": {
+          "hint": "Zaznacz wszystkie gazy szlachetne (minimum 1, maksimum 5)",
+          "min_selections": 1,
+          "max_selections": 5,
+          "randomize_options": false
+        }
+      }
+    },
+    {
+      "question": {
+        "title": "TEXT - Pytanie otwarte (wariant 2)",
+        "text": "Wyjaśnij różnicę między sztuczną inteligencją a uczeniem maszynowym.",
+        "lang": "pl",
+        "difficulty": 4,
+        "emoji": "🤖",
+        "examples": [
+          "AI to szersze pojęcie obejmujące...",
+          "Uczenie maszynowe jest podzbiorem AI, który...",
+          "Główna różnica polega na..."
+        ]
+      },
+      "answer": {
+        "text": "Sztuczna inteligencja (AI) to szeroka dziedzina obejmująca wszelkie systemy symulujące ludzką inteligencję. Uczenie maszynowe (ML) jest podzbiorem AI, skupiającym się na algorytmach uczących się z danych bez jawnego programowania.",
+        "type": "text",
+        "lang": "pl",
+        "metadata": {
+          "hint": "Opisz obie koncepcje i ich związek (minimum 20 słów)",
+          "rows": 5,
+          "min_words": 20,
+          "placeholder": "Opisz różnice i zależności między AI i ML..."
+        }
+      }
+    },
+    {
+      "question": {
+        "title": "SHORT_TEXT - Case sensitive (wielkość liter ma znaczenie)",
+        "text": "W którym wieku p.n.e. panował Ramzes II? Podaj liczbę rzymską.",
+        "lang": "pl",
+        "difficulty": 3,
+        "emoji": "📅",
+        "examples": [
+          "XIII",
+          "XII",
+          "XI"
+        ]
+      },
+      "answer": {
+        "text": "XIII",
+        "type": "short_text",
+        "lang": "pl",
+        "metadata": {
+          "hint": "Wpisz liczbę rzymską WIELKIMI LITERAMI (wielkość liter ma znaczenie)",
+          "placeholder": "np. XII",
+          "case_sensitive": true,
+          "max_length": 5
+        }
+      }
+    },
+    {
+      "question": {
+        "title": "INTEGER - Z zakresem i przykładem",
+        "text": "Ile chromosomów ma człowiek?",
+        "lang": "pl",
+        "difficulty": 2,
+        "emoji": "🧬",
+        "examples": [
+          "46"
+        ]
+      },
+      "answer": {
+        "text": "46",
+        "type": "integer",
+        "lang": "pl",
+        "metadata": {
+          "hint": "Wpisz liczbę całkowitą chromosomów (1-100)",
+          "placeholder": "np. 23",
+          "min": 1,
+          "max": 100,
+          "example": "46"
+        }
+      }
+    }
+  ]
+}

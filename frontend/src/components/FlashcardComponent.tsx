@@ -73,6 +73,7 @@ const FlashcardComponent: React.FC<FlashcardComponentProps> = ({
 
     // Render difficulty dots based on difficulty level (1-5)
     const renderDifficultyDots = () => {
+        if (!question.difficulty) return null;
         const dots: JSX.Element[] = [];
         for (let i = 1; i <= question.difficulty; i++) {
             dots.push(

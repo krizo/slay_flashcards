@@ -1,10 +1,11 @@
+import { useEffect, useMemo } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useSession } from '../hooks/useSession';
 import { useQuiz } from '../hooks/useQuiz';
 import { useQuizPerformance } from '../hooks/useQuizPerformance';
 import { useQuizSessions } from '../hooks/useQuizSessions';
-import SessionHeader from '../components/sessions/SessionHeader';
+import { useSessionContext } from '../contexts/SessionContext';
 import FlashcardDisplay from '../components/sessions/FlashcardDisplay';
 import FlashcardTimeline from '../components/sessions/FlashcardTimeline';
 import TestResultsPage from '../components/sessions/TestResultsPage';
@@ -14,6 +15,7 @@ function LearningSessionPage() {
     const { t } = useTranslation();
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
+    const { setSessionInfo } = useSessionContext();
     const quizId = searchParams.get('quizId');
     const mode = (searchParams.get('mode') as SessionMode) || 'learn';
 
@@ -30,17 +32,19 @@ function LearningSessionPage() {
 
     // Calculate last session date (only include completed sessions)
     // Exclude sessions completed in the last 30 seconds (likely the one we just finished before starting this one)
-    const now = new Date();
-    const sortedSessions = sessions ? [...sessions]
-        .filter(s => {
-            if (!s.completed) return false;
-            const completedAt = s.completed_at ? new Date(s.completed_at) : new Date(s.started_at);
-            const secondsAgo = (now.getTime() - completedAt.getTime()) / 1000;
-            return secondsAgo > 30; // Only show sessions completed more than 30 seconds ago
-        })
-        .sort((a, b) => new Date(b.started_at).getTime() - new Date(a.started_at).getTime())
-    : [];
-    const lastSessionDate = sortedSessions.length > 0 ? sortedSessions[0].started_at : null;
+    const lastSessionDate = useMemo(() => {
+        const now = new Date();
+        const sortedSessions = sessions ? [...sessions]
+            .filter(s => {
+                if (!s.completed) return false;
+                const completedAt = s.completed_at ? new Date(s.completed_at) : new Date(s.started_at);
+                const secondsAgo = (now.getTime() - completedAt.getTime()) / 1000;
+                return secondsAgo > 30; // Only show sessions completed more than 30 seconds ago
+            })
+            .sort((a, b) => new Date(b.started_at).getTime() - new Date(a.started_at).getTime())
+        : [];
+        return sortedSessions.length > 0 ? sortedSessions[0].started_at : null;
+    }, [sessions]);
 
     // Use session hook for all session logic
     const {
@@ -103,6 +107,41 @@ function LearningSessionPage() {
             window.speechSynthesis.speak(utterance);
         }
     };
+
+    // Update session context with current session info
+    useEffect(() => {
+        if (quiz && performance !== undefined) {
+            // Get last test score (most recent completed test)
+            const testSessions = sessions
+                ?.filter(s => s.mode === 'test' && s.score !== null && s.completed)
+                .sort((a, b) => {
+                    const dateA = a.completed_at ? new Date(a.completed_at) : new Date(a.started_at);
+                    const dateB = b.completed_at ? new Date(b.completed_at) : new Date(b.started_at);
+                    return dateB.getTime() - dateA.getTime();
+                }) || [];
+            const lastScore = testSessions.length > 0 ? testSessions[0].score : null;
+
+            setSessionInfo({
+                quizName: quiz.name,
+                quizImage: quiz.image,
+                subject: quiz.subject,
+                category: quiz.category,
+                level: quiz.level,
+                yourBest: performance?.scores.highest ?? null,
+                yourAverage: performance?.scores.average ?? null,
+                lastScore: lastScore,
+                testSessions: performance?.test_sessions ?? 0,
+                lastSessionDate: lastSessionDate,
+                onCloseSession: endSession,
+            });
+        }
+
+        // Cleanup: clear session info when leaving the page
+        return () => {
+            setSessionInfo(null);
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [quiz, performance, lastSessionDate]);
 
     // Show loading state during initialization
     if (isLoading && !currentFlashcard) {
@@ -195,16 +234,6 @@ function LearningSessionPage() {
     // Main session view
     return (
         <div className="session-page">
-            <SessionHeader
-                quizName={quiz?.name || t('session.loadingQuiz')}
-                quizImage={quiz?.image}
-                yourBest={performance?.scores.highest ?? null}
-                yourAverage={performance?.scores.average ?? null}
-                testSessions={performance?.test_sessions ?? 0}
-                lastSessionDate={lastSessionDate}
-                onCloseSession={endSession}
-            />
-
             <div className="session-content-wrapper">
                 <FlashcardDisplay
                     flashcard={currentFlashcard}
