@@ -1,6 +1,6 @@
 import datetime
 
-from sqlalchemy import JSON, Boolean, Column, DateTime, ForeignKey, Integer, LargeBinary, String, Text, UniqueConstraint, \
+from sqlalchemy import JSON, Boolean, Column, DateTime, Float, ForeignKey, Integer, LargeBinary, String, Text, UniqueConstraint, \
     func  # pylint: disable=import-error
 from sqlalchemy.orm import relationship  # pylint: disable=import-error
 
@@ -60,6 +60,7 @@ class Flashcard(Base):
     question_difficulty = Column(Integer, nullable=True)
     question_emoji = Column(String, nullable=True)
     question_image = Column(String, nullable=True)
+    question_examples = Column(JSON, nullable=True)  # Examples to guide user (list of strings)
 
     # Answer fields with new type support
     answer_text = Column(Text, nullable=False)
@@ -80,8 +81,8 @@ class Session(Base):
     mode = Column(String(20), nullable=False)  # "learn" or "test"
     started_at = Column(DateTime(timezone=True), server_default=func.now())  # pylint: disable=not-callable
     completed_at = Column(DateTime(timezone=True), nullable=True)
-    score = Column(Integer, nullable=True)
-    completed = Column(Boolean, default=False, nullable=False)  # Session completion status
+    score = Column(Float, nullable=True)
+    completed = Column(Boolean, default=False, server_default='0', nullable=False)  # Session completion status
 
     # Relationships
     user = relationship("User", back_populates="sessions")

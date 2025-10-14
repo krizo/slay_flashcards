@@ -68,6 +68,8 @@ body {
     flex-direction: column;
     box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
     flex-shrink: 0;
+    position: relative;
+    z-index: 1000;
 }
 
 .sidebar-header {
@@ -161,19 +163,144 @@ body {
 /* Header */
 .app-header {
     background-color: #ffffff;
-    padding: var(--spacing-lg) var(--spacing-md);
+    padding: 20px var(--spacing-md);
     display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+    justify-content: space-between;
+    align-items: center; /* Back to center for single row */
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
     flex-shrink: 0;
-    min-height: 84px; /* Match sidebar-header height exactly */
+    height: 90px; /* Fixed height for precise alignment */
+    gap: 20px;
+}
+
+/* Header Session Info (left side) */
+.header-session-info {
+    display: flex;
+    align-items: center; /* Single row layout */
+    gap: 20px;
+    flex: 1;
+    min-width: 0;
+}
+
+.header-session-left {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    min-width: 0;
+}
+
+.header-session-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+.header-title-and-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+}
+
+.header-session-icon {
+    font-size: 2.5rem; /* Slightly reduced for single row */
+    flex-shrink: 0;
+}
+
+.header-session-image {
+    width: 54px; /* Slightly reduced */
+    height: 54px;
+    border-radius: 10px;
+    object-fit: cover;
+    flex-shrink: 0;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+}
+
+.header-session-name {
+    font-weight: 700;
+    font-size: 1.15em; /* Slightly reduced */
+    color: var(--color-text-dark);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.header-quiz-metadata {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.quiz-meta-item {
+    font-size: 0.75em; /* Slightly smaller */
+    color: var(--color-text-light);
+    font-weight: 500;
+    padding: 3px 8px;
+    background: rgba(106, 63, 251, 0.08);
+    border-radius: 5px;
+    white-space: nowrap;
+}
+
+.header-session-metrics {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: nowrap; /* Don't wrap - keep in one line */
+}
+
+.header-metric-tile {
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Reduced from 10px */
+    padding: 8px 12px; /* Reduced from 12px 16px */
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
+    border-radius: 10px; /* Reduced from 12px */
+    border: 1px solid rgba(106, 63, 251, 0.12);
+    box-shadow: 0 2px 8px rgba(106, 63, 251, 0.08);
+    transition: all 0.2s ease;
+}
+
+.header-metric-tile:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(106, 63, 251, 0.15);
+    border-color: rgba(106, 63, 251, 0.2);
+}
+
+.metric-icon {
+    font-size: 1.3em; /* Reduced from 1.6em */
+    flex-shrink: 0;
+}
+
+.metric-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.metric-value {
+    font-size: 0.95em; /* Reduced from 1.05em */
+    font-weight: 700;
+    color: var(--color-text-dark);
+    line-height: 1;
+}
+
+.metric-label {
+    font-size: 0.65em; /* Reduced from 0.7em */
+    font-weight: 500;
+    color: var(--color-text-light);
+    line-height: 1;
+    white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: 0.3px; /* Reduced from 0.5px */
 }
 
 .header-user-info {
     display: flex;
     align-items: center;
     gap: 16px;
+    margin-left: auto; /* Push to right when session info is present */
 }
 
 .header-user-name {
@@ -2657,11 +2784,11 @@ body {
 
 /* Session Page Layout */
 .session-page {
-    height: 100vh;
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
     align-items: center;
-    overflow: hidden;
+    overflow-y: auto; /* Allow page scrolling */
 }
 
 /* Session Header */
@@ -2804,13 +2931,15 @@ body {
 .session-content-wrapper {
     flex-grow: 1;
     display: flex;
-    align-items: flex-start;
+    align-items: flex-start; /* Align to top for scrolling */
     justify-content: center;
     width: 100%;
     padding: 20px 40px;
-    padding-top: 220px; /* Account for fixed session-header */
+    padding-top: 110px; /* Account for fixed header (session-header removed) */
+    padding-bottom: 40px;
     margin-left: 280px; /* Account for sidebar */
     margin-right: 340px; /* Account for timeline + margin */
+    min-height: calc(100vh - 100px); /* Minimum height, can grow */
 }
 
 /* Flashcard Card */
@@ -2818,14 +2947,15 @@ body {
     background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
     border-radius: 16px;
     box-shadow: 0 8px 24px rgba(106, 63, 251, 0.15);
-    padding: 30px;
+    padding: 25px;
     width: 70%;
     max-width: 1400px;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 15px;
     border: 1px solid rgba(106, 63, 251, 0.1);
     margin-right: 280px; /* Account for timeline width to center properly */
+    /* No max-height or overflow - card grows with content, page scrolls */
 }
 
 @media (max-width: 1600px) {
@@ -2840,13 +2970,14 @@ body {
     }
 }
 
-/* Header Row with Quiz Info and Progress Dots */
+/* Header Row with Quiz Info and Progress Counter */
 .flashcard-header-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px 0 25px 0;
+    padding: 8px 0 12px 0;
     border-bottom: 2px solid rgba(106, 63, 251, 0.15);
+    flex-shrink: 0; /* Never shrink */
 }
 
 .flashcard-quiz-info {
@@ -2858,15 +2989,15 @@ body {
 .flashcard-mode-badge {
     background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
     color: white;
-    padding: 10px 20px;
+    padding: 6px 14px;
     border-radius: 25px;
-    font-size: 1.1rem;
+    font-size: 0.9rem;
     font-weight: 600;
     box-shadow: 0 2px 8px rgba(106, 63, 251, 0.3);
 }
 
 .flashcard-quiz-name {
-    font-size: 1.3rem;
+    font-size: 1.05rem;
     font-weight: 600;
     background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
     -webkit-background-clip: text;
@@ -2874,76 +3005,111 @@ body {
     background-clip: text;
 }
 
-/* Progress Dots */
-.flashcard-progress-dots {
-    display: flex;
-    gap: 6px;
-}
-
-.progress-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background-color: rgba(106, 63, 251, 0.2);
-    transition: all 0.3s ease;
-}
-
-.progress-dot--active {
-    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
-    box-shadow: 0 0 8px rgba(106, 63, 251, 0.5);
-    transform: scale(1.1);
-}
-
-/* Progress Counter */
+/* Progress Counter (now in header row) */
 .flashcard-progress-counter {
-    font-size: 0.95rem;
+    font-size: 0.85rem;
     color: var(--color-primary);
     font-weight: 600;
-    text-align: left;
+    text-align: right;
     background: rgba(106, 63, 251, 0.08);
-    padding: 8px 12px;
+    padding: 6px 10px;
     border-radius: 8px;
-    display: inline-block;
+    flex-shrink: 0; /* Never shrink */
 }
 
 /* Question Section */
 .flashcard-question-section {
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 12px;
     background: linear-gradient(135deg, rgba(106, 63, 251, 0.03) 0%, rgba(139, 92, 246, 0.03) 100%);
-    padding: 20px;
-    padding-top: 25px;
+    padding: 18px;
+    padding-top: 20px;
     border-radius: 12px;
     border: 1px solid rgba(106, 63, 251, 0.1);
+    /* No overflow - entire page scrolls instead */
 }
 
 .flashcard-question-header {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     gap: 16px;
 }
 
 .flashcard-emoji {
-    font-size: 2.5rem;
+    font-size: 2rem;
     filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
-    margin-top: -4px;
+    flex-shrink: 0;
 }
 
 .flashcard-question-title {
-    font-size: 1.6em;
+    font-size: 1.25em;
     font-weight: 700;
     background: linear-gradient(135deg, #2C3E50 0%, #5C33A1 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    margin: 0 16px 0 0;
+    margin: 0;
     text-align: left;
-    padding-top: 4px;
+    flex-shrink: 0;
+}
+
+/* Difficulty Stars */
+.difficulty-stars {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 1em;
+    flex-shrink: 0;
+    margin-left: auto;
+    background: none !important;
+    padding: 0;
+}
+
+.difficulty-label {
+    font-size: 0.7em;
+    color: #5B6D83;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    background: none !important;
+}
+
+.star-filled,
+.star-empty {
+    display: inline-block;
+    line-height: 1;
+    font-size: 1.1em;
+}
+
+.star-empty {
+    opacity: 0.15;
+    color: #aaa;
+}
+
+/* Difficulty colors - solid colors */
+.difficulty-easy .star-filled {
+    color: #10B981;
+}
+
+.difficulty-medium .star-filled {
+    color: #F59E0B;
+}
+
+.difficulty-medium-plus .star-filled {
+    color: #F97316;
+}
+
+.difficulty-hard .star-filled {
+    color: #EF4444;
+}
+
+.difficulty-very-hard .star-filled {
+    color: #7C3AED;
 }
 
 .flashcard-question-text {
-    font-size: 1.5em;
+    font-size: 1.15em;
     color: #2c3e50;
     line-height: 1.8;
     text-align: left;
@@ -3005,6 +3171,7 @@ body {
     align-items: center;
     gap: 10px;
     margin-bottom: 15px;
+    flex-shrink: 0; /* Never shrink */
 }
 
 .flashcard-answer-hint .hint-icon {
@@ -3017,6 +3184,16 @@ body {
     color: #92400e;
     font-weight: 500;
     line-height: 1.4;
+}
+
+/* Answer Area */
+.flashcard-answer-area {
+    flex: 1 1 auto; /* Grow to fill space */
+    overflow-y: auto; /* Scroll when content too long */
+    min-height: 0; /* Important for flexbox */
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
 }
 
 /* Answer Input */
@@ -3134,10 +3311,11 @@ body {
     display: flex;
     justify-content: center;
     gap: 12px;
-    margin-top: 20px;
-    padding-top: 20px;
+    margin-top: 12px;
+    padding-top: 12px;
     border-top: 2px solid rgba(106, 63, 251, 0.1);
     flex-wrap: wrap;
+    flex-shrink: 0; /* Never shrink - always visible */
 }
 
 /* Session Controls (deprecated - now using flashcard-controls) */
@@ -3284,13 +3462,55 @@ body {
 
 /* Responsive Design for Sessions */
 @media (max-width: 768px) {
-    .flashcard-card {
-        padding: 25px;
-        width: 95%;
+    .session-content-wrapper {
+        padding: 15px;
+        padding-top: 90px; /* Reduced top padding for small screens (session-header removed) */
+        padding-bottom: 20px;
+        margin-left: 0; /* Remove sidebar margin */
+        margin-right: 0; /* Remove timeline margin */
     }
 
-    .flashcard-question {
+    .flashcard-card {
+        padding: 20px;
+        width: 100%;
+        max-width: 100%;
+        margin-right: 0;
+        /* Ensure card doesn't overflow viewport height */
+        max-height: calc(100vh - 140px);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .flashcard-question-section {
+        /* Allow scrolling if content is too long */
+        overflow-y: auto;
+        flex: 1 1 auto;
+        min-height: 0;
+    }
+
+    .flashcard-question-title {
         font-size: 1.3em;
+    }
+
+    .flashcard-question-text {
+        font-size: 1.2em;
+        padding: 15px;
+    }
+
+    .flashcard-answer-area {
+        overflow-y: auto;
+        flex: 0 1 auto;
+        max-height: 40vh; /* Limit answer area height */
+    }
+
+    .flashcard-controls {
+        flex-shrink: 0; /* Never shrink controls */
+        position: sticky;
+        bottom: 0;
+        background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
+        padding: 15px 0 5px 0;
+        margin-top: 15px;
+        z-index: 10;
     }
 
     .session-controls {
@@ -3301,6 +3521,9 @@ body {
 
     .control-button {
         width: 100%;
+        min-width: auto;
+        padding: 12px 20px;
+        font-size: 0.95em;
     }
 
     .session-header {
@@ -3309,6 +3532,101 @@ body {
 
     .session-title {
         font-size: 1em;
+    }
+
+    .flashcard-quiz-name {
+        font-size: 1.1rem;
+    }
+
+    .flashcard-progress-dots {
+        display: none; /* Hide on very small screens */
+    }
+
+    .speaker-icon {
+        font-size: 1.2rem;
+        padding: 4px 8px;
+    }
+
+    .speaker-text {
+        display: none; /* Hide "Click to listen" text on small screens */
+    }
+
+    .flashcard-header-row {
+        padding: 8px 0 15px 0;
+    }
+
+    /* Hide timeline and adjust sidebar on small screens */
+    .flashcard-timeline {
+        display: none !important;
+    }
+
+    .sidebar {
+        width: 60px; /* Collapsed sidebar on mobile */
+    }
+
+    .sidebar .nav-item-text {
+        display: none;
+    }
+}
+
+/* Very small screens (phones in portrait) */
+@media (max-width: 480px) {
+    .session-content-wrapper {
+        padding: 10px;
+        padding-top: 80px; /* Reduced for very small screens (session-header removed) */
+    }
+
+    .flashcard-card {
+        padding: 15px;
+        max-height: calc(100vh - 120px);
+        gap: 15px;
+    }
+
+    .flashcard-question-title {
+        font-size: 1.1em;
+    }
+
+    .flashcard-question-text {
+        font-size: 1.1em;
+        padding: 12px;
+    }
+
+    .flashcard-emoji {
+        font-size: 2rem;
+    }
+
+    .control-button {
+        padding: 10px 16px;
+        font-size: 0.9em;
+    }
+
+    .flashcard-mode-badge {
+        padding: 8px 16px;
+        font-size: 0.95rem;
+    }
+
+    .flashcard-answer-hint {
+        padding: 10px 12px;
+        font-size: 0.85rem;
+    }
+
+    .flashcard-progress-counter {
+        font-size: 0.85rem;
+    }
+}
+
+/* Medium screens (tablets) */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .session-content-wrapper {
+        padding: 15px 20px;
+        padding-top: 160px;
+        margin-left: 100px;
+        margin-right: 100px;
+    }
+
+    .flashcard-card {
+        width: 90%;
+        max-height: calc(100vh - 180px);
     }
 }
 
@@ -3319,7 +3637,7 @@ body {
 .flashcard-timeline {
     position: fixed;
     right: 60px; /* Margin from right edge */
-    top: 100px; /* Below separator line (98px + 2px line height) */
+    top: 90px; /* Stick to bottom edge of header */
     bottom: 0;
     width: 280px;
     background-color: #e8eaf0;
@@ -3332,7 +3650,7 @@ body {
 .timeline-content {
     flex: 1;
     overflow-y: auto;
-    padding: 30px 15px 15px 15px;
+    padding: 15px 15px 15px 15px;
     display: flex;
     flex-direction: column;
     gap: 12px;
