@@ -170,7 +170,8 @@ async def register(
         user_create = UserCreate(
             name=register_data.username,
             password=register_data.password,
-            email=register_data.email
+            email=register_data.email,
+            language=register_data.language or 'pl'
         )
 
         # Create user
@@ -246,6 +247,7 @@ async def get_current_user_info(
             "id": current_user.id,
             "name": current_user.name,
             "email": getattr(current_user, 'email', None),  # Handle missing email
+            "language": getattr(current_user, 'language', 'pl'),  # User's preferred language
             "created_at": getattr(current_user, 'created_at', None)
         }
 
