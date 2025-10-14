@@ -41,19 +41,25 @@ function AnswerInput({ answer, userAnswer, onAnswerChange, disabled = false }: A
     if (type === 'choice' && options && options.length > 0) {
         return (
             <div className="answer-input answer-input--choice">
-                {options.map((option, index) => (
-                    <label key={index} className="choice-option">
-                        <input
-                            type="radio"
-                            name="answer-choice"
-                            value={option.value}
-                            checked={userAnswer === option.value}
-                            onChange={(e) => onAnswerChange(e.target.value)}
-                            disabled={disabled}
-                        />
-                        <span className="choice-label">{option.label}</span>
-                    </label>
-                ))}
+                {options.map((option, index) => {
+                    // Support both string options and {value, label} objects
+                    const optionValue = typeof option === 'string' ? option : option.value;
+                    const optionLabel = typeof option === 'string' ? option : option.label;
+
+                    return (
+                        <label key={index} className="choice-option">
+                            <input
+                                type="radio"
+                                name="answer-choice"
+                                value={optionValue}
+                                checked={userAnswer === optionValue}
+                                onChange={(e) => onAnswerChange(e.target.value)}
+                                disabled={disabled}
+                            />
+                            <span className="choice-label">{optionLabel}</span>
+                        </label>
+                    );
+                })}
             </div>
         );
     }
@@ -71,18 +77,24 @@ function AnswerInput({ answer, userAnswer, onAnswerChange, disabled = false }: A
 
         return (
             <div className="answer-input answer-input--multiple-choice">
-                {options.map((option, index) => (
-                    <label key={index} className="choice-option">
-                        <input
-                            type="checkbox"
-                            value={option.value}
-                            checked={selectedValues.includes(option.value)}
-                            onChange={() => handleCheckboxChange(option.value)}
-                            disabled={disabled}
-                        />
-                        <span className="choice-label">{option.label}</span>
-                    </label>
-                ))}
+                {options.map((option, index) => {
+                    // Support both string options and {value, label} objects
+                    const optionValue = typeof option === 'string' ? option : option.value;
+                    const optionLabel = typeof option === 'string' ? option : option.label;
+
+                    return (
+                        <label key={index} className="choice-option">
+                            <input
+                                type="checkbox"
+                                value={optionValue}
+                                checked={selectedValues.includes(optionValue)}
+                                onChange={() => handleCheckboxChange(optionValue)}
+                                disabled={disabled}
+                            />
+                            <span className="choice-label">{optionLabel}</span>
+                        </label>
+                    );
+                })}
             </div>
         );
     }
