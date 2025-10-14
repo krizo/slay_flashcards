@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import QuizListPanel from '../components/quizzes/QuizListPanel';
 import QuizDetailsPanel from '../components/quizzes/QuizDetailsPanel';
 import QuizCreateForm from '../components/quizzes/QuizCreateForm';
@@ -13,6 +14,7 @@ import { useAuth } from '../context/AuthContext';
  * Quiz Management Page with List-Detail layout
  */
 function QuizzesPage() {
+    const { t } = useTranslation();
     const navigate = useNavigate();
     const { accessToken } = useAuth();
     const [selectedQuizId, setSelectedQuizId] = useState<number | null>(null);
@@ -83,9 +85,7 @@ function QuizzesPage() {
         }
 
         // Confirm deletion
-        const confirmDelete = window.confirm(
-            'Are you sure you want to delete this quiz? This action cannot be undone.'
-        );
+        const confirmDelete = window.confirm(t('quizzes.deleteConfirmation'));
 
         if (!confirmDelete) {
             return;
@@ -96,7 +96,7 @@ function QuizzesPage() {
             const quiz = await api.get(`/quizzes/${quizId}`, accessToken);
 
             if (!quiz) {
-                alert('This quiz no longer exists. Refreshing the list...');
+                alert(t('quizzes.quizNotFound'));
                 setQuizListKey(prev => prev + 1);
                 setSelectedQuizId(null);
                 return;
@@ -114,11 +114,11 @@ function QuizzesPage() {
 
             // Check if quiz not found
             if (error.response?.status === 404 || error.message?.includes('not found')) {
-                alert('This quiz no longer exists. Refreshing the list...');
+                alert(t('quizzes.quizNotFound'));
                 setSelectedQuizId(null);
                 setQuizListKey(prev => prev + 1);
             } else {
-                alert('Failed to delete quiz. Please try again.');
+                alert(t('quizzes.deleteFailed'));
             }
         }
     };
@@ -170,9 +170,9 @@ function QuizzesPage() {
     return (
         <div className="page-container">
             <div className="page-header">
-                <h1 className="page-title">Quizzes</h1>
+                <h1 className="page-title">{t('quizzes.title')}</h1>
                 <p className="page-description">
-                    Manage your flashcard quizzes and start learning sessions
+                    {t('quizzes.description')}
                 </p>
             </div>
 
@@ -181,7 +181,7 @@ function QuizzesPage() {
                 <input
                     type="text"
                     className="quiz-filter-input"
-                    placeholder="🔍 Search quizzes..."
+                    placeholder={t('quizzes.searchQuizzes')}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                 />
@@ -192,7 +192,7 @@ function QuizzesPage() {
                     onChange={(e) => setSelectedSubject(e.target.value)}
                     disabled={filtersLoading}
                 >
-                    <option value="">All Subjects</option>
+                    <option value="">{t('quizzes.allSubjects')}</option>
                     {subjects?.map((subject) => (
                         <option key={subject} value={subject}>
                             {subject}
@@ -206,7 +206,7 @@ function QuizzesPage() {
                     onChange={(e) => setSelectedCategory(e.target.value)}
                     disabled={filtersLoading}
                 >
-                    <option value="">All Categories</option>
+                    <option value="">{t('quizzes.allCategories')}</option>
                     {categories?.map((category) => (
                         <option key={category} value={category}>
                             {category}
@@ -220,7 +220,7 @@ function QuizzesPage() {
                     onChange={(e) => setSelectedLevel(e.target.value)}
                     disabled={filtersLoading}
                 >
-                    <option value="">All Levels</option>
+                    <option value="">{t('quizzes.allLevels')}</option>
                     {levels?.map((level) => (
                         <option key={level} value={level}>
                             {level}
@@ -232,7 +232,7 @@ function QuizzesPage() {
                     className="quiz-action-button quiz-action-button--primary"
                     onClick={handleNewQuizClick}
                 >
-                    + New Quiz
+                    {t('quizzes.newQuiz')}
                 </button>
             </div>
 
