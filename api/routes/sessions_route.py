@@ -613,9 +613,14 @@ async def get_user_recent_sessions(
         # Limit results
         sessions = sessions[:limit]
 
-        # Convert to response format
+        # Convert to response format with quiz details
         session_data = []
+        quiz_service = QuizService(db)
+
         for session in sessions:
+            # Get quiz details
+            quiz = quiz_service.get_quiz_by_id(session.quiz_id)
+
             session_dict = {
                 "id": session.id,
                 "user_id": session.user_id,
@@ -624,7 +629,10 @@ async def get_user_recent_sessions(
                 "started_at": session.started_at,
                 "score": session.score,
                 "completed_at": getattr(session, 'completed_at', None),
-                "completed": getattr(session, 'completed', False)
+                "completed": getattr(session, 'completed', False),
+                "quiz_name": quiz.name if quiz else None,
+                "quiz_category": quiz.category if quiz else None,
+                "quiz_level": quiz.level if quiz else None
             }
             session_data.append(Session(**session_dict))
 

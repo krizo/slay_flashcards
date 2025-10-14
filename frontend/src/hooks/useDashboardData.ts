@@ -1,7 +1,7 @@
 import {useEffect, useState} from 'react';
 import {apiClient} from '../services/apiClient';
 import {useAuth} from '../context/AuthContext';
-import {ProgressDataPoint, Quiz, Session, User, UserStats} from '../types';
+import {ProgressDataPoint, Session, User, UserStats} from '../types';
 
 // Generic hook return type
 interface UseApiResult<T> {
@@ -80,8 +80,8 @@ export function useUserStats(userId: number): UseApiResult<UserStats> {
 
 /**
  * Hook to fetch recent sessions for a user
- * Fetches from GET /api/v1/sessions/user/{userId}/recent?limit=4
- * Also fetches quiz details and merges them with session data
+ * Fetches from GET /api/v1/sessions/user/{userId}/recent?limit=5
+ * The backend now includes quiz details (quiz_name, quiz_category, quiz_level) in the response
  */
 export function useRecentSessions(userId: number, limit: number = 5): UseApiResult<Session[]> {
     const {accessToken} = useAuth();
@@ -95,30 +95,10 @@ export function useRecentSessions(userId: number, limit: number = 5): UseApiResu
                 setIsLoading(true);
                 setError(null);
 
-                // Fetch recent sessions
+                // Fetch recent sessions with quiz details included
                 const sessionData = await apiClient<Session[]>(`/sessions/user/${userId}/recent?limit=${limit}`, undefined, accessToken);
 
-                // Fetch all user's quizzes to get quiz names
-                const quizData = await apiClient<Quiz[]>(`/quizzes/`, undefined, accessToken);
-
-                // Create a map of quiz_id to quiz info
-                const quizMap = new Map(quizData.map(quiz => [quiz.id, quiz]));
-
-                // Merge quiz info into sessions
-                const enrichedSessions = sessionData.map(session => {
-                    const quiz = quizMap.get(session.quiz_id);
-                    if (quiz) {
-                        return {
-                            ...session,
-                            quiz_name: quiz.name,
-                            quiz_category: quiz.category,
-                            quiz_level: quiz.level
-                        };
-                    }
-                    return session;
-                });
-
-                setSessions(enrichedSessions);
+                setSessions(sessionData);
             } catch (err) {
                 setError(err instanceof Error ? err : new Error('Failed to fetch recent sessions'));
             } finally {

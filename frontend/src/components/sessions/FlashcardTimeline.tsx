@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { FlashcardData } from '../../types';
 
 interface FlashcardTimelineProps {
@@ -13,11 +14,12 @@ function FlashcardTimeline({
     seenIndices,
     onFlashcardClick
 }: FlashcardTimelineProps) {
+    const { t } = useTranslation();
     return (
         <div className="flashcard-timeline">
             <div className="timeline-content">
                 <div className="timeline-progress-badge">
-                    In Progress...
+                    {t('session.timeline.inProgress')}
                 </div>
                 {seenIndices.map((index) => {
                     const flashcard = flashcards[index];
@@ -43,7 +45,7 @@ function FlashcardTimeline({
                                 {flashcard.question.title}
                             </div>
                             {isCurrent && (
-                                <div className="timeline-card-badge">Current</div>
+                                <div className="timeline-card-badge">{t('session.timeline.current')}</div>
                             )}
                         </div>
                     );
@@ -54,7 +56,7 @@ function FlashcardTimeline({
                     <div className="timeline-upcoming">
                         <span className="timeline-upcoming-icon">⏳</span>
                         <span className="timeline-upcoming-text">
-                            {flashcards.length - seenIndices.length} more to go
+                            {t('session.timeline.moreToGo', { count: flashcards.length - seenIndices.length })}
                         </span>
                     </div>
                 )}

@@ -16,8 +16,9 @@
     "user": "Użytkownik"
   },
   "nav": {
-    "dashboard": "Panel",
+    "dashboard": "Postępy",
     "quizzes": "Quizy",
+    "learningSession": "Sesja nauki",
     "settings": "Ustawienia",
     "logout": "Wyloguj"
   },
@@ -50,37 +51,88 @@
     "invalidEmail": "Podaj prawidłowy adres email",
     "failedToLogin": "Nie udało się zalogować",
     "failedToRegister": "Nie udało się zarejestrować",
-    "localEnvironment": "Lokalne",
+    "localEnvironment": "Build lokalny",
+    "productionEnvironment": "Produkcja",
+    "stagingEnvironment": "Testowe",
     "languageLabel": "Język"
   },
   "dashboard": {
-    "title": "Panel",
+    "title": "Postępy w nauce",
     "description": "Śledź swoje postępy w nauce i bądź zmotywowany!",
+    "welcomeBack": "Witaj ponownie, {{name}}! 👋",
+    "learningProgress": "Oto Twój postęp w nauce",
+    "loadingStatistics": "Ładowanie statystyk...",
+    "loadingProgressData": "Ładowanie danych postępu...",
+    "loadingSessionsData": "Ładowanie danych sesji...",
+    "loadingActivity": "Ładowanie aktywności...",
+    "failedToLoadStatistics": "Nie udało się załadować statystyk",
+    "failedToLoadProgressData": "Nie udało się załadować danych postępu",
+    "failedToLoadSessionsData": "Nie udało się załadować danych sesji",
+    "failedToLoadActivity": "Nie udało się załadować aktywności",
+    "noStatisticsAvailable": "Brak dostępnych statystyk",
+    "noProgressData": "Brak danych postępu dla tego okresu",
+    "completeTestSessions": "Ukończ kilka sesji testowych, aby zobaczyć swój postęp",
+    "noSessionData": "Brak danych sesji",
+    "noRecentActivity": "Brak ostatniej aktywności",
     "stats": {
       "totalSessions": "Wszystkie sesje",
       "learnSessions": "Sesje nauki",
       "testSessions": "Sesje testów",
       "averageScore": "Średni wynik",
       "bestScore": "Najlepszy wynik",
-      "uniqueQuizzes": "Unikalne quizy",
-      "sessionsThisWeek": "Sesje w tym tygodniu",
-      "sessionsThisMonth": "Sesje w tym miesiącu"
+      "uniqueQuizzes": "Posiadane quizy",
+      "latestScore": "Ostatni wynik",
+      "studyStreak": "Seria nauki",
+      "daysActive": "Aktywne dni",
+      "minScore": "Najgorszy wynik",
+      "recentActivity": "Ostatnia aktywność",
+      "dailyAverage": "Średnia dzienna"
     },
     "timePeriods": {
       "week": "Tydzień",
       "month": "Miesiąc",
       "year": "Rok",
-      "all": "Cały czas"
+      "allTime": "Cały czas",
+      "lastWeek": "ostatni tydzień",
+      "lastMonth": "ostatni miesiąc",
+      "lastYear": "ostatni rok",
+      "allTimeLower": "cały czas"
     },
-    "recentActivity": "Ostatnia aktywność",
-    "noRecentActivity": "Brak ostatniej aktywności",
-    "progressChart": "Postęp w czasie",
-    "sessionsChart": "Sesje nauki",
-    "noDataAvailable": "Brak danych dla tego okresu"
+    "subtitles": {
+      "allTime": "cały czas",
+      "mostRecentTest": "ostatni test",
+      "consecutiveDays": "kolejne dni",
+      "sessionsPerDay": "sesji dziennie"
+    },
+    "charts": {
+      "progressOverTime": "Postęp w czasie",
+      "sessionsOverTime": "Sesje w czasie",
+      "learningAndTestActivity": "Twoja aktywność nauki i testów w okresie {{period}}",
+      "averageScoresOver": "Twoje średnie wyniki w okresie {{period}}",
+      "dataPoints": "Ilość danych: {{count}}",
+      "sessions": "Sesje",
+      "avgScore": "Śr. wynik",
+      "learnSessions": "Sesje nauki",
+      "testSessions": "Sesje testów"
+    },
+    "quickActions": {
+      "title": "Szybkie akcje",
+      "startLearning": "Rozpocznij naukę",
+      "takeTest": "Rozpocznij test",
+      "createQuiz": "Utwórz quiz"
+    },
+    "activity": {
+      "recentActivity": "Ostatnia aktywność",
+      "justNow": "Właśnie teraz",
+      "hoursAgo": "{{count}}godz. temu",
+      "yesterday": "Wczoraj",
+      "daysAgo": "{{count}}dni temu",
+      "quizNumber": "Quiz #{{id}}"
+    }
   },
   "quizzes": {
     "title": "Quizy",
-    "description": "Zarządzaj swoimi quizami i rozpoczynaj sesje nauki",
+    "description": "Zarządzaj swoimi quizami i rozpocznij naukę",
     "newQuiz": "+ Nowy quiz",
     "searchQuizzes": "🔍 Szukaj quizów...",
     "allSubjects": "Wszystkie przedmioty",
@@ -103,12 +155,103 @@
     "createdAt": "Utworzono",
     "favourite": "Ulubione"
   },
+  "quizDetails": {
+    "noQuizSelected": "Nie wybrano quizu",
+    "selectQuizPrompt": "Wybierz quiz z listy, aby zobaczyć szczegóły i rozpocząć naukę",
+    "loadingDetails": "Ładowanie szczegółów quizu...",
+    "failedToLoad": "Nie udało się załadować szczegółów quizu",
+    "quizNotFound": "Quiz nie został znaleziony",
+    "created": "Utworzono",
+    "cards": "fiszki",
+    "actions": {
+      "startLearning": "Rozpocznij sesję nauki",
+      "learn": "Nauka",
+      "startTest": "Rozpocznij sesję testową",
+      "test": "Test",
+      "edit": "Edytuj quiz",
+      "editShort": "Edytuj",
+      "export": "Eksportuj quiz",
+      "exportShort": "Eksportuj",
+      "exporting": "...",
+      "delete": "Usuń quiz",
+      "deleteShort": "Usuń"
+    },
+    "statistics": {
+      "title": "Statystyki",
+      "subtitle": "Twoje wyniki (ostatnie 30 dni)",
+      "loading": "Ładowanie statystyk...",
+      "totalSessions": "Wszystkie sesje",
+      "latestScore": "Ostatni wynik",
+      "maxScore": "Najlepszy wynik",
+      "minScore": "Najgorszy wynik",
+      "avgScore": "Średni wynik",
+      "daysActive": "Dni aktywności",
+      "peakScore": "Szczytowy wynik",
+      "bestStreak": "Najlepsza seria",
+      "noData": "Brak danych",
+      "last30Days": "Ostatnie 30 dni",
+      "ended": "Zakończono"
+    },
+    "performance": {
+      "title": "Analiza wydajności",
+      "subtitle": "Twój postęp w nauce i statystyki",
+      "loading": "Ładowanie wykresów...",
+      "activityTrend": {
+        "title": "Trend aktywności",
+        "subtitle": "Średnie wyniki z ostatnich 30 dni",
+        "avgScore": "Śr. wynik",
+        "sessions": "Sesje"
+      },
+      "sessionDistribution": {
+        "title": "Rozkład sesji",
+        "subtitle": "Sesje nauki vs sesje testowe",
+        "learn": "Nauka",
+        "test": "Test"
+      },
+      "noData": "Brak danych sesji",
+      "startSessionPrompt": "Rozpocznij sesję nauki, aby zobaczyć swój postęp",
+      "completeSessionPrompt": "Ukończ sesje, aby zobaczyć rozkład"
+    },
+    "time": {
+      "today": "Dzisiaj",
+      "yesterday": "Wczoraj",
+      "daysAgo": "{{count}}dni temu",
+      "weeksAgo": "{{count}}tyg. temu",
+      "monthsAgo": "{{count}}mies. temu",
+      "yearsAgo": "{{count}}lat temu"
+    },
+    "export": {
+      "failed": "Nie udało się wyeksportować quizu. Spróbuj ponownie."
+    }
+  },
   "session": {
     "learn": "Nauka",
     "test": "Test",
     "modeLearn": "📚 Nauka",
     "modeTest": "🎯 Test",
     "loadingFlashcard": "Ładowanie fiszki...",
+    "preparingSession": "Przygotowywanie sesji nauki...",
+    "loadingQuiz": "Ładowanie...",
+    "sessionError": "Błąd sesji",
+    "returnToQuizzes": "Powrót do quizów",
+    "sessionComplete": "Sesja ukończona!",
+    "completedFlashcards": "Ukończyłeś {{completed}} z {{total}} fiszek.",
+    "finishSession": "Zakończ sesję",
+    "closeSession": "Zamknij sesję",
+    "header": {
+      "yourBest": "Twój najlepszy",
+      "yourAvg": "Twoja średnia",
+      "testSessions": "Sesje testów",
+      "lastSession": "Ostatnia sesja",
+      "firstTime": "Pierwszy raz!",
+      "justNow": "Właśnie teraz",
+      "secAgo": "{{count}} sek. temu",
+      "minAgo": "{{count}} min. temu",
+      "hoursAgo": "{{count}}godz. temu",
+      "yesterday": "Wczoraj",
+      "daysAgo": "{{count}} dni temu",
+      "weeksAgo": "{{count}} tyg. temu"
+    },
     "cardsProgress": "{{completed}} / {{total}} kart ({{percentage}}%)",
     "expectedFormat": "Oczekiwany format:",
     "typeYourAnswer": "Wpisz swoją odpowiedź tutaj...",
@@ -137,7 +280,12 @@
     "between": "między {{min}} a {{max}}",
     "decimalPlaces": "{{count}} miejsc dziesiętnych",
     "caseSensitive": "wielkość liter ma znaczenie",
-    "exampleFormat": "np. \"{{example}}\""
+    "exampleFormat": "np. \"{{example}}\"",
+    "timeline": {
+      "inProgress": "W trakcie...",
+      "current": "Bieżące",
+      "moreToGo": "Jeszcze {{count}}"
+    }
   },
   "header": {
     "settings": "Ustawienia",

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { FlashcardData, SessionFeedback } from '../../types';
 
 interface FlashcardDisplayProps {
@@ -57,10 +58,12 @@ function FlashcardDisplay({
     onRevealAnswer,
     onNextFlashcard,
 }: FlashcardDisplayProps) {
+    const { t } = useTranslation();
+
     if (!flashcard) {
         return (
             <div className="flashcard-card">
-                <p>Loading flashcard...</p>
+                <p>{t('session.loadingFlashcard')}</p>
             </div>
         );
     }
@@ -91,19 +94,19 @@ function FlashcardDisplay({
         if (wordCount === 1) {
             // Single word - show letter count
             const letterCount = answerText.length;
-            hints.push(`${letterCount} ${letterCount === 1 ? 'letter' : 'letters'}`);
+            hints.push(t('session.letterCount', { count: letterCount }));
         } else if (wordCount > 1) {
             // Multiple words - show word count
-            hints.push(`${wordCount} words`);
+            hints.push(t('session.wordCount', { count: wordCount }));
         }
 
         // Add type information
-        hints.push(`type: ${answerTypeDisplay}`);
+        hints.push(`${t('session.type')}: ${answerTypeDisplay}`);
 
         // Add specific constraints based on metadata
         if (metadata.range) {
             if (Array.isArray(metadata.range) && metadata.range.length === 2) {
-                hints.push(`between ${metadata.range[0]} and ${metadata.range[1]}`);
+                hints.push(t('session.between', { min: metadata.range[0], max: metadata.range[1] }));
             } else if (typeof metadata.range === 'string') {
                 hints.push(metadata.range);
             }
@@ -114,15 +117,15 @@ function FlashcardDisplay({
         }
 
         if (metadata.decimal_places !== undefined) {
-            hints.push(`${metadata.decimal_places} decimal places`);
+            hints.push(t('session.decimalPlaces', { count: metadata.decimal_places }));
         }
 
         if (metadata.case_sensitive) {
-            hints.push('case sensitive');
+            hints.push(t('session.caseSensitive'));
         }
 
         if (metadata.example) {
-            hints.push(`e.g., "${metadata.example}"`);
+            hints.push(t('session.exampleFormat', { example: metadata.example }));
         }
 
         return hints.join(' • ');
@@ -134,7 +137,7 @@ function FlashcardDisplay({
             <div className="flashcard-header-row">
                 <div className="flashcard-quiz-info">
                     <span className="flashcard-mode-badge">
-                        {mode === 'learn' ? '📚 Learn' : '🎯 Test'}
+                        {mode === 'learn' ? t('session.modeLearn') : t('session.modeTest')}
                     </span>
                     <span className="flashcard-quiz-name">{quizName}</span>
                 </div>
@@ -152,7 +155,11 @@ function FlashcardDisplay({
 
             {/* Progress Counter */}
             <div className="flashcard-progress-counter">
-                {flashcardsCompleted} / {totalFlashcards} cards ({percentage}%)
+                {t('session.cardsProgress', {
+                    completed: flashcardsCompleted,
+                    total: totalFlashcards,
+                    percentage: percentage
+                })}
             </div>
 
             {/* Question Section */}
@@ -163,10 +170,10 @@ function FlashcardDisplay({
                     <button
                         className="speaker-icon"
                         onClick={() => onSpeak(flashcard.question.text, flashcard.question.lang)}
-                        aria-label="Read question aloud"
-                        title={`Click to listen in ${flashcard.question.lang || 'English'}`}
+                        aria-label={t('session.readQuestionAloud')}
+                        title={t('session.clickToListenIn', { language: flashcard.question.lang || 'English' })}
                     >
-                        🔊 {getLanguageFlag(flashcard.question.lang)} <span className="speaker-text">Click to listen</span>
+                        🔊 {getLanguageFlag(flashcard.question.lang)} <span className="speaker-text">{t('session.clickToListen')}</span>
                     </button>
                 </div>
                 <p className="flashcard-question-text">{flashcard.question.text}</p>
@@ -177,7 +184,7 @@ function FlashcardDisplay({
                 <div className="flashcard-answer-hint">
                     <span className="hint-icon">💡</span>
                     <span className="hint-text">
-                        <strong>Expected format:</strong> {getAnswerHint()}
+                        <strong>{t('session.expectedFormat')}</strong> {getAnswerHint()}
                     </span>
                 </div>
             )}
@@ -188,7 +195,7 @@ function FlashcardDisplay({
                 {!feedback && !showAnswer && (
                     <textarea
                         className="flashcard-answer-input"
-                        placeholder="Type your answer here..."
+                        placeholder={t('session.typeYourAnswer')}
                         value={userAnswer}
                         onChange={(e) => onUserAnswerChange(e.target.value)}
                     />
@@ -216,14 +223,14 @@ function FlashcardDisplay({
                 {showAnswer && (
                     <div className="flashcard-revealed-answer">
                         <div className="revealed-answer-header">
-                            <strong>Answer:</strong>
+                            <strong>{t('session.answer')}</strong>
                             <button
                                 className="speaker-icon speaker-icon--small"
                                 onClick={() => onSpeak(flashcard.answer.text, flashcard.answer.lang)}
-                                aria-label="Read answer aloud"
-                                title={`Click to listen in ${flashcard.answer.lang || 'English'}`}
+                                aria-label={t('session.readAnswerAloud')}
+                                title={t('session.clickToListenIn', { language: flashcard.answer.lang || 'English' })}
                             >
-                                🔊 {getLanguageFlag(flashcard.answer.lang)} <span className="speaker-text">Listen</span>
+                                🔊 {getLanguageFlag(flashcard.answer.lang)} <span className="speaker-text">{t('session.listen')}</span>
                             </button>
                         </div>
                         <p>{flashcard.answer.text}</p>
@@ -241,7 +248,7 @@ function FlashcardDisplay({
                             className="control-button control-button--primary"
                             onClick={onNextFlashcard}
                         >
-                            Next Flashcard →
+                            {t('session.nextFlashcard')}
                         </button>
                     ) : feedback ? (
                         /* After submitting answer: Show Answer and Next buttons */
@@ -250,13 +257,13 @@ function FlashcardDisplay({
                                 className="control-button control-button--secondary"
                                 onClick={onRevealAnswer}
                             >
-                                Show Answer
+                                {t('session.showAnswer')}
                             </button>
                             <button
                                 className="control-button control-button--primary"
                                 onClick={onNextFlashcard}
                             >
-                                Next Flashcard →
+                                {t('session.nextFlashcard')}
                             </button>
                         </>
                     ) : (
@@ -270,7 +277,7 @@ function FlashcardDisplay({
                                 }}
                                 disabled={isSubmitting}
                             >
-                                Don't Know
+                                {t('session.dontKnow')}
                             </button>
                             {userAnswer.trim() && (
                                 <button
@@ -278,7 +285,7 @@ function FlashcardDisplay({
                                     onClick={onSubmitAnswer}
                                     disabled={isSubmitting}
                                 >
-                                    {isSubmitting ? 'Submitting...' : 'Submit Answer'}
+                                    {isSubmitting ? t('session.submitting') : t('session.submitAnswer')}
                                 </button>
                             )}
                         </>
@@ -290,7 +297,7 @@ function FlashcardDisplay({
                             className="control-button control-button--primary"
                             onClick={onNextFlashcard}
                         >
-                            Next Flashcard →
+                            {t('session.nextFlashcard')}
                         </button>
                     ) : (
                         <>
@@ -299,14 +306,14 @@ function FlashcardDisplay({
                                 onClick={onRevealAnswer}
                                 disabled={isSubmitting}
                             >
-                                Don't Know
+                                {t('session.dontKnow')}
                             </button>
                             <button
                                 className="control-button control-button--secondary"
                                 onClick={onRevealAnswer}
                                 disabled={isSubmitting}
                             >
-                                Show Answer
+                                {t('session.showAnswer')}
                             </button>
                             {userAnswer.trim() && (
                                 <button
@@ -314,7 +321,7 @@ function FlashcardDisplay({
                                     onClick={onSubmitAnswer}
                                     disabled={isSubmitting}
                                 >
-                                    {isSubmitting ? 'Checking...' : 'Check Answer'}
+                                    {isSubmitting ? t('session.checking') : t('session.checkAnswer')}
                                 </button>
                             )}
                         </>

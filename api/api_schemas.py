@@ -362,6 +362,9 @@ class Session(SessionBase):
     score: Optional[float]
     completed_at: Optional[datetime] = None
     completed: bool = False
+    quiz_name: Optional[str] = None
+    quiz_category: Optional[str] = None
+    quiz_level: Optional[str] = None
 
 
 class SessionStats(BaseModel):

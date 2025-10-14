@@ -89,10 +89,10 @@ describe('ActivitySidebar', () => {
     it('displays correct mode for each session', () => {
         render(<ActivitySidebar recentSessions={mockSessions} />);
 
-        const modeElements = screen.getAllByText(/test|learn/);
+        const modeElements = screen.getAllByText(/Test|Learn/);
         expect(modeElements).toHaveLength(3);
-        expect(screen.getAllByText('test')).toHaveLength(2);
-        expect(screen.getAllByText('learn')).toHaveLength(1);
+        expect(screen.getAllByText('Test')).toHaveLength(2);
+        expect(screen.getAllByText('Learn')).toHaveLength(1);
     });
 
     it('displays score only for test sessions with scores', () => {
@@ -123,7 +123,7 @@ describe('ActivitySidebar', () => {
 
         render(<ActivitySidebar recentSessions={learnSession} />);
 
-        expect(screen.getByText('learn')).toBeInTheDocument();
+        expect(screen.getByText('Learn')).toBeInTheDocument();
         expect(screen.queryByText(/%$/)).not.toBeInTheDocument();
     });
 
@@ -210,7 +210,7 @@ describe('ActivitySidebar', () => {
     it('renders all sessions in correct order', () => {
         render(<ActivitySidebar recentSessions={mockSessions} />);
 
-        const activityItems = screen.getAllByText(/test|learn/);
+        const activityItems = screen.getAllByText(/Test|Learn/);
         expect(activityItems).toHaveLength(3);
     });
 

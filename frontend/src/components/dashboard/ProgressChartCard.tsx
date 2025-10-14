@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { ProgressDataPoint } from '../../types';
 
@@ -12,6 +13,8 @@ interface ProgressChartCardProps {
 }
 
 const ProgressChartCard = ({ data, isLoading, error, timePeriod }: ProgressChartCardProps) => {
+    const { t } = useTranslation();
+
     useEffect(() => {
         console.log(`📈 ProgressChartCard - ${timePeriod}:`, {
             totalPoints: data?.length,
@@ -24,13 +27,13 @@ const ProgressChartCard = ({ data, isLoading, error, timePeriod }: ProgressChart
     const getRangeLabel = () => {
         switch (timePeriod) {
             case 'week':
-                return 'last week';
+                return t('dashboard.timePeriods.lastWeek');
             case 'month':
-                return 'last month';
+                return t('dashboard.timePeriods.lastMonth');
             case 'year':
-                return 'last year';
+                return t('dashboard.timePeriods.lastYear');
             case 'all':
-                return 'all time';
+                return t('dashboard.timePeriods.allTimeLower');
         }
     };
     // Loading state
@@ -38,12 +41,12 @@ const ProgressChartCard = ({ data, isLoading, error, timePeriod }: ProgressChart
         return (
             <div className="dashboard-card progress-chart-card">
                 <div className="card-header">
-                    <h3 className="card-title">Progress Over Time</h3>
-                    <p className="card-subtitle">Your average scores over the {getRangeLabel()}</p>
+                    <h3 className="card-title">{t('dashboard.charts.progressOverTime')}</h3>
+                    <p className="card-subtitle">{t('dashboard.charts.averageScoresOver', { period: getRangeLabel() })}</p>
                 </div>
                 <div className="loading-state">
                     <div className="loading-spinner"></div>
-                    <p>Loading progress data...</p>
+                    <p>{t('dashboard.loadingProgressData')}</p>
                 </div>
             </div>
         );
@@ -54,12 +57,12 @@ const ProgressChartCard = ({ data, isLoading, error, timePeriod }: ProgressChart
         return (
             <div className="dashboard-card progress-chart-card">
                 <div className="card-header">
-                    <h3 className="card-title">Progress Over Time</h3>
-                    <p className="card-subtitle">Your average scores over the {getRangeLabel()}</p>
+                    <h3 className="card-title">{t('dashboard.charts.progressOverTime')}</h3>
+                    <p className="card-subtitle">{t('dashboard.charts.averageScoresOver', { period: getRangeLabel() })}</p>
                 </div>
                 <div className="error-state">
                     <span className="error-icon">⚠️</span>
-                    <p className="error-message">Failed to load progress data</p>
+                    <p className="error-message">{t('dashboard.failedToLoadProgressData')}</p>
                     <p className="error-detail">{error.message}</p>
                 </div>
             </div>
@@ -71,13 +74,13 @@ const ProgressChartCard = ({ data, isLoading, error, timePeriod }: ProgressChart
         return (
             <div className="dashboard-card progress-chart-card">
                 <div className="card-header">
-                    <h3 className="card-title">Progress Over Time</h3>
-                    <p className="card-subtitle">Your average scores over the {getRangeLabel()}</p>
+                    <h3 className="card-title">{t('dashboard.charts.progressOverTime')}</h3>
+                    <p className="card-subtitle">{t('dashboard.charts.averageScoresOver', { period: getRangeLabel() })}</p>
                 </div>
                 <div className="empty-state">
                     <span className="empty-icon">📈</span>
-                    <p>No progress data available for this period</p>
-                    <p className="empty-hint">Complete some test sessions to see your progress</p>
+                    <p>{t('dashboard.noProgressData')}</p>
+                    <p className="empty-hint">{t('dashboard.completeTestSessions')}</p>
                 </div>
             </div>
         );
@@ -86,8 +89,8 @@ const ProgressChartCard = ({ data, isLoading, error, timePeriod }: ProgressChart
     return (
         <div className="dashboard-card progress-chart-card">
             <div className="card-header">
-                <h3 className="card-title">Progress Over Time</h3>
-                <p className="card-subtitle">Your average scores over the {getRangeLabel()} ({data?.length || 0} data points)</p>
+                <h3 className="card-title">{t('dashboard.charts.progressOverTime')}</h3>
+                <p className="card-subtitle">{t('dashboard.charts.averageScoresOver', { period: getRangeLabel() })} ({t('dashboard.charts.dataPoints', { count: data?.length || 0 })})</p>
             </div>
 
             <div className="chart-container">
@@ -121,7 +124,7 @@ const ProgressChartCard = ({ data, isLoading, error, timePeriod }: ProgressChart
                                 const date = new Date(value);
                                 return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
                             }}
-                            formatter={(value: number) => [`${Math.round(value)}%`, 'Avg Score']}
+                            formatter={(value: number) => [`${Math.round(value)}%`, t('dashboard.charts.avgScore')]}
                         />
                         <Line
                             type="monotone"

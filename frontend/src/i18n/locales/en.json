@@ -18,6 +18,7 @@
   "nav": {
     "dashboard": "Dashboard",
     "quizzes": "Quizzes",
+    "learningSession": "Learning Session",
     "settings": "Settings",
     "logout": "Logout"
   },
@@ -51,11 +52,28 @@
     "failedToLogin": "Failed to login",
     "failedToRegister": "Failed to register",
     "localEnvironment": "Local",
+    "productionEnvironment": "Production",
+    "stagingEnvironment": "Staging",
     "languageLabel": "Language"
   },
   "dashboard": {
     "title": "Dashboard",
     "description": "Track your learning progress and stay motivated!",
+    "welcomeBack": "Welcome back, {{name}}! 👋",
+    "learningProgress": "Here's your learning progress",
+    "loadingStatistics": "Loading statistics...",
+    "loadingProgressData": "Loading progress data...",
+    "loadingSessionsData": "Loading sessions data...",
+    "loadingActivity": "Loading activity...",
+    "failedToLoadStatistics": "Failed to load statistics",
+    "failedToLoadProgressData": "Failed to load progress data",
+    "failedToLoadSessionsData": "Failed to load sessions data",
+    "failedToLoadActivity": "Failed to load activity",
+    "noStatisticsAvailable": "No statistics available",
+    "noProgressData": "No progress data available for this period",
+    "completeTestSessions": "Complete some test sessions to see your progress",
+    "noSessionData": "No session data available",
+    "noRecentActivity": "No recent activity",
     "stats": {
       "totalSessions": "Total Sessions",
       "learnSessions": "Learn Sessions",
@@ -63,20 +81,54 @@
       "averageScore": "Average Score",
       "bestScore": "Best Score",
       "uniqueQuizzes": "Unique Quizzes",
-      "sessionsThisWeek": "Sessions This Week",
-      "sessionsThisMonth": "Sessions This Month"
+      "latestScore": "Latest Score",
+      "studyStreak": "Study Streak",
+      "daysActive": "Days Active",
+      "minScore": "Min Score",
+      "recentActivity": "Recent Activity",
+      "dailyAverage": "Daily Average"
     },
     "timePeriods": {
       "week": "Week",
       "month": "Month",
       "year": "Year",
-      "all": "All Time"
+      "allTime": "All Time",
+      "lastWeek": "last week",
+      "lastMonth": "last month",
+      "lastYear": "last year",
+      "allTimeLower": "all time"
     },
-    "recentActivity": "Recent Activity",
-    "noRecentActivity": "No recent activity",
-    "progressChart": "Progress Over Time",
-    "sessionsChart": "Learning Sessions",
-    "noDataAvailable": "No data available for this period"
+    "subtitles": {
+      "allTime": "all time",
+      "mostRecentTest": "most recent test",
+      "consecutiveDays": "consecutive days",
+      "sessionsPerDay": "sessions per day"
+    },
+    "charts": {
+      "progressOverTime": "Progress Over Time",
+      "sessionsOverTime": "Sessions Over Time",
+      "learningAndTestActivity": "Your learning and test activity over the {{period}}",
+      "averageScoresOver": "Your average scores over the {{period}}",
+      "dataPoints": "{{count}} data points",
+      "sessions": "Sessions",
+      "avgScore": "Avg Score",
+      "learnSessions": "Learn Sessions",
+      "testSessions": "Test Sessions"
+    },
+    "quickActions": {
+      "title": "Quick Actions",
+      "startLearning": "Start Learning",
+      "takeTest": "Take a Test",
+      "createQuiz": "Create Quiz"
+    },
+    "activity": {
+      "recentActivity": "Recent Activity",
+      "justNow": "Just now",
+      "hoursAgo": "{{count}}h ago",
+      "yesterday": "Yesterday",
+      "daysAgo": "{{count}}d ago",
+      "quizNumber": "Quiz #{{id}}"
+    }
   },
   "quizzes": {
     "title": "Quizzes",
@@ -103,12 +155,103 @@
     "createdAt": "Created",
     "favourite": "Favourite"
   },
+  "quizDetails": {
+    "noQuizSelected": "No Quiz Selected",
+    "selectQuizPrompt": "Select a quiz from the list to view details and start learning",
+    "loadingDetails": "Loading quiz details...",
+    "failedToLoad": "Failed to load quiz details",
+    "quizNotFound": "Quiz not found",
+    "created": "Created",
+    "cards": "cards",
+    "actions": {
+      "startLearning": "Start Learning Session",
+      "learn": "Learn",
+      "startTest": "Start Test Session",
+      "test": "Test",
+      "edit": "Edit Quiz",
+      "editShort": "Edit",
+      "export": "Export Quiz",
+      "exportShort": "Export",
+      "exporting": "...",
+      "delete": "Delete Quiz",
+      "deleteShort": "Delete"
+    },
+    "statistics": {
+      "title": "Statistics",
+      "subtitle": "Your performance metrics (last 30 days)",
+      "loading": "Loading statistics...",
+      "totalSessions": "Total Sessions",
+      "latestScore": "Latest Score",
+      "maxScore": "Max Score",
+      "minScore": "Min Score",
+      "avgScore": "Avg Score",
+      "daysActive": "Days Active",
+      "peakScore": "Peak Score",
+      "bestStreak": "Best Streak",
+      "noData": "No data",
+      "last30Days": "Last 30 days",
+      "ended": "Ended"
+    },
+    "performance": {
+      "title": "Performance Analytics",
+      "subtitle": "Your learning progress and statistics",
+      "loading": "Loading charts...",
+      "activityTrend": {
+        "title": "Activity Trend",
+        "subtitle": "Average scores over the last 30 days",
+        "avgScore": "Avg Score",
+        "sessions": "Sessions"
+      },
+      "sessionDistribution": {
+        "title": "Session Distribution",
+        "subtitle": "Learn vs Test sessions",
+        "learn": "Learn",
+        "test": "Test"
+      },
+      "noData": "No session data available yet",
+      "startSessionPrompt": "Start a learning session to see your progress",
+      "completeSessionPrompt": "Complete sessions to view distribution"
+    },
+    "time": {
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "daysAgo": "{{count}}d ago",
+      "weeksAgo": "{{count}}w ago",
+      "monthsAgo": "{{count}}mo ago",
+      "yearsAgo": "{{count}}y ago"
+    },
+    "export": {
+      "failed": "Failed to export quiz. Please try again."
+    }
+  },
   "session": {
     "learn": "Learn",
     "test": "Test",
     "modeLearn": "📚 Learn",
     "modeTest": "🎯 Test",
     "loadingFlashcard": "Loading flashcard...",
+    "preparingSession": "Preparing your learning session...",
+    "loadingQuiz": "Loading...",
+    "sessionError": "Session Error",
+    "returnToQuizzes": "Return to Quizzes",
+    "sessionComplete": "Session Complete!",
+    "completedFlashcards": "You've completed {{completed}} of {{total}} flashcards.",
+    "finishSession": "Finish Session",
+    "closeSession": "Close session",
+    "header": {
+      "yourBest": "Your Best",
+      "yourAvg": "Your Avg",
+      "testSessions": "Test Sessions",
+      "lastSession": "Last Session",
+      "firstTime": "First time!",
+      "justNow": "Just now",
+      "secAgo": "{{count}} sec ago",
+      "minAgo": "{{count}} min ago",
+      "hoursAgo": "{{count}}h ago",
+      "yesterday": "Yesterday",
+      "daysAgo": "{{count}} days ago",
+      "weeksAgo": "{{count}} weeks ago"
+    },
     "cardsProgress": "{{completed}} / {{total}} cards ({{percentage}}%)",
     "expectedFormat": "Expected format:",
     "typeYourAnswer": "Type your answer here...",
@@ -133,7 +276,12 @@
     "between": "between {{min}} and {{max}}",
     "decimalPlaces": "{{count}} decimal places",
     "caseSensitive": "case sensitive",
-    "exampleFormat": "e.g., \"{{example}}\""
+    "exampleFormat": "e.g., \"{{example}}\"",
+    "timeline": {
+      "inProgress": "In Progress...",
+      "current": "Current",
+      "moreToGo": "{{count}} more to go"
+    }
   },
   "header": {
     "settings": "Settings",

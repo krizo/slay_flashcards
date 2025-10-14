@@ -60,8 +60,11 @@ class UserService:
         if hasattr(user_data, "password") and user_data.password:
             password_hash = hash_password(user_data.password)
 
+        # Get language from user_data or default to 'pl'
+        language = getattr(user_data, 'language', 'pl') or 'pl'
+
         # Use repository create_user which handles validation
-        return self.user_repo.create_user(name=user_data.name, email=user_data.email, password_hash=password_hash)
+        return self.user_repo.create_user(name=user_data.name, email=user_data.email, password_hash=password_hash, language=language)
 
     def email_exists(self, email: str) -> bool:
         """Check if email already exists."""
