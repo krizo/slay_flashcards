@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 
 function LoginPage() {
+    const { t } = useTranslation();
     const [username, setUsername] = useState<string>('');
     const [password, setPassword] = useState<string>('');
     const [error, setError] = useState<string>('');
@@ -31,7 +33,7 @@ function LoginPage() {
             // Redirect to dashboard on successful login
             navigate('/');
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'Failed to login');
+            setError(err instanceof Error ? err.message : t('auth.failedToLogin'));
         } finally {
             setIsLoading(false);
         }
@@ -41,13 +43,13 @@ function LoginPage() {
         <div className="login-page">
             <div className="login-container">
                 <div className="login-card">
-                    <h1 className="login-title">SlayFlashcards</h1>
-                    <p className="login-subtitle">Sign in to continue</p>
+                    <h1 className="login-title">{t('auth.appName')}</h1>
+                    <p className="login-subtitle">{t('auth.signInSubtitle')}</p>
 
                     <form onSubmit={handleSubmit} className="login-form">
                         <div className="form-group">
                             <label htmlFor="username" className="form-label">
-                                Username or Email
+                                {t('auth.usernameOrEmail')}
                             </label>
                             <input
                                 type="text"
@@ -55,7 +57,7 @@ function LoginPage() {
                                 className="form-input"
                                 value={username}
                                 onChange={(e) => setUsername(e.target.value)}
-                                placeholder="Enter your username or email"
+                                placeholder={t('auth.enterUsername')}
                                 required
                                 disabled={isLoading}
                                 autoComplete="username"
@@ -64,7 +66,7 @@ function LoginPage() {
 
                         <div className="form-group">
                             <label htmlFor="password" className="form-label">
-                                Password
+                                {t('auth.password')}
                             </label>
                             <input
                                 type="password"
@@ -72,7 +74,7 @@ function LoginPage() {
                                 className="form-input"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                placeholder="Enter your password"
+                                placeholder={t('auth.enterPassword')}
                                 required
                                 disabled={isLoading}
                                 autoComplete="current-password"
@@ -91,15 +93,15 @@ function LoginPage() {
                             className="login-button"
                             disabled={isLoading || !username.trim() || !password.trim()}
                         >
-                            {isLoading ? 'Signing in...' : 'Sign In'}
+                            {isLoading ? t('auth.signingIn') : t('auth.signIn')}
                         </button>
                     </form>
 
                     <div className="login-footer">
                         <p className="login-demo-note">
-                            Don't have an account?{' '}
+                            {t('auth.dontHaveAccount')}{' '}
                             <Link to="/register" className="login-link">
-                                Create one here
+                                {t('auth.createOneHere')}
                             </Link>
                         </p>
                     </div>
@@ -112,7 +114,7 @@ function LoginPage() {
                         </div>
                     ) : (
                         <div className="version-label">
-                            🔧 Local
+                            🔧 {t('auth.localEnvironment')}
                         </div>
                     )}
                 </div>

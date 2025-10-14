@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import StatsSummaryCard from '../components/dashboard/StatsSummaryCard';
 import ProgressChartCard from '../components/dashboard/ProgressChartCard';
 import SessionsChartCard from '../components/dashboard/SessionsChartCard';
@@ -16,6 +17,7 @@ const PERIOD_TO_DAYS: Record<TimePeriod, number> = {
 };
 
 function DashboardPage() {
+    const { t } = useTranslation();
     // Fetch current user and dashboard data using custom hooks
     const { data: user } = useCurrentUser();
     const userId = user?.id;
@@ -40,9 +42,9 @@ function DashboardPage() {
     return (
         <div className="page-container">
             <div className="page-header">
-                <h1 className="page-title">Dashboard</h1>
+                <h1 className="page-title">{t('dashboard.title')}</h1>
                 <p className="page-description">
-                    Track your learning progress and stay motivated!
+                    {t('dashboard.description')}
                 </p>
             </div>
 

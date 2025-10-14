@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/apiClient';
 import { UserStats } from '../types';
@@ -7,13 +8,16 @@ import { faRightFromBracket, faFileImport } from '@fortawesome/free-solid-svg-ic
 import './SettingsPage.css';
 
 const SettingsPage = () => {
+    const { t, i18n } = useTranslation();
     const { user, accessToken, logout } = useAuth();
 
     // User profile state
     const [userName, setUserName] = useState(user?.name || '');
     const [userEmail, setUserEmail] = useState(user?.email || '');
+    const [userLanguage, setUserLanguage] = useState(user?.language || 'pl');
     const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
     const [profileMessage, setProfileMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+    const [languageMessage, setLanguageMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
 
     // Password change state
     const [currentPassword, setCurrentPassword] = useState('');
@@ -32,6 +36,14 @@ const SettingsPage = () => {
     const [userStats, setUserStats] = useState<UserStats | null>(null);
     const [totalQuizzes, setTotalQuizzes] = useState<number>(0);
     const [isLoadingStats, setIsLoadingStats] = useState(true);
+
+    // Load user's language preference on mount
+    useEffect(() => {
+        if (user?.language) {
+            setUserLanguage(user.language);
+            i18n.changeLanguage(user.language);
+        }
+    }, [user, i18n]);
 
     // Fetch user statistics
     useEffect(() => {
@@ -77,20 +89,28 @@ const SettingsPage = () => {
                 updateData.email = userEmail;
             }
 
+            // Language is handled separately by handleLanguageChange
+
             if (Object.keys(updateData).length === 0) {
-                setProfileMessage({ type: 'error', text: 'No changes to save' });
+                // Silently return - no changes to save
                 setIsUpdatingProfile(false);
                 return;
             }
 
             await api.put(`/users/${user.id}`, updateData, accessToken);
 
-            setProfileMessage({ type: 'success', text: 'Profile updated successfully! Please log in again for changes to take effect.' });
+            setProfileMessage({ type: 'success', text: t('settings.profileUpdatedSuccess') });
+
+            // Clear message after 3 seconds
+            setTimeout(() => setProfileMessage(null), 3000);
         } catch (error) {
             setProfileMessage({
                 type: 'error',
-                text: error instanceof Error ? error.message : 'Failed to update profile'
+                text: error instanceof Error ? error.message : t('settings.failedToUpdateProfile')
             });
+
+            // Clear error message after 5 seconds
+            setTimeout(() => setProfileMessage(null), 5000);
         } finally {
             setIsUpdatingProfile(false);
         }
@@ -107,19 +127,19 @@ const SettingsPage = () => {
 
         // Validation
         if (!currentPassword || !newPassword || !confirmPassword) {
-            setPasswordMessage({ type: 'error', text: 'All password fields are required' });
+            setPasswordMessage({ type: 'error', text: t('settings.allPasswordFieldsRequired') });
             setIsChangingPassword(false);
             return;
         }
 
         if (newPassword.length < 6) {
-            setPasswordMessage({ type: 'error', text: 'New password must be at least 6 characters long' });
+            setPasswordMessage({ type: 'error', text: t('settings.newPasswordTooShort') });
             setIsChangingPassword(false);
             return;
         }
 
         if (newPassword !== confirmPassword) {
-            setPasswordMessage({ type: 'error', text: 'New passwords do not match' });
+            setPasswordMessage({ type: 'error', text: t('settings.passwordsDoNotMatch') });
             setIsChangingPassword(false);
             return;
         }
@@ -130,17 +150,51 @@ const SettingsPage = () => {
                 new_password: newPassword
             }, accessToken);
 
-            setPasswordMessage({ type: 'success', text: 'Password changed successfully!' });
+            setPasswordMessage({ type: 'success', text: t('settings.passwordChangedSuccess') });
             setCurrentPassword('');
             setNewPassword('');
             setConfirmPassword('');
         } catch (error) {
             setPasswordMessage({
                 type: 'error',
-                text: error instanceof Error ? error.message : 'Failed to change password'
+                text: error instanceof Error ? error.message : t('settings.failedToChangePassword')
             });
         } finally {
             setIsChangingPassword(false);
+        }
+    };
+
+    // Handle language change - saves immediately
+    const handleLanguageChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const languageCode = e.target.value;
+        const previousLanguage = userLanguage;
+
+        setUserLanguage(languageCode);
+        setLanguageMessage(null);
+
+        if (!user || !accessToken) return;
+
+        try {
+            // Change i18n immediately for instant UI feedback
+            await i18n.changeLanguage(languageCode);
+
+            // Save to backend
+            await api.put(`/users/${user.id}`, { language: languageCode }, accessToken);
+
+            // Show success message
+            setLanguageMessage({ type: 'success', text: t('settings.profileUpdatedSuccess') });
+
+            // Clear message after 3 seconds
+            setTimeout(() => setLanguageMessage(null), 3000);
+        } catch (error) {
+            console.error('Failed to update language:', error);
+            // Revert on error
+            setUserLanguage(previousLanguage);
+            await i18n.changeLanguage(previousLanguage);
+            setLanguageMessage({ type: 'error', text: t('settings.failedToUpdateProfile') });
+
+            // Clear error message after 5 seconds
+            setTimeout(() => setLanguageMessage(null), 5000);
         }
     };
 
@@ -149,7 +203,7 @@ const SettingsPage = () => {
         const file = e.target.files?.[0];
         if (file) {
             if (!file.name.endsWith('.json')) {
-                setImportMessage({ type: 'error', text: 'Please select a JSON file' });
+                setImportMessage({ type: 'error', text: t('settings.pleaseSelectJSON') });
                 return;
             }
             setSelectedFile(file);
@@ -175,7 +229,7 @@ const SettingsPage = () => {
         const file = e.dataTransfer.files[0];
         if (file) {
             if (!file.name.endsWith('.json')) {
-                setImportMessage({ type: 'error', text: 'Please select a JSON file' });
+                setImportMessage({ type: 'error', text: t('settings.pleaseSelectJSON') });
                 return;
             }
             setSelectedFile(file);
@@ -212,7 +266,10 @@ const SettingsPage = () => {
             if (result.success) {
                 setImportMessage({
                     type: 'success',
-                    text: `Successfully imported quiz "${result.data.name}" with ${result.data.flashcard_count} flashcards!`
+                    text: t('settings.importSuccess', {
+                        name: result.data.name,
+                        count: result.data.flashcard_count
+                    })
                 });
                 setSelectedFile(null);
 
@@ -223,7 +280,7 @@ const SettingsPage = () => {
         } catch (error) {
             setImportMessage({
                 type: 'error',
-                text: error instanceof Error ? error.message : 'Failed to import quiz'
+                text: error instanceof Error ? error.message : t('settings.importFailed')
             });
         } finally {
             setIsImporting(false);
@@ -238,9 +295,9 @@ const SettingsPage = () => {
     return (
         <div className="page-container">
             <div className="page-header">
-                <h1 className="page-title">Settings</h1>
+                <h1 className="page-title">{t('settings.title')}</h1>
                 <p className="page-description">
-                    Manage your profile, import quiz data, and view your statistics
+                    {t('settings.description')}
                 </p>
             </div>
 
@@ -248,34 +305,53 @@ const SettingsPage = () => {
                 {/* Left Column - User Profile */}
                 <div className="settings-profile-col">
                     <div className="settings-section">
-                        <h2 className="settings-section-title">User Profile</h2>
+                        <h2 className="settings-section-title">{t('settings.userProfile')}</h2>
                         <form onSubmit={handleUpdateProfile} className="settings-form">
                             <div className="form-group">
-                                <label htmlFor="user-name">Name</label>
+                                <label htmlFor="user-name">{t('settings.name')}</label>
                                 <input
                                     id="user-name"
                                     type="text"
                                     value={userName}
                                     onChange={(e) => setUserName(e.target.value)}
                                     className="form-input"
-                                    placeholder="Your name"
+                                    placeholder={t('settings.yourName')}
                                 />
                             </div>
 
                             <div className="form-group">
-                                <label htmlFor="user-email">Email</label>
+                                <label htmlFor="user-email">{t('settings.email')}</label>
                                 <input
                                     id="user-email"
                                     type="email"
                                     value={userEmail}
                                     onChange={(e) => setUserEmail(e.target.value)}
                                     className="form-input"
-                                    placeholder="your.email@example.com"
+                                    placeholder={t('settings.yourEmail')}
                                 />
                             </div>
 
+                            <div className="form-group">
+                                <label htmlFor="user-language">{t('settings.language')}</label>
+                                <select
+                                    id="user-language"
+                                    value={userLanguage}
+                                    onChange={handleLanguageChange}
+                                    className="form-input"
+                                >
+                                    <option value="pl">🇵🇱 PL</option>
+                                    <option value="en">🇬🇧 EN</option>
+                                </select>
+                            </div>
+
+                            {languageMessage && (
+                                <div className={`message message-${languageMessage.type} message-small`}>
+                                    {languageMessage.text}
+                                </div>
+                            )}
+
                             {profileMessage && (
-                                <div className={`message message-${profileMessage.type}`}>
+                                <div className={`message message-${profileMessage.type} message-small`}>
                                     {profileMessage.text}
                                 </div>
                             )}
@@ -285,52 +361,52 @@ const SettingsPage = () => {
                                 className="btn-primary"
                                 disabled={isUpdatingProfile}
                             >
-                                {isUpdatingProfile ? 'Updating...' : 'Update Profile'}
+                                {isUpdatingProfile ? t('settings.updating') : t('settings.updateProfile')}
                             </button>
                         </form>
                     </div>
 
                     <div className="settings-section">
-                        <h2 className="settings-section-title">Change Password</h2>
+                        <h2 className="settings-section-title">{t('settings.changePassword')}</h2>
                         <form onSubmit={handleChangePassword} className="settings-form">
                             <div className="form-group">
-                                <label htmlFor="current-password">Current Password</label>
+                                <label htmlFor="current-password">{t('settings.currentPassword')}</label>
                                 <input
                                     id="current-password"
                                     type="password"
                                     value={currentPassword}
                                     onChange={(e) => setCurrentPassword(e.target.value)}
                                     className="form-input"
-                                    placeholder="Current password"
+                                    placeholder={t('settings.currentPasswordPlaceholder')}
                                 />
                             </div>
 
                             <div className="form-group">
-                                <label htmlFor="new-password">New Password</label>
+                                <label htmlFor="new-password">{t('settings.newPassword')}</label>
                                 <input
                                     id="new-password"
                                     type="password"
                                     value={newPassword}
                                     onChange={(e) => setNewPassword(e.target.value)}
                                     className="form-input"
-                                    placeholder="Min 6 characters"
+                                    placeholder={t('settings.newPasswordPlaceholder')}
                                 />
                             </div>
 
                             <div className="form-group">
-                                <label htmlFor="confirm-password">Confirm Password</label>
+                                <label htmlFor="confirm-password">{t('settings.confirmPassword')}</label>
                                 <input
                                     id="confirm-password"
                                     type="password"
                                     value={confirmPassword}
                                     onChange={(e) => setConfirmPassword(e.target.value)}
                                     className="form-input"
-                                    placeholder="Re-enter password"
+                                    placeholder={t('settings.confirmPasswordPlaceholder')}
                                 />
                             </div>
 
                             {passwordMessage && (
-                                <div className={`message message-${passwordMessage.type}`}>
+                                <div className={`message message-${passwordMessage.type} message-small`}>
                                     {passwordMessage.text}
                                 </div>
                             )}
@@ -340,23 +416,23 @@ const SettingsPage = () => {
                                 className="btn-primary"
                                 disabled={isChangingPassword}
                             >
-                                {isChangingPassword ? 'Changing...' : 'Change Password'}
+                                {isChangingPassword ? t('settings.changing') : t('settings.changePassword')}
                             </button>
                         </form>
                     </div>
 
                     <button onClick={handleLogout} className="btn-logout-profile">
                         <FontAwesomeIcon icon={faRightFromBracket} className="logout-icon" />
-                        Log Out
+                        {t('settings.logOut')}
                     </button>
                 </div>
 
                 {/* Middle Column - Import */}
                 <div className="settings-import-col">
                     <div className="settings-section">
-                        <h2 className="settings-section-title">Import Quiz from JSON</h2>
+                        <h2 className="settings-section-title">{t('settings.importQuizFromJSON')}</h2>
                         <p className="settings-section-description">
-                            Upload or drag & drop a JSON file containing quiz data
+                            {t('settings.importDescription')}
                         </p>
 
                         <div
@@ -378,12 +454,12 @@ const SettingsPage = () => {
                                 {selectedFile ? (
                                     <>
                                         <div className="selected-file-name">{selectedFile.name}</div>
-                                        <div className="upload-hint">Click to choose different file</div>
+                                        <div className="upload-hint">{t('settings.clickToChooseDifferent')}</div>
                                     </>
                                 ) : (
                                     <>
-                                        <div>Drop JSON file here or click to browse</div>
-                                        <div className="upload-hint">Accepted format: .json</div>
+                                        <div>{t('settings.dropFileHere')}</div>
+                                        <div className="upload-hint">{t('settings.acceptedFormat')}</div>
                                     </>
                                 )}
                             </div>
@@ -394,27 +470,27 @@ const SettingsPage = () => {
                                 onClick={handleImportQuiz}
                                 className="btn-import"
                                 disabled={!selectedFile || isImporting}
-                                title={!selectedFile ? 'Please select a JSON file first' : 'Import the selected quiz file'}
+                                title={!selectedFile ? t('settings.selectFileFirst') : t('settings.importFile')}
                             >
                                 {isImporting ? (
-                                    <>⏳ Importing...</>
+                                    <>⏳ {t('settings.importing')}</>
                                 ) : (
                                     <>
                                         <FontAwesomeIcon icon={faFileImport} />
-                                        Import
+                                        {t('settings.import')}
                                     </>
                                 )}
                             </button>
                         </div>
 
                         {importMessage && (
-                            <div className={`message message-${importMessage.type}`}>
+                            <div className={`message message-${importMessage.type} message-small`}>
                                 {importMessage.text}
                             </div>
                         )}
 
                         <div className="import-help">
-                            <h3>JSON Format Example:</h3>
+                            <h3>{t('settings.jsonFormatExample')}</h3>
                             <pre className="code-block">
 {`{
   "quiz": {
@@ -461,12 +537,15 @@ const SettingsPage = () => {
         "emoji": "🌐"
       },
       "answer": {
-        "text": "Django",
+        "text": "a",
         "type": "choice",
-        "options": ["Django", "React", "Angular", "Vue"],
+        "options": [
+          {"value": "a", "label": "Django"},
+          {"value": "b", "label": "React"},
+          {"value": "c", "label": "Angular"}
+        ],
         "metadata": {
-          "correct_index": 0,
-          "randomize": true
+          "hint": "Select one option"
         }
       }
     }
@@ -486,7 +565,7 @@ const SettingsPage = () => {
                             </div>
                             <div className="user-info-simple">
                                 <h3 className="user-name-simple">{user?.name}</h3>
-                                <p className="user-email-simple">{user?.email || 'No email set'}</p>
+                                <p className="user-email-simple">{user?.email || t('settings.noEmailSet')}</p>
                             </div>
                         </div>
 
@@ -495,7 +574,7 @@ const SettingsPage = () => {
                                 <div className="stat-icon-simple">📚</div>
                                 <div className="stat-content-simple">
                                     <div className="stat-value-simple">{isLoadingStats ? '...' : totalQuizzes}</div>
-                                    <div className="stat-label-simple">Quizzes</div>
+                                    <div className="stat-label-simple">{t('settings.quizzes')}</div>
                                 </div>
                             </div>
 
@@ -505,7 +584,7 @@ const SettingsPage = () => {
                                     <div className="stat-value-simple">
                                         {isLoadingStats ? '...' : userStats?.total_sessions || 0}
                                     </div>
-                                    <div className="stat-label-simple">Sessions</div>
+                                    <div className="stat-label-simple">{t('settings.sessions')}</div>
                                 </div>
                             </div>
 
@@ -515,7 +594,7 @@ const SettingsPage = () => {
                                     <div className="stat-value-simple">
                                         {isLoadingStats ? '...' : userStats?.learn_sessions || 0}
                                     </div>
-                                    <div className="stat-label-simple">Learn</div>
+                                    <div className="stat-label-simple">{t('settings.learn')}</div>
                                 </div>
                             </div>
 
@@ -525,7 +604,7 @@ const SettingsPage = () => {
                                     <div className="stat-value-simple">
                                         {isLoadingStats ? '...' : userStats?.test_sessions || 0}
                                     </div>
-                                    <div className="stat-label-simple">Tests</div>
+                                    <div className="stat-label-simple">{t('settings.tests')}</div>
                                 </div>
                             </div>
 
@@ -536,7 +615,7 @@ const SettingsPage = () => {
                                         {isLoadingStats ? '...' : userStats?.best_score?.toFixed(0) || 'N/A'}
                                         {userStats?.best_score ? '%' : ''}
                                     </div>
-                                    <div className="stat-label-simple">Best</div>
+                                    <div className="stat-label-simple">{t('settings.best')}</div>
                                 </div>
                             </div>
 
@@ -547,21 +626,21 @@ const SettingsPage = () => {
                                         {isLoadingStats ? '...' : userStats?.average_score?.toFixed(0) || 'N/A'}
                                         {userStats?.average_score ? '%' : ''}
                                     </div>
-                                    <div className="stat-label-simple">Average</div>
+                                    <div className="stat-label-simple">{t('settings.average')}</div>
                                 </div>
                             </div>
                         </div>
 
                         <div className="account-details-simple">
                             <div className="detail-item-simple">
-                                <span className="detail-label-simple">User ID</span>
+                                <span className="detail-label-simple">{t('settings.userId')}</span>
                                 <span className="detail-value-simple">#{user?.id}</span>
                             </div>
                             <div className="detail-item-simple">
-                                <span className="detail-label-simple">Member Since</span>
+                                <span className="detail-label-simple">{t('settings.memberSince')}</span>
                                 <span className="detail-value-simple">
                                     {user?.created_at
-                                        ? new Date(user.created_at).toLocaleDateString('en-US', {
+                                        ? new Date(user.created_at).toLocaleDateString(i18n.language, {
                                             month: 'short',
                                             day: 'numeric',
                                             year: 'numeric'
@@ -570,9 +649,9 @@ const SettingsPage = () => {
                                 </span>
                             </div>
                             <div className="detail-item-simple">
-                                <span className="detail-label-simple">Study Streak</span>
+                                <span className="detail-label-simple">{t('settings.studyStreak')}</span>
                                 <span className="detail-value-simple">
-                                    {isLoadingStats ? '...' : `${userStats?.study_streak || 0} days 🔥`}
+                                    {isLoadingStats ? '...' : `${userStats?.study_streak || 0} ${t('settings.days')} 🔥`}
                                 </span>
                             </div>
                         </div>
