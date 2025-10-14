@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 
 function Footer() {
     const { t } = useTranslation();
+    const releaseVersion = import.meta.env.VITE_RELEASE_VERSION;
     const buildVersion = import.meta.env.VITE_BUILD_VERSION;
     const buildDate = import.meta.env.VITE_BUILD_DATE;
     const isCI = import.meta.env.VITE_IS_CI === 'true';
@@ -22,9 +23,13 @@ function Footer() {
     return (
         <footer className="sidebar-footer">
             <div className="version-info">
-                {isCI && buildVersion && buildDate ? (
+                {isCI && releaseVersion ? (
                     <div className="version-label">
-                        {getEnvironmentEmoji()} {getEnvironmentLabel()} : v{buildVersion} : {buildDate}
+                        {getEnvironmentEmoji()} {getEnvironmentLabel()} : Release v{releaseVersion}
+                    </div>
+                ) : isCI && buildVersion && buildDate ? (
+                    <div className="version-label">
+                        {getEnvironmentEmoji()} {getEnvironmentLabel()} : Build {buildVersion} : {buildDate}
                     </div>
                 ) : (
                     <div className="version-label">

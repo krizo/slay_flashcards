@@ -119,6 +119,7 @@ jobs:
       - name: 🛠 Build frontend
         working-directory: frontend
         run: |
+          export VITE_RELEASE_VERSION=$(cat ../.version)
           export VITE_BUILD_VERSION=$(git rev-parse --short HEAD)
           export VITE_BUILD_DATE=$(date +'%Y-%m-%d %H:%M')
           export VITE_IS_CI=true
