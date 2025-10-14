@@ -5,7 +5,7 @@ Pydantic schemas for API request/response models
 
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator  # pylint: disable=import-error
 
@@ -86,6 +86,7 @@ class UserCreate(UserBase):
 
     password: str = Field(..., min_length=8, max_length=128, description="Password")
     email: str = Field(..., description="Email address")
+    language: Optional[str] = Field(default='pl', max_length=10, description="Preferred language")
 
     @classmethod
     @field_validator("name")
@@ -121,6 +122,7 @@ class User(UserBase):
 
     id: int
     email: Optional[str] = None  # Make email optional for backward compatibility
+    language: Optional[str] = Field(default='pl', max_length=10)  # User's preferred language
     created_at: Optional[datetime] = None
 
 
@@ -128,6 +130,7 @@ class UserUpdate(BaseModel):
     """User update schema."""
 
     name: Optional[str] = Field(None, min_length=1, max_length=100)
+    language: Optional[str] = Field(None, max_length=10)
 
 
 class UserStats(BaseModel):
@@ -267,7 +270,7 @@ class FlashcardAnswerBase(BaseModel):
     text: str = Field(..., min_length=1, max_length=2000)
     lang: Optional[str] = Field(None, max_length=10)
     type: AnswerType = Field(default=AnswerType.TEXT)
-    options: Optional[List[Dict[str, Any]]] = None
+    options: Optional[List[Union[str, Dict[str, Any]]]] = None
     metadata: Optional[Dict[str, Any]] = None
 
 
@@ -306,7 +309,7 @@ class Flashcard(BaseModel):
     answer_text: str
     answer_lang: Optional[str]
     answer_type: str
-    answer_options: Optional[List[Dict[str, Any]]]
+    answer_options: Optional[List[Union[str, Dict[str, Any]]]]
     answer_metadata: Optional[Dict[str, Any]]
 
 
@@ -496,6 +499,7 @@ class RegisterRequest(BaseModel):
     username: str = Field(..., min_length=3, max_length=50)
     password: str = Field(..., min_length=8, max_length=128)
     email: str = Field(...)
+    language: Optional[str] = Field(default='pl', max_length=10)
 
     @field_validator("username")
     @classmethod
