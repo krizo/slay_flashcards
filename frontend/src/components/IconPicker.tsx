@@ -125,7 +125,7 @@ export const IconPicker: React.FC<IconPickerProps> = ({ onSelect, onClose }) => 
                     className={`category-button ${isCustomCategory ? 'active' : ''}`}
                     onClick={() => setSelectedCategory(EMOJI_CATEGORIES.length)}
                 >
-                    ✨ Custom
+                    ✨ Własne
                 </button>
             </div>
 
