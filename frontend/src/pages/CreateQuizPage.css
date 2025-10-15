@@ -1,32 +1,7 @@
 .create-quiz-page {
     min-height: 100vh;
     background: #F9FAFB;
-}
-
-/* Top bar */
-.create-quiz-topbar {
-    background: white;
-    border-bottom: 1px solid #E5E7EB;
-    padding: 20px 24px;
-    margin-bottom: 24px;
-}
-
-.create-quiz-topbar-content {
-    max-width: 1200px;
-    margin: 0 auto;
-}
-
-.topbar-title {
-    margin: 0 0 4px 0;
-    font-size: 24px;
-    font-weight: 700;
-    color: #111827;
-}
-
-.topbar-subtitle {
-    margin: 0;
-    font-size: 15px;
-    color: #6B7280;
+    padding: 24px;
 }
 
 /* Metadata Step */
@@ -47,59 +22,6 @@
     color: #991B1B;
     font-size: 14px;
     margin-top: 16px;
-}
-
-.form-actions {
-    display: flex;
-    justify-content: space-between;
-    gap: 16px;
-    margin-top: 32px;
-    padding-top: 24px;
-    border-top: 1px solid #E5E7EB;
-}
-
-.action-button {
-    padding: 12px 24px;
-    border-radius: 8px;
-    font-size: 15px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    border: none;
-}
-
-.action-button--primary {
-    background: #3B82F6;
-    color: white;
-}
-
-.action-button--primary:hover:not(:disabled) {
-    background: #2563EB;
-}
-
-.action-button--primary:disabled {
-    background: #D1D5DB;
-    cursor: not-allowed;
-}
-
-.action-button--secondary {
-    background: #F3F4F6;
-    color: #374151;
-    border: 1px solid #D1D5DB;
-}
-
-.action-button--secondary:hover:not(:disabled) {
-    background: #E5E7EB;
-}
-
-.action-button--outline {
-    background: transparent;
-    color: #3B82F6;
-    border: 2px solid #3B82F6;
-}
-
-.action-button--outline:hover:not(:disabled) {
-    background: #EFF6FF;
 }
 
 /* Flashcards Step */

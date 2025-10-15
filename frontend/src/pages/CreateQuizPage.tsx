@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
+import { usePageHeader } from '../contexts/PageHeaderContext';
 import { QuizMetadataForm, QuizMetadataFormData } from '../components/quizzes/QuizMetadataForm';
 import { FlashcardEditor, FlashcardEditorData } from '../components/quizzes/FlashcardEditor';
 import { Quiz, FlashcardData } from '../types';
@@ -19,9 +20,20 @@ function CreateQuizPage() {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const { accessToken } = useAuth();
+    const { setPageHeader } = usePageHeader();
 
     // State management
     const [step, setStep] = useState<CreationStep>('metadata');
+
+    // Set page header when on metadata step
+    useEffect(() => {
+        if (step === 'metadata') {
+            setPageHeader(t('createQuiz.title'), t('createQuiz.metadataSubtitle'));
+        } else {
+            setPageHeader(null, null);
+        }
+        return () => setPageHeader(null, null);
+    }, [step, t, setPageHeader]);
     const [quiz, setQuiz] = useState<Quiz | null>(null);
     const [metadataForm, setMetadataForm] = useState<QuizMetadataFormData>({
         name: '',
@@ -270,14 +282,6 @@ function CreateQuizPage() {
     if (step === 'metadata') {
         return (
             <div className="create-quiz-page">
-                {/* Top bar with title */}
-                <div className="create-quiz-topbar">
-                    <div className="create-quiz-topbar-content">
-                        <h1 className="topbar-title">{t('createQuiz.title')}</h1>
-                        <p className="topbar-subtitle">{t('createQuiz.metadataSubtitle')}</p>
-                    </div>
-                </div>
-
                 <div className="create-quiz-container">
                     <QuizMetadataForm
                         data={metadataForm}
@@ -285,30 +289,14 @@ function CreateQuizPage() {
                         disabled={isSaving}
                         showValidation={showValidation}
                         accessToken={accessToken}
+                        onSubmit={handleMetadataSubmit}
+                        onCancel={handleCancel}
+                        isValid={isMetadataValid()}
                     />
 
                     {error && (
                         <div className="error-message">{error}</div>
                     )}
-
-                    <div className="form-actions">
-                        <button
-                            type="button"
-                            className="action-button action-button--secondary"
-                            onClick={handleCancel}
-                            disabled={isSaving}
-                        >
-                            {t('common.cancel')}
-                        </button>
-                        <button
-                            type="button"
-                            className="action-button action-button--primary"
-                            onClick={handleMetadataSubmit}
-                            disabled={isSaving || !isMetadataValid()}
-                        >
-                            {isSaving ? t('createQuiz.creating') : 'Przejdź do fiszek →'}
-                        </button>
-                    </div>
                 </div>
             </div>
         );

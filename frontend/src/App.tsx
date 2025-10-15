@@ -1,6 +1,7 @@
 import { Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { SessionProvider } from './contexts/SessionContext';
+import { PageHeaderProvider } from './contexts/PageHeaderContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import MainLayout from './components/layout/MainLayout';
 import LoginPage from './pages/LoginPage';
@@ -17,6 +18,7 @@ function App() {
     return (
         <AuthProvider>
             <SessionProvider>
+                <PageHeaderProvider>
                 <Routes>
                 {/* Public routes */}
                 <Route path="/login" element={<LoginPage />} />
@@ -40,6 +42,7 @@ function App() {
                     <Route path="settings" element={<SettingsPage />} />
                 </Route>
             </Routes>
+                </PageHeaderProvider>
             </SessionProvider>
         </AuthProvider>
     );

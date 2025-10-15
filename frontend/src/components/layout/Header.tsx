@@ -4,11 +4,13 @@ import { faUser, faGear, faRightFromBracket } from '@fortawesome/free-solid-svg-
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../context/AuthContext';
 import { useSessionContext } from '../../contexts/SessionContext';
+import { usePageHeader } from '../../contexts/PageHeaderContext';
 
 function Header() {
     const { t } = useTranslation();
     const { user, isLoading, logout } = useAuth();
     const { sessionInfo } = useSessionContext();
+    const { pageTitle, pageSubtitle } = usePageHeader();
     const navigate = useNavigate();
 
     const handleLogout = async () => {
@@ -75,99 +77,106 @@ function Header() {
 
     return (
         <header className="app-header">
-            {/* Session info (left side) */}
-            {sessionInfo && (
-                <div className="header-session-info">
-                    <div className="header-session-left">
-                        <div className="header-session-title">
-                            {isBase64 ? (
-                                <img
-                                    src={imageUrl!}
-                                    alt={sessionInfo.quizName}
-                                    className="header-session-image"
-                                />
-                            ) : isEmoji ? (
-                                <span className="header-session-icon">{displayEmoji}</span>
-                            ) : (
-                                <span className="header-session-icon">📚</span>
-                            )}
-                            <div className="header-title-and-meta">
-                                <span className="header-session-name">{sessionInfo.quizName}</span>
-                                {/* Quiz metadata inline */}
-                                <div className="header-quiz-metadata">
-                                    {sessionInfo.subject && (
-                                        <span className="quiz-meta-item">
-                                            📚 {sessionInfo.subject}
-                                        </span>
-                                    )}
-                                    {sessionInfo.category && (
-                                        <span className="quiz-meta-item">
-                                            📂 {sessionInfo.category}
-                                        </span>
-                                    )}
-                                    {sessionInfo.level && (
-                                        <span className="quiz-meta-item">
-                                            📊 {sessionInfo.level}
-                                        </span>
-                                    )}
+            {/* Session info (left side) or Page Title */}
+            {pageTitle ? (
+                <div className="header-page-title">
+                    <h1 className="page-title">{pageTitle}</h1>
+                    {pageSubtitle && <p className="page-subtitle">{pageSubtitle}</p>}
+                </div>
+            ) : (
+                sessionInfo && (
+                    <div className="header-session-info">
+                        <div className="header-session-left">
+                            <div className="header-session-title">
+                                {isBase64 ? (
+                                    <img
+                                        src={imageUrl!}
+                                        alt={sessionInfo.quizName}
+                                        className="header-session-image"
+                                    />
+                                ) : isEmoji ? (
+                                    <span className="header-session-icon">{displayEmoji}</span>
+                                ) : (
+                                    <span className="header-session-icon">📚</span>
+                                )}
+                                <div className="header-title-and-meta">
+                                    <span className="header-session-name">{sessionInfo.quizName}</span>
+                                    {/* Quiz metadata inline */}
+                                    <div className="header-quiz-metadata">
+                                        {sessionInfo.subject && (
+                                            <span className="quiz-meta-item">
+                                                📚 {sessionInfo.subject}
+                                            </span>
+                                        )}
+                                        {sessionInfo.category && (
+                                            <span className="quiz-meta-item">
+                                                📂 {sessionInfo.category}
+                                            </span>
+                                        )}
+                                        {sessionInfo.level && (
+                                            <span className="quiz-meta-item">
+                                                📊 {sessionInfo.level}
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Stats tiles */}
+                        <div className="header-session-metrics">
+                            <div className="header-metric-tile">
+                                <span className="metric-icon">⭐</span>
+                                <div className="metric-content">
+                                    <span className="metric-value">
+                                        {sessionInfo.yourBest !== null && sessionInfo.yourBest !== undefined
+                                            ? `${Math.round(sessionInfo.yourBest)}%`
+                                            : '—'}
+                                    </span>
+                                    <span className="metric-label">Your Best</span>
+                                </div>
+                            </div>
+                            <div className="header-metric-tile">
+                                <span className="metric-icon">📊</span>
+                                <div className="metric-content">
+                                    <span className="metric-value">
+                                        {sessionInfo.yourAverage !== null && sessionInfo.yourAverage !== undefined
+                                            ? `${Math.round(sessionInfo.yourAverage)}%`
+                                            : '—'}
+                                    </span>
+                                    <span className="metric-label">Your Avg</span>
+                                </div>
+                            </div>
+                            <div className="header-metric-tile">
+                                <span className="metric-icon">🎯</span>
+                                <div className="metric-content">
+                                    <span className="metric-value">
+                                        {sessionInfo.lastScore !== null && sessionInfo.lastScore !== undefined
+                                            ? `${Math.round(sessionInfo.lastScore)}%`
+                                            : '—'}
+                                    </span>
+                                    <span className="metric-label">Last Score</span>
+                                </div>
+                            </div>
+                            <div className="header-metric-tile">
+                                <span className="metric-icon">🧪</span>
+                                <div className="metric-content">
+                                    <span className="metric-value">
+                                        {sessionInfo.testSessions && sessionInfo.testSessions > 0 ? sessionInfo.testSessions : '—'}
+                                    </span>
+                                    <span className="metric-label">Tests</span>
+                                </div>
+                            </div>
+                            <div className="header-metric-tile">
+                                <span className="metric-icon">🕒</span>
+                                <div className="metric-content">
+                                    <span className="metric-value">{formatDate(sessionInfo.lastSessionDate)}</span>
+                                    <span className="metric-label">Last Session</span>
                                 </div>
                             </div>
                         </div>
                     </div>
-
-                    {/* Stats tiles */}
-                    <div className="header-session-metrics">
-                        <div className="header-metric-tile">
-                            <span className="metric-icon">⭐</span>
-                            <div className="metric-content">
-                                <span className="metric-value">
-                                    {sessionInfo.yourBest !== null && sessionInfo.yourBest !== undefined
-                                        ? `${Math.round(sessionInfo.yourBest)}%`
-                                        : '—'}
-                                </span>
-                                <span className="metric-label">Your Best</span>
-                            </div>
-                        </div>
-                        <div className="header-metric-tile">
-                            <span className="metric-icon">📊</span>
-                            <div className="metric-content">
-                                <span className="metric-value">
-                                    {sessionInfo.yourAverage !== null && sessionInfo.yourAverage !== undefined
-                                        ? `${Math.round(sessionInfo.yourAverage)}%`
-                                        : '—'}
-                                </span>
-                                <span className="metric-label">Your Avg</span>
-                            </div>
-                        </div>
-                        <div className="header-metric-tile">
-                            <span className="metric-icon">🎯</span>
-                            <div className="metric-content">
-                                <span className="metric-value">
-                                    {sessionInfo.lastScore !== null && sessionInfo.lastScore !== undefined
-                                        ? `${Math.round(sessionInfo.lastScore)}%`
-                                        : '—'}
-                                </span>
-                                <span className="metric-label">Last Score</span>
-                            </div>
-                        </div>
-                        <div className="header-metric-tile">
-                            <span className="metric-icon">🧪</span>
-                            <div className="metric-content">
-                                <span className="metric-value">
-                                    {sessionInfo.testSessions && sessionInfo.testSessions > 0 ? sessionInfo.testSessions : '—'}
-                                </span>
-                                <span className="metric-label">Tests</span>
-                            </div>
-                        </div>
-                        <div className="header-metric-tile">
-                            <span className="metric-icon">🕒</span>
-                            <div className="metric-content">
-                                <span className="metric-value">{formatDate(sessionInfo.lastSessionDate)}</span>
-                                <span className="metric-label">Last Session</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                )
             )}
 
             {/* User info (right side) */}

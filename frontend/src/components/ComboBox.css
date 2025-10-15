@@ -20,6 +20,20 @@
 .combobox-input {
     flex: 1;
     padding-right: 40px !important;
+    background: linear-gradient(to bottom, #ffffff, #f9fafb);
+    border: 2px solid #E5E7EB;
+    transition: all 0.3s ease;
+}
+
+.combobox-input:hover:not(:disabled) {
+    border-color: #D1D5DB;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.combobox-input:focus {
+    background: white;
+    border-color: #3B82F6 !important;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05) !important;
 }
 
 .combobox-toggle {

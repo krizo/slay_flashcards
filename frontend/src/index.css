@@ -173,6 +173,27 @@ body {
     gap: 20px;
 }
 
+/* Header Page Title (for pages without session) */
+.header-page-title {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+}
+
+.page-title {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 700;
+    color: #111827;
+}
+
+.page-subtitle {
+    margin: 0;
+    font-size: 15px;
+    color: #6B7280;
+}
+
 /* Header Session Info (left side) */
 .header-session-info {
     display: flex;

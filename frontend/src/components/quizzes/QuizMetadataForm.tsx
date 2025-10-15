@@ -25,6 +25,9 @@ interface QuizMetadataFormProps {
     disabled?: boolean;
     showValidation?: boolean;
     accessToken?: string | null;
+    onSubmit?: () => void;
+    onCancel?: () => void;
+    isValid?: boolean;
 }
 
 const MAX_IMAGE_SIZE = 102400; // 100KB in bytes
@@ -35,6 +38,9 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
     disabled = false,
     showValidation = false,
     accessToken,
+    onSubmit,
+    onCancel,
+    isValid = true,
 }) => {
     const { t } = useTranslation();
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -254,7 +260,7 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
             <div className="form-row-three">
                 <div className="form-group">
                     <label htmlFor="subject" className="form-label required">
-                        {t('quizEditor.subject')}
+                        📚 {t('quizEditor.subject')}
                     </label>
                     <ComboBox
                         value={data.subject}
@@ -274,7 +280,7 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
 
                 <div className="form-group">
                     <label htmlFor="category" className="form-label">
-                        {t('quizEditor.category')}
+                        📂 {t('quizEditor.category')}
                     </label>
                     <ComboBox
                         value={data.category || ''}
@@ -289,7 +295,7 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
 
                 <div className="form-group">
                     <label htmlFor="level" className="form-label">
-                        {t('quizEditor.level')}
+                        📊 {t('quizEditor.level')}
                     </label>
                     <ComboBox
                         value={data.level || ''}
@@ -316,7 +322,7 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
                 </div>
 
             {/* Tags and Icon - side by side */}
-            <div className="form-row">
+            <div className="form-row-three">
                 {/* Tags */}
                 <div className="form-group">
                     <label className="form-label">Tagi</label>
@@ -371,21 +377,21 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
                         <span className="form-error">{imageError}</span>
                     )}
                 </div>
-            </div>
 
-            {/* Favourite checkbox */}
-            <div className="form-group" style={{ marginTop: '24px' }}>
-                <label className="checkbox-label-inline checkbox-label-large">
-                    <input
-                        type="checkbox"
-                        name="favourite"
-                        checked={data.favourite}
-                        onChange={handleInputChange}
-                        disabled={disabled}
-                    />
-                    <span>⭐ Dodaj do ulubionych</span>
-                </label>
-                <p className="form-hint" style={{ marginLeft: '28px' }}>Ulubione quizy są łatwiej dostępne na liście</p>
+                {/* Favourite checkbox */}
+                <div className="form-group">
+                    <label className="checkbox-label-inline checkbox-label-large">
+                        <input
+                            type="checkbox"
+                            name="favourite"
+                            checked={data.favourite}
+                            onChange={handleInputChange}
+                            disabled={disabled}
+                        />
+                        <span>⭐ Dodaj do ulubionych</span>
+                    </label>
+                    <p className="form-hint">Ulubione quizy są łatwiej dostępne na liście</p>
+                </div>
             </div>
             </div>
             )}
@@ -470,19 +476,6 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
                         <option value="archived">Zarchiwizowany</option>
                     </select>
                 </div>
-
-                <div className="form-group-checkboxes">
-                    <label className="checkbox-label-inline">
-                        <input
-                            type="checkbox"
-                            name="is_draft"
-                            checked={data.is_draft}
-                            onChange={handleInputChange}
-                            disabled={disabled}
-                        />
-                        <span>Wersja robocza</span>
-                    </label>
-                </div>
             </div>
 
             <div className="info-box info-box-success">
@@ -505,26 +498,37 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
                         ← Wstecz
                     </button>
                 )}
-                {currentStep < totalSteps ? (
-                    <button
-                        type="button"
-                        className="nav-button nav-button-next"
-                        onClick={handleNext}
-                        disabled={disabled || !isStepValid(currentStep)}
-                        style={{ marginLeft: currentStep === 1 ? 'auto' : '0' }}
-                    >
-                        Dalej →
-                    </button>
-                ) : (
-                    <button
-                        type="button"
-                        className="nav-button nav-button-submit"
-                        disabled={disabled}
-                        style={{ marginLeft: 'auto' }}
-                    >
-                        Gotowe ✓
-                    </button>
-                )}
+                <div style={{ marginLeft: 'auto', display: 'flex', gap: '12px' }}>
+                    {onCancel && (
+                        <button
+                            type="button"
+                            className="nav-button nav-button-secondary"
+                            onClick={onCancel}
+                            disabled={disabled}
+                        >
+                            Anuluj
+                        </button>
+                    )}
+                    {currentStep < totalSteps ? (
+                        <button
+                            type="button"
+                            className="nav-button nav-button-next"
+                            onClick={handleNext}
+                            disabled={disabled || !isStepValid(currentStep)}
+                        >
+                            Dalej →
+                        </button>
+                    ) : (
+                        <button
+                            type="button"
+                            className="nav-button nav-button-submit"
+                            onClick={onSubmit}
+                            disabled={disabled || !isValid}
+                        >
+                            Gotowe ✓
+                        </button>
+                    )}
+                </div>
             </div>
         </div>
     );
