@@ -43,7 +43,7 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
 
     // Multi-step form state
     const [currentStep, setCurrentStep] = useState(1);
-    const totalSteps = 3;
+    const totalSteps = 4;
 
     const handleInputChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -140,6 +140,8 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
                 return isSubjectValid;
             case 3:
                 return true;
+            case 4:
+                return true;
             default:
                 return false;
         }
@@ -150,8 +152,10 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
             case 1:
                 return 'Podstawy';
             case 2:
-                return 'Szczegóły';
+                return 'Klasyfikacja';
             case 3:
+                return 'Personalizacja';
+            case 4:
                 return 'Finalizacja';
             default:
                 return '';
@@ -162,7 +166,7 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
         <div className="quiz-metadata-form">
             {/* Progress Indicator */}
             <div className="form-progress">
-                {[1, 2, 3].map((step, index) => (
+                {[1, 2, 3, 4].map((step, index) => (
                     <React.Fragment key={step}>
                         <div className="progress-step">
                             <div className={`progress-circle ${currentStep === step ? 'active' : ''} ${currentStep > step ? 'completed' : ''}`}>
@@ -172,7 +176,7 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
                                 {getStepTitle(step)}
                             </span>
                         </div>
-                        {index < 2 && (
+                        {index < 3 && (
                             <div className={`progress-divider ${currentStep > step ? 'completed' : ''}`} />
                         )}
                     </React.Fragment>
@@ -237,10 +241,8 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
             </div>
             )}
 
-            {/* ========== STEP 2: KLASYFIKACJA I PERSONALIZACJA ========== */}
+            {/* ========== STEP 2: KLASYFIKACJA ========== */}
             {currentStep === 2 && (
-            <>
-            {/* ========== KLASYFIKACJA ========== */}
             <div className="form-section-container">
                 <div className="form-section-header">
                     <span className="form-section-header-icon">🏷️</span>
@@ -305,14 +307,20 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
                 </div>
             </div>
             </div>
+            )}
 
-            {/* ========== PERSONALIZACJA ========== */}
+            {/* ========== STEP 3: PERSONALIZACJA ========== */}
+            {currentStep === 3 && (
             <div className="form-section-container">
                 <div className="form-section-header">
                     <span className="form-section-header-icon">🎨</span>
                     <h3 className="form-section-header-title">Personalizacja</h3>
                 </div>
                 <div className="form-section-divider" />
+
+                <div className="info-box">
+                    Nadaj swojemu quizowi indywidualny charakter - dodaj tagi i ikonę!
+                </div>
 
             {/* Tags and Icon - side by side */}
             <div className="form-row">
@@ -372,11 +380,10 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
                 </div>
             </div>
             </div>
-            </>
             )}
 
-            {/* ========== STEP 3: USTAWIENIA PUBLIKACJI ========== */}
-            {currentStep === 3 && (
+            {/* ========== STEP 4: USTAWIENIA PUBLIKACJI ========== */}
+            {currentStep === 4 && (
             <div className="form-section-container">
                 <div className="form-section-header">
                     <span className="form-section-header-icon">⚙️</span>
