@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { QuizStatus } from '../../types';
 import { TagSelector } from '../TagSelector';
+import { useQuizFilters } from '../../hooks/useQuizFilters';
 import './QuizMetadataForm.css';
 
 export interface QuizMetadataFormData {
@@ -37,6 +38,7 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
     const { t } = useTranslation();
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [imageError, setImageError] = useState<string | null>(null);
+    const { subjects, categories, levels } = useQuizFilters();
 
     const handleInputChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -143,13 +145,20 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
                     type="text"
                     id="subject"
                     name="subject"
+                    list="subjects-list"
                     className={`form-input ${showValidation && !isSubjectValid ? 'invalid' : ''}`}
                     value={data.subject}
                     onChange={handleInputChange}
                     placeholder={t('quizEditor.subjectPlaceholder')}
                     disabled={disabled}
                     required
+                    autoComplete="off"
                 />
+                <datalist id="subjects-list">
+                    {subjects?.map((subject) => (
+                        <option key={subject} value={subject} />
+                    ))}
+                </datalist>
                 {showValidation && !isSubjectValid && (
                     <span className="form-error">{t('quizEditor.subjectRequired')}</span>
                 )}
@@ -165,12 +174,19 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
                         type="text"
                         id="category"
                         name="category"
+                        list="categories-list"
                         className="form-input"
                         value={data.category || ''}
                         onChange={handleInputChange}
                         placeholder={t('quizEditor.categoryPlaceholder')}
                         disabled={disabled}
+                        autoComplete="off"
                     />
+                    <datalist id="categories-list">
+                        {categories?.map((category) => (
+                            <option key={category} value={category} />
+                        ))}
+                    </datalist>
                 </div>
 
                 <div className="form-group">
@@ -181,12 +197,19 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
                         type="text"
                         id="level"
                         name="level"
+                        list="levels-list"
                         className="form-input"
                         value={data.level || ''}
                         onChange={handleInputChange}
                         placeholder={t('quizEditor.levelPlaceholder')}
                         disabled={disabled}
+                        autoComplete="off"
                     />
+                    <datalist id="levels-list">
+                        {levels?.map((level) => (
+                            <option key={level} value={level} />
+                        ))}
+                    </datalist>
                 </div>
             </div>
 
