@@ -4,6 +4,8 @@
     border: 2px solid #E5E7EB;
     overflow: hidden;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    max-width: 500px;
+    margin: 0 auto;
 }
 
 .icon-picker-header {
@@ -78,10 +80,10 @@
 
 .icon-picker-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+    grid-template-columns: repeat(7, 1fr);
     gap: 8px;
     padding: 20px;
-    max-height: 400px;
+    max-height: 350px;
     overflow-y: auto;
 }
 
