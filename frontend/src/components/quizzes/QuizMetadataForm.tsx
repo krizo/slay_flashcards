@@ -136,36 +136,35 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
                 )}
             </div>
 
-            {/* Subject */}
-            <div className="form-group">
-                <label htmlFor="subject" className="form-label required">
-                    {t('quizEditor.subject')}
-                </label>
-                <input
-                    type="text"
-                    id="subject"
-                    name="subject"
-                    list="subjects-list"
-                    className={`form-input ${showValidation && !isSubjectValid ? 'invalid' : ''}`}
-                    value={data.subject}
-                    onChange={handleInputChange}
-                    placeholder={t('quizEditor.subjectPlaceholder')}
-                    disabled={disabled}
-                    required
-                    autoComplete="off"
-                />
-                <datalist id="subjects-list">
-                    {subjects?.map((subject) => (
-                        <option key={subject} value={subject} />
-                    ))}
-                </datalist>
-                {showValidation && !isSubjectValid && (
-                    <span className="form-error">{t('quizEditor.subjectRequired')}</span>
-                )}
-            </div>
+            {/* Subject, Category & Level - Three in a row */}
+            <div className="form-row-three">
+                <div className="form-group">
+                    <label htmlFor="subject" className="form-label required">
+                        {t('quizEditor.subject')}
+                    </label>
+                    <input
+                        type="text"
+                        id="subject"
+                        name="subject"
+                        list="subjects-list"
+                        className={`form-input ${showValidation && !isSubjectValid ? 'invalid' : ''}`}
+                        value={data.subject}
+                        onChange={handleInputChange}
+                        placeholder={t('quizEditor.subjectPlaceholder')}
+                        disabled={disabled}
+                        required
+                        autoComplete="off"
+                    />
+                    <datalist id="subjects-list">
+                        {subjects?.map((subject) => (
+                            <option key={subject} value={subject} />
+                        ))}
+                    </datalist>
+                    {showValidation && !isSubjectValid && (
+                        <span className="form-error">{t('quizEditor.subjectRequired')}</span>
+                    )}
+                </div>
 
-            {/* Category & Level - Side by side */}
-            <div className="form-row">
                 <div className="form-group">
                     <label htmlFor="category" className="form-label">
                         {t('quizEditor.category')}
