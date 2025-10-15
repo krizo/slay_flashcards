@@ -18,14 +18,16 @@
 }
 
 .tag-chip {
-    padding: 6px 12px;
+    padding: 8px 16px;
     border: 2px solid;
-    border-radius: 16px;
+    border-radius: 18px;
     font-size: 14px;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s ease;
     background: transparent;
+    min-width: 80px;
+    text-align: center;
 }
 
 .tag-chip:hover:not(:disabled) {
@@ -142,7 +144,7 @@
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 8px;
+    gap: 12px;
     min-height: 36px;
 }
 
