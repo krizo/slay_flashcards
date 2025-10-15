@@ -426,5 +426,15 @@
     "flashcards": "Flashcards",
     "untitled": "Untitled",
     "unsaved": "Unsaved"
+  },
+  "quizSummary": {
+    "title": "Review Your Quiz",
+    "subtitle": "Review your quiz before publishing",
+    "quizDetails": "Quiz Details",
+    "flashcards": "Flashcards",
+    "noFlashcards": "No flashcards yet. Add some flashcards to continue.",
+    "continueEditing": "Continue Editing",
+    "publish": "Publish Quiz",
+    "publishing": "Publishing..."
   }
 }

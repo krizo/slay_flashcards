@@ -430,5 +430,15 @@
     "flashcards": "Fiszki",
     "untitled": "Bez tytułu",
     "unsaved": "Niezapisane"
+  },
+  "quizSummary": {
+    "title": "Przejrzyj Quiz",
+    "subtitle": "Przejrzyj quiz przed publikacją",
+    "quizDetails": "Szczegóły Quizu",
+    "flashcards": "Fiszki",
+    "noFlashcards": "Nie ma jeszcze fiszek. Dodaj fiszki aby kontynuować.",
+    "continueEditing": "Kontynuuj Edycję",
+    "publish": "Opublikuj Quiz",
+    "publishing": "Publikowanie..."
   }
 }
