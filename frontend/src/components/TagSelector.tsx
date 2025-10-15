@@ -93,9 +93,8 @@ export const TagSelector: React.FC<TagSelectorProps> = ({ selectedTagIds, onChan
                             className="tag-action-button tag-save-button"
                             onClick={handleCreateTag}
                             disabled={!newTagName.trim()}
-                            title={t('common.save')}
                         >
-                            ✓
+                            {t('common.save')}
                         </button>
                         <button
                             type="button"
@@ -105,9 +104,8 @@ export const TagSelector: React.FC<TagSelectorProps> = ({ selectedTagIds, onChan
                                 setNewTagName('');
                                 setNewTagColor('#3B82F6');
                             }}
-                            title={t('common.cancel')}
                         >
-                            ✕
+                            {t('common.cancel')}
                         </button>
                     </>
                 )}

@@ -21,8 +21,8 @@ export const useTags = (accessToken?: string | null): UseTagsReturn => {
         try {
             setLoading(true);
             setError(null);
-            const response = await apiClient.get<{ data: Tag[] }>('/tags/', accessToken);
-            setTags(response.data.data || []);
+            const tags = await apiClient.get<Tag[]>('/tags/', accessToken);
+            setTags(tags || []);
         } catch (err: any) {
             console.error('Error fetching tags:', err);
             setError(err.message || 'Failed to fetch tags');
@@ -39,8 +39,7 @@ export const useTags = (accessToken?: string | null): UseTagsReturn => {
 
     const createTag = async (data: TagCreateRequest): Promise<Tag | null> => {
         try {
-            const response = await apiClient.post<{ data: Tag }>('/tags/', data, accessToken);
-            const newTag = response.data.data;
+            const newTag = await apiClient.post<Tag>('/tags/', data, accessToken);
             setTags((prev) => [...prev, newTag].sort((a, b) => a.name.localeCompare(b.name)));
             return newTag;
         } catch (err: any) {
@@ -52,8 +51,7 @@ export const useTags = (accessToken?: string | null): UseTagsReturn => {
 
     const updateTag = async (id: number, data: TagUpdateRequest): Promise<Tag | null> => {
         try {
-            const response = await apiClient.put<{ data: Tag }>(`/tags/${id}`, data, accessToken);
-            const updatedTag = response.data.data;
+            const updatedTag = await apiClient.put<Tag>(`/tags/${id}`, data, accessToken);
             setTags((prev) =>
                 prev.map((tag) => (tag.id === id ? updatedTag : tag)).sort((a, b) => a.name.localeCompare(b.name))
             );
