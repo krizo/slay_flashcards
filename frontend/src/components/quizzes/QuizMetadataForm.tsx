@@ -116,26 +116,64 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
 
     return (
         <div className="quiz-metadata-form">
-            {/* Name */}
-            <div className="form-group">
-                <label htmlFor="name" className="form-label required">
-                    {t('quizEditor.name')}
-                </label>
-                <input
-                    type="text"
-                    id="name"
-                    name="name"
-                    className={`form-input ${showValidation && !isNameValid ? 'invalid' : ''}`}
-                    value={data.name}
-                    onChange={handleInputChange}
-                    placeholder={t('quizEditor.namePlaceholder')}
-                    disabled={disabled}
-                    required
-                />
-                {showValidation && !isNameValid && (
-                    <span className="form-error">{t('quizEditor.nameRequired')}</span>
-                )}
+            {/* ========== PODSTAWOWE INFORMACJE ========== */}
+            <div className="form-section-container">
+                <div className="form-section-header">
+                    <span className="form-section-header-icon">📝</span>
+                    <h3 className="form-section-header-title">Podstawowe informacje</h3>
+                </div>
+                <div className="form-section-divider" />
+
+                {/* Name */}
+                <div className="form-group">
+                    <label htmlFor="name" className="form-label required">
+                        Nazwa quizu
+                    </label>
+                    <input
+                        type="text"
+                        id="name"
+                        name="name"
+                        className={`form-input ${showValidation && !isNameValid ? 'invalid' : ''}`}
+                        value={data.name}
+                        onChange={handleInputChange}
+                        placeholder="np. Matematyka - Równania kwadratowe"
+                        disabled={disabled}
+                        required
+                    />
+                    {showValidation && !isNameValid && (
+                        <span className="form-error">Nazwa jest wymagana</span>
+                    )}
+                </div>
+
+                {/* Description */}
+                <div className="form-group">
+                    <label htmlFor="description" className="form-label">
+                        Opis
+                    </label>
+                    <textarea
+                        id="description"
+                        name="description"
+                        className="form-input form-textarea"
+                        value={data.description || ''}
+                        onChange={handleInputChange}
+                        placeholder="Opisz czego dotyczy ten quiz i co będzie testowane..."
+                        rows={3}
+                        disabled={disabled}
+                    />
+                </div>
             </div>
+
+            {/* ========== KLASYFIKACJA ========== */}
+            <div className="form-section-container">
+                <div className="form-section-header">
+                    <span className="form-section-header-icon">🏷️</span>
+                    <h3 className="form-section-header-title">Klasyfikacja</h3>
+                </div>
+                <div className="form-section-divider" />
+
+                <div className="info-box">
+                    Pomaga uporządkować quizy i ułatwia ich wyszukiwanie. Możesz wybrać istniejące wartości lub dodać nowe.
+                </div>
 
             {/* Subject, Category & Level - Three in a row */}
             <div className="form-row-three">
@@ -189,87 +227,94 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
                     />
                 </div>
             </div>
-
-            {/* Description */}
-            <div className="form-group">
-                <label htmlFor="description" className="form-label">
-                    {t('quizEditor.description')}
-                </label>
-                <textarea
-                    id="description"
-                    name="description"
-                    className="form-input form-textarea"
-                    value={data.description || ''}
-                    onChange={handleInputChange}
-                    placeholder={t('quizEditor.descriptionPlaceholder')}
-                    rows={4}
-                    disabled={disabled}
-                />
             </div>
 
-            {/* Tags */}
-            <div className="form-group">
-                <label className="form-label">{t('quizEditor.tags')}</label>
-                <p className="form-hint">{t('quizEditor.selectTags')}</p>
-                <TagSelector
-                    selectedTagIds={data.tag_ids}
-                    onChange={handleTagsChange}
-                    disabled={disabled}
-                    accessToken={accessToken}
-                />
+            {/* ========== PERSONALIZACJA ========== */}
+            <div className="form-section-container">
+                <div className="form-section-header">
+                    <span className="form-section-header-icon">🎨</span>
+                    <h3 className="form-section-header-title">Personalizacja</h3>
+                </div>
+                <div className="form-section-divider" />
+
+            {/* Tags and Icon - side by side */}
+            <div className="form-row">
+                {/* Tags */}
+                <div className="form-group">
+                    <label className="form-label">Tagi</label>
+                    <p className="form-hint">Dodaj tagi aby łatwiej organizować quizy</p>
+                    <TagSelector
+                        selectedTagIds={data.tag_ids}
+                        onChange={handleTagsChange}
+                        disabled={disabled}
+                        accessToken={accessToken}
+                    />
+                </div>
+
+                {/* Icon/Emoji Upload */}
+                <div className="form-group">
+                    <label className="form-label">Ikona quizu</label>
+                    <p className="form-hint">Małe emoji lub ikona (maks. 100KB, ok. 80x80px)</p>
+
+                    {data.image ? (
+                        <div className="image-preview-container">
+                            <img
+                                src={getImagePreviewUrl() || ''}
+                                alt="Quiz icon"
+                                className="image-preview image-preview-small"
+                            />
+                            <button
+                                type="button"
+                                className="image-remove-button"
+                                onClick={handleRemoveImage}
+                                disabled={disabled}
+                            >
+                                Usuń
+                            </button>
+                        </div>
+                    ) : (
+                        <div className="image-upload-area">
+                            <input
+                                ref={fileInputRef}
+                                type="file"
+                                id="image"
+                                accept="image/*"
+                                onChange={handleImageChange}
+                                disabled={disabled}
+                                className="image-input"
+                            />
+                            <label htmlFor="image" className="image-upload-label">
+                                Dodaj ikonę
+                            </label>
+                        </div>
+                    )}
+
+                    {imageError && (
+                        <span className="form-error">{imageError}</span>
+                    )}
+                </div>
+            </div>
             </div>
 
-            {/* Image Upload */}
-            <div className="form-group">
-                <label className="form-label">{t('quizEditor.imageUpload')}</label>
-                <p className="form-hint">{t('quizEditor.imageDescription')}</p>
+            {/* ========== USTAWIENIA PUBLIKACJI ========== */}
+            <div className="form-section-container">
+                <div className="form-section-header">
+                    <span className="form-section-header-icon">⚙️</span>
+                    <h3 className="form-section-header-title">Ustawienia publikacji</h3>
+                </div>
+                <div className="form-section-divider" />
 
-                {data.image ? (
-                    <div className="image-preview-container">
-                        <img
-                            src={getImagePreviewUrl() || ''}
-                            alt="Quiz preview"
-                            className="image-preview"
-                        />
-                        <button
-                            type="button"
-                            className="image-remove-button"
-                            onClick={handleRemoveImage}
-                            disabled={disabled}
-                        >
-                            {t('quizEditor.removeImage')}
-                        </button>
-                    </div>
-                ) : (
-                    <div className="image-upload-area">
-                        <input
-                            ref={fileInputRef}
-                            type="file"
-                            id="image"
-                            accept="image/*"
-                            onChange={handleImageChange}
-                            disabled={disabled}
-                            className="image-input"
-                        />
-                        <label htmlFor="image" className="image-upload-label">
-                            {t('quizEditor.uploadImage')}
-                        </label>
-                    </div>
-                )}
+                <div className="info-box info-box-warning">
+                    <strong>Szkic</strong> - quiz jest widoczny tylko dla Ciebie<br/>
+                    <strong>Opublikowany</strong> - quiz jest dostępny publicznie<br/>
+                    <strong>Zarchiwizowany</strong> - quiz jest ukryty, ale zachowany
+                </div>
 
-                {imageError && (
-                    <span className="form-error">{imageError}</span>
-                )}
-            </div>
-
-            {/* Status & Flags */}
-            <div className="form-section">
-                <h3 className="form-section-title">{t('quizEditor.statusSection')}</h3>
-
-                {/* Status Selector */}
+            {/* Status & Flags - compact row */}
+            <div className="form-row-status">
                 <div className="form-group">
                     <label htmlFor="status" className="form-label">
-                        {t('quizEditor.status')}
+                        Status
                     </label>
                     <select
                         id="status"
@@ -279,15 +324,14 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
                         onChange={handleInputChange}
                         disabled={disabled}
                     >
-                        <option value="draft">{t('quizEditor.draft')}</option>
-                        <option value="published">{t('quizEditor.published')}</option>
-                        <option value="archived">{t('quizEditor.archived')}</option>
+                        <option value="draft">Szkic</option>
+                        <option value="published">Opublikowany</option>
+                        <option value="archived">Zarchiwizowany</option>
                     </select>
                 </div>
 
-                {/* Checkboxes */}
-                <div className="form-checkboxes">
-                    <label className="checkbox-label">
+                <div className="form-group-checkboxes">
+                    <label className="checkbox-label-inline">
                         <input
                             type="checkbox"
                             name="is_draft"
@@ -295,13 +339,10 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
                             onChange={handleInputChange}
                             disabled={disabled}
                         />
-                        <span className="checkbox-text">
-                            {t('quizEditor.isDraft')}
-                            <span className="checkbox-hint">{t('quizEditor.draftDescription')}</span>
-                        </span>
+                        <span>Wersja robocza</span>
                     </label>
 
-                    <label className="checkbox-label">
+                    <label className="checkbox-label-inline">
                         <input
                             type="checkbox"
                             name="favourite"
@@ -309,11 +350,14 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
                             onChange={handleInputChange}
                             disabled={disabled}
                         />
-                        <span className="checkbox-text">
-                            {t('quizEditor.markAsFavourite')}
-                        </span>
+                        <span>⭐ Ulubiony</span>
                     </label>
                 </div>
+            </div>
+
+            <div className="info-box info-box-success">
+                <strong>💡 Wskazówka:</strong> Wersja robocza pozwala pracować nad quizem bez publikowania go. Ulubione quizy są łatwiej dostępne na liście.
+            </div>
             </div>
         </div>
     );
