@@ -134,10 +134,13 @@
     font-size: 24px;
     font-weight: 700;
     margin: 0 0 8px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .form-hero-subtitle {
-    font-size: 15px;
+    font-size: 16px;
     opacity: 0.9;
     margin: 0;
 }
@@ -232,6 +235,15 @@
     display: flex;
     flex-direction: column;
     gap: 8px;
+    padding: 20px;
+    border: 2px solid #E5E7EB;
+    border-radius: 12px;
+    background: #FAFBFC;
+    transition: border-color 0.2s ease;
+}
+
+.form-group:hover {
+    border-color: #D1D5DB;
 }
 
 .form-row {
@@ -379,6 +391,14 @@
     resize: vertical;
     min-height: 100px;
     font-family: inherit;
+    font-size: 16px;
+}
+
+/* Larger placeholders */
+.form-input::placeholder,
+.form-textarea::placeholder {
+    font-size: 15px;
+    color: #9CA3AF;
 }
 
 .form-select {

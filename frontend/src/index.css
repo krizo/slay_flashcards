@@ -192,11 +192,12 @@ body {
     flex-direction: column;
     gap: 6px;
     min-width: 0;
+    justify-content: center;
 }
 
 .page-title {
     margin: 0;
-    font-size: 1.15em;
+    font-size: 0.85em;
     font-weight: 700;
     color: var(--color-text-dark);
     white-space: nowrap;
@@ -206,7 +207,7 @@ body {
 
 .page-subtitle {
     margin: 0;
-    font-size: 0.75em;
+    font-size: 0.95em;
     color: var(--color-text-light);
     font-weight: 500;
 }

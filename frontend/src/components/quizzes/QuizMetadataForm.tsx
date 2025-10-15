@@ -218,7 +218,7 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
                             className={`form-input form-input-large ${showValidation && !isNameValid ? 'invalid' : ''}`}
                             value={data.name}
                             onChange={handleInputChange}
-                            placeholder="np. Matematyka - Równania kwadratowe"
+                            placeholder="Równania kwadratowe"
                             disabled={disabled}
                             required
                         />
