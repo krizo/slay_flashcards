@@ -24,8 +24,11 @@ export const ComboBox: React.FC<ComboBoxProps> = ({
 }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
+    const [showModal, setShowModal] = useState(false);
+    const [modalValue, setModalValue] = useState('');
     const wrapperRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
+    const modalInputRef = useRef<HTMLInputElement>(null);
 
     // Close dropdown when clicking outside
     useEffect(() => {
@@ -59,12 +62,40 @@ export const ComboBox: React.FC<ComboBoxProps> = ({
     };
 
     const handleAddNew = () => {
-        setSearchTerm('');
         setIsOpen(false);
-        if (inputRef.current) {
-            inputRef.current.focus();
+        setShowModal(true);
+        setModalValue('');
+    };
+
+    const handleModalSubmit = () => {
+        if (modalValue.trim()) {
+            onChange(modalValue.trim());
+            setShowModal(false);
+            setModalValue('');
+            setSearchTerm('');
         }
     };
+
+    const handleModalCancel = () => {
+        setShowModal(false);
+        setModalValue('');
+    };
+
+    const handleModalKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            handleModalSubmit();
+        } else if (e.key === 'Escape') {
+            handleModalCancel();
+        }
+    };
+
+    // Focus modal input when modal opens
+    useEffect(() => {
+        if (showModal && modalInputRef.current) {
+            setTimeout(() => modalInputRef.current?.focus(), 100);
+        }
+    }, [showModal]);
 
     const handleInputClick = () => {
         if (!disabled) {
@@ -140,6 +171,41 @@ export const ComboBox: React.FC<ComboBoxProps> = ({
                             No matching options
                         </div>
                     )}
+                </div>
+            )}
+
+            {/* Modal for adding new value */}
+            {showModal && (
+                <div className="combobox-modal-overlay" onClick={handleModalCancel}>
+                    <div className="combobox-modal" onClick={(e) => e.stopPropagation()}>
+                        <h3 className="combobox-modal-title">Dodaj nową wartość</h3>
+                        <input
+                            ref={modalInputRef}
+                            type="text"
+                            className="form-input combobox-modal-input"
+                            value={modalValue}
+                            onChange={(e) => setModalValue(e.target.value)}
+                            onKeyDown={handleModalKeyDown}
+                            placeholder="Wpisz nazwę..."
+                        />
+                        <div className="combobox-modal-actions">
+                            <button
+                                type="button"
+                                className="combobox-modal-button combobox-modal-cancel"
+                                onClick={handleModalCancel}
+                            >
+                                Anuluj
+                            </button>
+                            <button
+                                type="button"
+                                className="combobox-modal-button combobox-modal-submit"
+                                onClick={handleModalSubmit}
+                                disabled={!modalValue.trim()}
+                            >
+                                Dodaj
+                            </button>
+                        </div>
+                    </div>
                 </div>
             )}
         </div>

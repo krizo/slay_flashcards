@@ -129,3 +129,100 @@
 .combobox-dropdown::-webkit-scrollbar-thumb:hover {
     background: #9CA3AF;
 }
+
+/* Modal styles */
+.combobox-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.combobox-modal {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    animation: slideIn 0.2s ease;
+}
+
+@keyframes slideIn {
+    from {
+        transform: scale(0.95);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.combobox-modal-title {
+    margin: 0 0 16px 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #111827;
+}
+
+.combobox-modal-input {
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.combobox-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.combobox-modal-button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.combobox-modal-cancel {
+    background: #F3F4F6;
+    color: #374151;
+}
+
+.combobox-modal-cancel:hover {
+    background: #E5E7EB;
+}
+
+.combobox-modal-submit {
+    background: #3B82F6;
+    color: white;
+}
+
+.combobox-modal-submit:hover:not(:disabled) {
+    background: #2563EB;
+}
+
+.combobox-modal-submit:disabled {
+    background: #D1D5DB;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
