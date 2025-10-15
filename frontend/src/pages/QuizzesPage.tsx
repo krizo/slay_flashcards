@@ -3,9 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import QuizListPanel from '../components/quizzes/QuizListPanel';
 import QuizDetailsPanel from '../components/quizzes/QuizDetailsPanel';
-import QuizCreateForm from '../components/quizzes/QuizCreateForm';
-import QuizUpdateForm from '../components/quizzes/QuizUpdateForm';
-import { useQuiz } from '../hooks/useQuiz';
 import { useQuizFilters } from '../hooks/useQuizFilters';
 import { api } from '../services/apiClient';
 import { useAuth } from '../context/AuthContext';
@@ -18,8 +15,6 @@ function QuizzesPage() {
     const navigate = useNavigate();
     const { accessToken } = useAuth();
     const [selectedQuizId, setSelectedQuizId] = useState<number | null>(null);
-    const [isCreatingNewQuiz, setIsCreatingNewQuiz] = useState(false);
-    const [isEditingQuiz, setIsEditingQuiz] = useState(false);
     const [quizListKey, setQuizListKey] = useState(0);
 
     // Filter states
@@ -31,51 +26,19 @@ function QuizzesPage() {
     // Fetch filter options
     const { subjects, categories, levels, isLoading: filtersLoading } = useQuizFilters();
 
-    // Fetch selected quiz for edit form
-    const { quiz: selectedQuiz } = useQuiz(isEditingQuiz ? selectedQuizId : null);
-
     // Handle quiz selection from list
     const handleSelectQuiz = (quizId: number) => {
         setSelectedQuizId(quizId);
-        setIsCreatingNewQuiz(false);
-        setIsEditingQuiz(false);
     };
 
     // Handle new quiz button click
     const handleNewQuizClick = () => {
-        setIsCreatingNewQuiz(true);
-        setIsEditingQuiz(false);
-        setSelectedQuizId(null);
-    };
-
-    // Handle quiz creation success
-    const handleCreateSuccess = () => {
-        setIsCreatingNewQuiz(false);
-        setQuizListKey(prev => prev + 1);
-        // Optionally select the newly created quiz
-    };
-
-    // Handle quiz creation cancel
-    const handleCreateCancel = () => {
-        setIsCreatingNewQuiz(false);
+        navigate('/quizzes/create');
     };
 
     // Handle edit button click
     const handleEditClick = (quizId: number) => {
-        setSelectedQuizId(quizId);
-        setIsEditingQuiz(true);
-        setIsCreatingNewQuiz(false);
-    };
-
-    // Handle quiz update success
-    const handleUpdateSuccess = () => {
-        setIsEditingQuiz(false);
-        setQuizListKey(prev => prev + 1);
-    };
-
-    // Handle quiz update cancel
-    const handleUpdateCancel = () => {
-        setIsEditingQuiz(false);
+        navigate(`/quizzes/${quizId}/edit`);
     };
 
     // Handle delete button click
@@ -107,7 +70,6 @@ function QuizzesPage() {
 
             // Clear selection and refetch list
             setSelectedQuizId(null);
-            setIsEditingQuiz(false);
             setQuizListKey(prev => prev + 1);
         } catch (error: any) {
             console.error('Failed to delete quiz:', error);
@@ -135,37 +97,6 @@ function QuizzesPage() {
         navigate(`/learning-session?quizId=${quizId}&mode=test`);
     };
 
-    // Determine which component to show in right panel
-    const renderRightPanel = () => {
-        if (isCreatingNewQuiz) {
-            return (
-                <QuizCreateForm
-                    onSuccess={handleCreateSuccess}
-                    onCancel={handleCreateCancel}
-                />
-            );
-        }
-
-        if (isEditingQuiz && selectedQuiz) {
-            return (
-                <QuizUpdateForm
-                    quiz={selectedQuiz}
-                    onSuccess={handleUpdateSuccess}
-                    onCancel={handleUpdateCancel}
-                />
-            );
-        }
-
-        return (
-            <QuizDetailsPanel
-                selectedQuizId={selectedQuizId}
-                onEditClick={handleEditClick}
-                onDeleteClick={handleDeleteClick}
-                onStartLearningSession={handleStartLearningSession}
-                onStartTestSession={handleStartTestSession}
-            />
-        );
-    };
 
     return (
         <div className="page-container">
@@ -248,8 +179,14 @@ function QuizzesPage() {
                     selectedLevel={selectedLevel}
                 />
 
-                {/* Right Panel: Details/Forms */}
-                {renderRightPanel()}
+                {/* Right Panel: Quiz Details */}
+                <QuizDetailsPanel
+                    selectedQuizId={selectedQuizId}
+                    onEditClick={handleEditClick}
+                    onDeleteClick={handleDeleteClick}
+                    onStartLearningSession={handleStartLearningSession}
+                    onStartTestSession={handleStartTestSession}
+                />
             </div>
         </div>
     );
