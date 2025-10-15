@@ -84,6 +84,16 @@ export interface ProgressDataPoint {
     score: number; // Average score for the given day
 }
 
+// Quiz status type (v0.2.0)
+export type QuizStatus = 'draft' | 'published' | 'archived';
+
+// Tag interface (v0.2.0)
+export interface Tag {
+    id: number;
+    name: string;
+    color?: string | null;  // Hex color code (e.g., #FF5733)
+}
+
 // Quiz interface for quiz management
 export interface Quiz {
     id: number;
@@ -96,25 +106,52 @@ export interface Quiz {
     created_at?: string;
     updated_at?: string;
     favourite: boolean;
-    image?: string | null;  // Base64 encoded image data
+    image?: string | null;  // Base64 encoded image data (max 100KB)
     last_session_at?: string | null;  // Last session datetime for this quiz
+    // v0.2.0 fields
+    is_draft?: boolean;  // Draft status for quiz creation workflow
+    status?: QuizStatus;  // Quiz status: draft, published, archived
+    tag_ids?: number[];  // List of tag IDs associated with the quiz
 }
 
 // Request/Response types for Quiz operations
 export interface QuizCreateRequest {
     name: string;
     subject: string;
+    category?: string | null;
+    level?: string | null;
     description?: string | null;
     favourite?: boolean;
     image?: string | null;
+    // v0.2.0 fields
+    is_draft?: boolean;
+    status?: QuizStatus;
+    tag_ids?: number[];
 }
 
 export interface QuizUpdateRequest {
     name?: string;
     subject?: string;
+    category?: string | null;
+    level?: string | null;
     description?: string | null;
     favourite?: boolean;
     image?: string | null;
+    // v0.2.0 fields
+    is_draft?: boolean;
+    status?: QuizStatus;
+    tag_ids?: number[];
+}
+
+// Tag Request/Response types (v0.2.0)
+export interface TagCreateRequest {
+    name: string;
+    color?: string | null;
+}
+
+export interface TagUpdateRequest {
+    name?: string;
+    color?: string | null;
 }
 
 export interface QuizListResponse {

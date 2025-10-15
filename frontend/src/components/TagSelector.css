@@ -1,0 +1,138 @@
+.tag-selector {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.tag-selector-loading {
+    padding: 8px;
+    color: #6B7280;
+    font-size: 14px;
+}
+
+.tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    min-height: 36px;
+}
+
+.tag-chip {
+    padding: 6px 12px;
+    border: 2px solid;
+    border-radius: 16px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: transparent;
+}
+
+.tag-chip:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.tag-chip:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.tag-chip:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.tag-chip.selected {
+    color: white !important;
+    font-weight: 600;
+}
+
+.tag-create-button {
+    align-self: flex-start;
+    padding: 6px 12px;
+    border: 2px dashed #D1D5DB;
+    border-radius: 16px;
+    background: transparent;
+    color: #6B7280;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.tag-create-button:hover {
+    border-color: #3B82F6;
+    color: #3B82F6;
+    background: #EFF6FF;
+}
+
+.tag-create-form {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px;
+    border: 2px solid #E5E7EB;
+    border-radius: 8px;
+    background: #F9FAFB;
+}
+
+.tag-name-input {
+    padding: 8px 12px;
+    border: 1px solid #D1D5DB;
+    border-radius: 6px;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.tag-name-input:focus {
+    border-color: #3B82F6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.tag-color-input {
+    width: 60px;
+    height: 36px;
+    border: 1px solid #D1D5DB;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.tag-create-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.tag-create-save,
+.tag-create-cancel {
+    padding: 6px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.tag-create-save {
+    background: #3B82F6;
+    color: white;
+}
+
+.tag-create-save:hover:not(:disabled) {
+    background: #2563EB;
+}
+
+.tag-create-save:disabled {
+    background: #D1D5DB;
+    cursor: not-allowed;
+}
+
+.tag-create-cancel {
+    background: #F3F4F6;
+    color: #374151;
+}
+
+.tag-create-cancel:hover {
+    background: #E5E7EB;
+}

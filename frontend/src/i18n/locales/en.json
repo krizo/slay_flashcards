@@ -348,5 +348,25 @@
     "unauthorized": "Unauthorized. Please log in.",
     "forbidden": "Access forbidden",
     "serverError": "Server error. Please try again later."
+  },
+  "quizEditor": {
+    "createTag": "Create Tag",
+    "tagNamePlaceholder": "Tag name (max 50 characters)",
+    "tagColor": "Tag color",
+    "tags": "Tags",
+    "selectTags": "Select tags for this quiz",
+    "noTagsSelected": "No tags selected",
+    "status": "Status",
+    "draft": "Draft",
+    "published": "Published",
+    "archived": "Archived",
+    "isDraft": "Draft mode",
+    "draftDescription": "Quiz is not visible in learning sessions",
+    "imageUpload": "Quiz Image",
+    "imageDescription": "Optional image for quiz (max 100KB)",
+    "uploadImage": "Upload Image",
+    "removeImage": "Remove Image",
+    "imageTooLarge": "Image is too large (max 100KB)",
+    "invalidImageFormat": "Invalid image format"
   }
 }

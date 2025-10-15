@@ -352,5 +352,25 @@
     "unauthorized": "Brak autoryzacji. Zaloguj się.",
     "forbidden": "Brak dostępu",
     "serverError": "Błąd serwera. Spróbuj ponownie później."
+  },
+  "quizEditor": {
+    "createTag": "Utwórz Tag",
+    "tagNamePlaceholder": "Nazwa tagu (max 50 znaków)",
+    "tagColor": "Kolor tagu",
+    "tags": "Tagi",
+    "selectTags": "Wybierz tagi dla tego quizu",
+    "noTagsSelected": "Nie wybrano tagów",
+    "status": "Status",
+    "draft": "Szkic",
+    "published": "Opublikowany",
+    "archived": "Zarchiwizowany",
+    "isDraft": "Tryb szkicu",
+    "draftDescription": "Quiz nie jest widoczny w sesjach nauki",
+    "imageUpload": "Obrazek Quizu",
+    "imageDescription": "Opcjonalny obrazek dla quizu (max 100KB)",
+    "uploadImage": "Wgraj Obrazek",
+    "removeImage": "Usuń Obrazek",
+    "imageTooLarge": "Obrazek jest za duży (max 100KB)",
+    "invalidImageFormat": "Nieprawidłowy format obrazka"
   }
 }
