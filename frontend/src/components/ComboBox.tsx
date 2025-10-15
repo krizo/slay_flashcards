@@ -10,6 +10,7 @@ interface ComboBoxProps {
     className?: string;
     required?: boolean;
     addNewLabel?: string;
+    fieldLabel?: string; // e.g., "Kategoria", "Przedmiot", "Poziom"
 }
 
 export const ComboBox: React.FC<ComboBoxProps> = ({
@@ -21,6 +22,7 @@ export const ComboBox: React.FC<ComboBoxProps> = ({
     className = '',
     required = false,
     addNewLabel = '+ Add new...',
+    fieldLabel = 'wartość',
 }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
@@ -178,7 +180,9 @@ export const ComboBox: React.FC<ComboBoxProps> = ({
             {showModal && (
                 <div className="combobox-modal-overlay" onClick={handleModalCancel}>
                     <div className="combobox-modal" onClick={(e) => e.stopPropagation()}>
-                        <h3 className="combobox-modal-title">Dodaj nową wartość</h3>
+                        <h3 className="combobox-modal-title">
+                            Nowy{fieldLabel.toLowerCase().endsWith('a') ? 'a' : ''} {fieldLabel.toLowerCase()}
+                        </h3>
                         <input
                             ref={modalInputRef}
                             type="text"
@@ -186,7 +190,7 @@ export const ComboBox: React.FC<ComboBoxProps> = ({
                             value={modalValue}
                             onChange={(e) => setModalValue(e.target.value)}
                             onKeyDown={handleModalKeyDown}
-                            placeholder="Wpisz nazwę..."
+                            placeholder={`Wpisz ${fieldLabel.toLowerCase()}...`}
                         />
                         <div className="combobox-modal-actions">
                             <button

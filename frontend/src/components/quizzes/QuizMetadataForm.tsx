@@ -152,6 +152,7 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
                         required={true}
                         className={showValidation && !isSubjectValid ? 'invalid' : ''}
                         addNewLabel="+ Dodaj nowy..."
+                        fieldLabel="Przedmiot"
                     />
                     {showValidation && !isSubjectValid && (
                         <span className="form-error">{t('quizEditor.subjectRequired')}</span>
@@ -169,6 +170,7 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
                         placeholder={t('quizEditor.categoryPlaceholder')}
                         disabled={disabled}
                         addNewLabel="+ Dodaj nowy..."
+                        fieldLabel="Kategoria"
                     />
                 </div>
 
@@ -183,6 +185,7 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
                         placeholder={t('quizEditor.levelPlaceholder')}
                         disabled={disabled}
                         addNewLabel="+ Dodaj nowy..."
+                        fieldLabel="Poziom"
                     />
                 </div>
             </div>
