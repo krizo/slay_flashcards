@@ -173,25 +173,42 @@ body {
     gap: 20px;
 }
 
-/* Header Page Title (for pages without session) */
+/* Header Page Title (for pages without session) - styled like session info */
 .header-page-title {
     display: flex;
-    flex-direction: column;
-    gap: 4px;
+    align-items: center;
+    gap: 12px;
     flex: 1;
+    min-width: 0;
+}
+
+.page-title-icon {
+    font-size: 2.5rem;
+    flex-shrink: 0;
+}
+
+.page-title-content {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
 }
 
 .page-title {
     margin: 0;
-    font-size: 24px;
+    font-size: 1.15em;
     font-weight: 700;
-    color: #111827;
+    color: var(--color-text-dark);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .page-subtitle {
     margin: 0;
-    font-size: 15px;
-    color: #6B7280;
+    font-size: 0.75em;
+    color: var(--color-text-light);
+    font-weight: 500;
 }
 
 /* Header Session Info (left side) */

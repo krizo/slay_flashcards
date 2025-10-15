@@ -202,46 +202,49 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
                     <p className="form-hero-subtitle">Zacznijmy od podstaw - nadaj nazwę i opisz swój quiz</p>
                 </div>
 
-                {/* Name */}
-                <div className="form-group">
-                    <label htmlFor="name" className="form-label-with-icon required">
-                        <span className="label-icon">📌</span>
-                        <span>Nazwa quizu</span>
-                    </label>
-                    <p className="form-hint-caring">Podaj nazwę quizu, żebyś mógł łatwo go odszukać</p>
-                    <input
-                        type="text"
-                        id="name"
-                        name="name"
-                        className={`form-input ${showValidation && !isNameValid ? 'invalid' : ''}`}
-                        value={data.name}
-                        onChange={handleInputChange}
-                        placeholder="np. Matematyka - Równania kwadratowe"
-                        disabled={disabled}
-                        required
-                    />
-                    {showValidation && !isNameValid && (
-                        <span className="form-error">Nazwa jest wymagana</span>
-                    )}
-                </div>
+                {/* Name and Description side by side */}
+                <div className="form-row">
+                    {/* Name */}
+                    <div className="form-group">
+                        <label htmlFor="name" className="form-label-with-icon-large required">
+                            <span className="label-icon-large">📌</span>
+                            <span>Nazwa quizu</span>
+                        </label>
+                        <p className="form-hint-caring">Podaj nazwę quizu, żebyś mógł łatwo go odszukać</p>
+                        <input
+                            type="text"
+                            id="name"
+                            name="name"
+                            className={`form-input form-input-large ${showValidation && !isNameValid ? 'invalid' : ''}`}
+                            value={data.name}
+                            onChange={handleInputChange}
+                            placeholder="np. Matematyka - Równania kwadratowe"
+                            disabled={disabled}
+                            required
+                        />
+                        {showValidation && !isNameValid && (
+                            <span className="form-error">Nazwa jest wymagana</span>
+                        )}
+                    </div>
 
-                {/* Description */}
-                <div className="form-group">
-                    <label htmlFor="description" className="form-label-with-icon">
-                        <span className="label-icon">📋</span>
-                        <span>Opis</span>
-                    </label>
-                    <p className="form-hint-caring">Pomoże Ci zrozumieć, czego dotyczy i jaką wiedzę zawiera</p>
-                    <textarea
-                        id="description"
-                        name="description"
-                        className="form-input form-textarea"
-                        value={data.description || ''}
-                        onChange={handleInputChange}
-                        placeholder="Opisz czego dotyczy ten quiz i co będzie testowane..."
-                        rows={4}
-                        disabled={disabled}
-                    />
+                    {/* Description */}
+                    <div className="form-group">
+                        <label htmlFor="description" className="form-label-with-icon-large">
+                            <span className="label-icon-large">📋</span>
+                            <span>Opis</span>
+                        </label>
+                        <p className="form-hint-caring">Pomoże Ci zrozumieć, czego dotyczy i jaką wiedzę zawiera</p>
+                        <textarea
+                            id="description"
+                            name="description"
+                            className="form-input form-textarea form-input-large"
+                            value={data.description || ''}
+                            onChange={handleInputChange}
+                            placeholder="Opisz czego dotyczy ten quiz i co będzie testowane..."
+                            rows={4}
+                            disabled={disabled}
+                        />
+                    </div>
                 </div>
             </div>
             )}
@@ -259,8 +262,8 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
             {/* Subject, Category & Level - Three in a row */}
             <div className="form-row-three">
                 <div className="form-group">
-                    <label htmlFor="subject" className="form-label required">
-                        📚 {t('quizEditor.subject')}
+                    <label htmlFor="subject" className="form-label-classification required">
+                        <span className="classification-icon">📚</span> {t('quizEditor.subject')}
                     </label>
                     <ComboBox
                         value={data.subject}
@@ -269,7 +272,7 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
                         placeholder={t('quizEditor.subjectPlaceholder')}
                         disabled={disabled}
                         required={true}
-                        className={showValidation && !isSubjectValid ? 'invalid' : ''}
+                        className={`combobox-classification ${showValidation && !isSubjectValid ? 'invalid' : ''}`}
                         addNewLabel="+ Dodaj nowy..."
                         fieldLabel="Przedmiot"
                     />
@@ -279,8 +282,8 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
                 </div>
 
                 <div className="form-group">
-                    <label htmlFor="category" className="form-label">
-                        📂 {t('quizEditor.category')}
+                    <label htmlFor="category" className="form-label-classification">
+                        <span className="classification-icon">📂</span> {t('quizEditor.category')}
                     </label>
                     <ComboBox
                         value={data.category || ''}
@@ -288,14 +291,15 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
                         options={categories || []}
                         placeholder={t('quizEditor.categoryPlaceholder')}
                         disabled={disabled}
+                        className="combobox-classification"
                         addNewLabel="+ Dodaj nowy..."
                         fieldLabel="Kategoria"
                     />
                 </div>
 
                 <div className="form-group">
-                    <label htmlFor="level" className="form-label">
-                        📊 {t('quizEditor.level')}
+                    <label htmlFor="level" className="form-label-classification">
+                        <span className="classification-icon">📊</span> {t('quizEditor.level')}
                     </label>
                     <ComboBox
                         value={data.level || ''}
@@ -303,6 +307,7 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
                         options={levels || []}
                         placeholder={t('quizEditor.levelPlaceholder')}
                         disabled={disabled}
+                        className="combobox-classification"
                         addNewLabel="+ Dodaj nowy..."
                         fieldLabel="Poziom"
                     />

@@ -11,6 +11,18 @@
     box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
 }
 
+/* Larger ComboBox for Classification step */
+.combobox-classification .combobox-input {
+    font-size: 16px;
+    padding: 14px 45px 14px 18px !important;
+    border-width: 2px;
+    font-weight: 500;
+}
+
+.combobox-classification .combobox-toggle {
+    width: 45px;
+}
+
 .combobox-input-wrapper {
     position: relative;
     display: flex;

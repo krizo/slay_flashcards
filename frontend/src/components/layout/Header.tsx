@@ -80,8 +80,11 @@ function Header() {
             {/* Session info (left side) or Page Title */}
             {pageTitle ? (
                 <div className="header-page-title">
-                    <h1 className="page-title">{pageTitle}</h1>
-                    {pageSubtitle && <p className="page-subtitle">{pageSubtitle}</p>}
+                    <span className="page-title-icon">✨</span>
+                    <div className="page-title-content">
+                        <h1 className="page-title">{pageTitle}</h1>
+                        {pageSubtitle && <p className="page-subtitle">{pageSubtitle}</p>}
+                    </div>
                 </div>
             ) : (
                 sessionInfo && (

@@ -284,6 +284,45 @@
     font-size: 20px;
 }
 
+/* Larger labels for Step 1 */
+.form-label-with-icon-large {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 18px;
+    font-weight: 600;
+    color: #374151;
+}
+
+.form-label-with-icon-large.required::after {
+    content: ' *';
+    color: #EF4444;
+    margin-left: -4px;
+}
+
+.label-icon-large {
+    font-size: 26px;
+}
+
+/* Classification labels for Step 2 */
+.form-label-classification {
+    font-size: 17px;
+    font-weight: 600;
+    color: #374151;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.form-label-classification.required::after {
+    content: ' *';
+    color: #EF4444;
+}
+
+.classification-icon {
+    font-size: 24px;
+}
+
 .form-hint {
     font-size: 14px;
     color: #6B7280;
@@ -292,11 +331,11 @@
 
 /* Caring hint - more visible and friendly */
 .form-hint-caring {
-    font-size: 14px;
+    font-size: 15px;
     color: #6366F1;
-    margin: 4px 0 8px 0;
+    margin: 4px 0 10px 0;
     font-weight: 500;
-    line-height: 1.5;
+    line-height: 1.6;
 }
 
 .form-input {
@@ -307,6 +346,13 @@
     font-family: inherit;
     transition: all 0.2s ease;
     background: white;
+}
+
+/* Larger inputs for Step 1 */
+.form-input-large {
+    padding: 14px 18px;
+    font-size: 16px;
+    border-width: 2px;
 }
 
 .form-input:focus {
