@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Quiz, FlashcardData, Tag } from '../types';
-import apiClient from '../services/apiClient';
+import { api as apiClient } from '../services/apiClient';
 import './QuizSummaryPage.css';
 
 function QuizSummaryPage() {

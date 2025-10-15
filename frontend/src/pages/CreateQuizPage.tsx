@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { QuizMetadataForm, QuizMetadataFormData } from '../components/quizzes/QuizMetadataForm';
 import { FlashcardEditor, FlashcardEditorData } from '../components/quizzes/FlashcardEditor';
 import { Quiz, FlashcardData } from '../types';
-import apiClient from '../services/apiClient';
+import { api as apiClient } from '../services/apiClient';
 import './CreateQuizPage.css';
 
 type CreationStep = 'metadata' | 'flashcards' | 'summary';

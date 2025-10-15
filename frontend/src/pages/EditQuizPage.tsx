@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { FlashcardEditor, FlashcardEditorData } from '../components/quizzes/FlashcardEditor';
 import { Quiz, FlashcardData } from '../types';
-import apiClient from '../services/apiClient';
+import { api as apiClient } from '../services/apiClient';
 import './CreateQuizPage.css';
 
 interface FlashcardState extends FlashcardEditorData {

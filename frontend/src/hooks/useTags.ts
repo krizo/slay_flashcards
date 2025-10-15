@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Tag, TagCreateRequest, TagUpdateRequest } from '../types';
-import apiClient from '../services/apiClient';
+import { api as apiClient } from '../services/apiClient';
 
 interface UseTagsReturn {
     tags: Tag[];
