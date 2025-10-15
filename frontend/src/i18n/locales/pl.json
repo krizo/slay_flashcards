@@ -416,5 +416,19 @@
     "rangeMin": "Wartość Minimalna",
     "rangeMax": "Wartość Maksymalna",
     "decimalPlaces": "Miejsca Dziesiętne"
+  },
+  "createQuiz": {
+    "title": "Utwórz Nowy Quiz",
+    "metadataSubtitle": "Zacznijmy od skonfigurowania quizu",
+    "creating": "Tworzenie...",
+    "continue": "Przejdź do Fiszek",
+    "flashcardEditorSubtitle": "Karta {{current}} z {{total}}",
+    "saving": "Zapisywanie...",
+    "backToQuizzes": "Powrót do Quizów",
+    "addFlashcard": "Dodaj Fiszkę",
+    "goToSummary": "Przejrzyj i Opublikuj",
+    "flashcards": "Fiszki",
+    "untitled": "Bez tytułu",
+    "unsaved": "Niezapisane"
   }
 }

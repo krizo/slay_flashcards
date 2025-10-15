@@ -412,5 +412,19 @@
     "rangeMin": "Minimum Value",
     "rangeMax": "Maximum Value",
     "decimalPlaces": "Decimal Places"
+  },
+  "createQuiz": {
+    "title": "Create New Quiz",
+    "metadataSubtitle": "Let's start by setting up your quiz",
+    "creating": "Creating...",
+    "continue": "Continue to Flashcards",
+    "flashcardEditorSubtitle": "Card {{current}} of {{total}}",
+    "saving": "Saving...",
+    "backToQuizzes": "Back to Quizzes",
+    "addFlashcard": "Add Flashcard",
+    "goToSummary": "Review & Publish",
+    "flashcards": "Flashcards",
+    "untitled": "Untitled",
+    "unsaved": "Unsaved"
   }
 }
