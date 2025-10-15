@@ -281,6 +281,7 @@ function CreateQuizPage() {
                         onChange={setMetadataForm}
                         disabled={isSaving}
                         showValidation={showValidation}
+                        accessToken={accessToken}
                     />
 
                     {error && (

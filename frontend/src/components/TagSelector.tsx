@@ -8,11 +8,12 @@ interface TagSelectorProps {
     selectedTagIds: number[];
     onChange: (tagIds: number[]) => void;
     disabled?: boolean;
+    accessToken?: string | null;
 }
 
-export const TagSelector: React.FC<TagSelectorProps> = ({ selectedTagIds, onChange, disabled = false }) => {
+export const TagSelector: React.FC<TagSelectorProps> = ({ selectedTagIds, onChange, disabled = false, accessToken }) => {
     const { t } = useTranslation();
-    const { tags, loading, createTag } = useTags();
+    const { tags, loading, createTag } = useTags(accessToken);
     const [isCreating, setIsCreating] = useState(false);
     const [newTagName, setNewTagName] = useState('');
     const [newTagColor, setNewTagColor] = useState('#3B82F6'); // Default blue
@@ -50,7 +51,7 @@ export const TagSelector: React.FC<TagSelectorProps> = ({ selectedTagIds, onChan
 
     return (
         <div className="tag-selector">
-            <div className="tag-list">
+            <div className="tag-list-inline">
                 {tags.map((tag) => (
                     <button
                         key={tag.id}
@@ -67,59 +68,61 @@ export const TagSelector: React.FC<TagSelectorProps> = ({ selectedTagIds, onChan
                         {tag.name}
                     </button>
                 ))}
-            </div>
 
-            {!isCreating && !disabled && (
-                <button
-                    type="button"
-                    className="tag-create-button"
-                    onClick={() => setIsCreating(true)}
-                >
-                    + {t('quizEditor.createTag')}
-                </button>
-            )}
-
-            {isCreating && (
-                <div className="tag-create-form">
-                    <input
-                        type="text"
-                        value={newTagName}
-                        onChange={(e) => setNewTagName(e.target.value)}
-                        placeholder={t('quizEditor.tagNamePlaceholder')}
-                        maxLength={50}
-                        className="tag-name-input"
-                        autoFocus
-                    />
-                    <input
-                        type="color"
-                        value={newTagColor}
-                        onChange={(e) => setNewTagColor(e.target.value)}
-                        className="tag-color-input"
-                        title={t('quizEditor.tagColor')}
-                    />
-                    <div className="tag-create-actions">
+                {isCreating && (
+                    <>
+                        <input
+                            type="text"
+                            value={newTagName}
+                            onChange={(e) => setNewTagName(e.target.value)}
+                            onKeyDown={(e) => e.key === 'Enter' && handleCreateTag()}
+                            placeholder={t('quizEditor.tagNamePlaceholder')}
+                            maxLength={50}
+                            className="tag-name-input-inline"
+                            autoFocus
+                        />
+                        <input
+                            type="color"
+                            value={newTagColor}
+                            onChange={(e) => setNewTagColor(e.target.value)}
+                            className="tag-color-input-inline"
+                            title={t('quizEditor.tagColor')}
+                        />
                         <button
                             type="button"
-                            className="tag-create-save"
+                            className="tag-action-button tag-save-button"
                             onClick={handleCreateTag}
                             disabled={!newTagName.trim()}
+                            title={t('common.save')}
                         >
-                            {t('common.save')}
+                            ✓
                         </button>
                         <button
                             type="button"
-                            className="tag-create-cancel"
+                            className="tag-action-button tag-cancel-button"
                             onClick={() => {
                                 setIsCreating(false);
                                 setNewTagName('');
                                 setNewTagColor('#3B82F6');
                             }}
+                            title={t('common.cancel')}
                         >
-                            {t('common.cancel')}
+                            ✕
                         </button>
-                    </div>
-                </div>
-            )}
+                    </>
+                )}
+
+                {!isCreating && !disabled && (
+                    <button
+                        type="button"
+                        className="tag-create-button-inline"
+                        onClick={() => setIsCreating(true)}
+                        title={t('quizEditor.createTag')}
+                    >
+                        +
+                    </button>
+                )}
+            </div>
         </div>
     );
 };

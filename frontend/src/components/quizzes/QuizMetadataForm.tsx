@@ -22,6 +22,7 @@ interface QuizMetadataFormProps {
     onChange: (data: QuizMetadataFormData) => void;
     disabled?: boolean;
     showValidation?: boolean;
+    accessToken?: string | null;
 }
 
 const MAX_IMAGE_SIZE = 102400; // 100KB in bytes
@@ -31,6 +32,7 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
     onChange,
     disabled = false,
     showValidation = false,
+    accessToken,
 }) => {
     const { t } = useTranslation();
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -213,6 +215,7 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
                     selectedTagIds={data.tag_ids}
                     onChange={handleTagsChange}
                     disabled={disabled}
+                    accessToken={accessToken}
                 />
             </div>
 

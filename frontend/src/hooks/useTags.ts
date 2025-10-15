@@ -12,7 +12,7 @@ interface UseTagsReturn {
     refetch: () => Promise<void>;
 }
 
-export const useTags = (): UseTagsReturn => {
+export const useTags = (accessToken?: string | null): UseTagsReturn => {
     const [tags, setTags] = useState<Tag[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
@@ -21,7 +21,7 @@ export const useTags = (): UseTagsReturn => {
         try {
             setLoading(true);
             setError(null);
-            const response = await apiClient.get<{ data: Tag[] }>('/tags/');
+            const response = await apiClient.get<{ data: Tag[] }>('/tags/', accessToken);
             setTags(response.data.data || []);
         } catch (err: any) {
             console.error('Error fetching tags:', err);
@@ -32,12 +32,14 @@ export const useTags = (): UseTagsReturn => {
     };
 
     useEffect(() => {
-        fetchTags();
-    }, []);
+        if (accessToken) {
+            fetchTags();
+        }
+    }, [accessToken]);
 
     const createTag = async (data: TagCreateRequest): Promise<Tag | null> => {
         try {
-            const response = await apiClient.post<{ data: Tag }>('/tags/', data);
+            const response = await apiClient.post<{ data: Tag }>('/tags/', data, accessToken);
             const newTag = response.data.data;
             setTags((prev) => [...prev, newTag].sort((a, b) => a.name.localeCompare(b.name)));
             return newTag;
@@ -50,7 +52,7 @@ export const useTags = (): UseTagsReturn => {
 
     const updateTag = async (id: number, data: TagUpdateRequest): Promise<Tag | null> => {
         try {
-            const response = await apiClient.put<{ data: Tag }>(`/tags/${id}`, data);
+            const response = await apiClient.put<{ data: Tag }>(`/tags/${id}`, data, accessToken);
             const updatedTag = response.data.data;
             setTags((prev) =>
                 prev.map((tag) => (tag.id === id ? updatedTag : tag)).sort((a, b) => a.name.localeCompare(b.name))
@@ -65,7 +67,7 @@ export const useTags = (): UseTagsReturn => {
 
     const deleteTag = async (id: number): Promise<boolean> => {
         try {
-            await apiClient.delete(`/tags/${id}`);
+            await apiClient.delete(`/tags/${id}`, accessToken);
             setTags((prev) => prev.filter((tag) => tag.id !== id));
             return true;
         } catch (err: any) {

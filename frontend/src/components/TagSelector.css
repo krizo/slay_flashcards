@@ -136,3 +136,102 @@
 .tag-create-cancel:hover {
     background: #E5E7EB;
 }
+
+/* Inline layout */
+.tag-list-inline {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    min-height: 36px;
+}
+
+.tag-name-input-inline {
+    padding: 6px 12px;
+    border: 2px solid #3B82F6;
+    border-radius: 16px;
+    font-size: 14px;
+    outline: none;
+    min-width: 120px;
+    max-width: 200px;
+}
+
+.tag-name-input-inline:focus {
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.tag-color-input-inline {
+    width: 32px;
+    height: 32px;
+    border: 2px solid #D1D5DB;
+    border-radius: 16px;
+    cursor: pointer;
+    padding: 2px;
+}
+
+.tag-action-button {
+    width: 32px;
+    height: 32px;
+    border: 2px solid;
+    border-radius: 50%;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+
+.tag-save-button {
+    background: #10B981;
+    border-color: #10B981;
+    color: white;
+}
+
+.tag-save-button:hover:not(:disabled) {
+    background: #059669;
+    border-color: #059669;
+}
+
+.tag-save-button:disabled {
+    background: #D1D5DB;
+    border-color: #D1D5DB;
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.tag-cancel-button {
+    background: #EF4444;
+    border-color: #EF4444;
+    color: white;
+}
+
+.tag-cancel-button:hover {
+    background: #DC2626;
+    border-color: #DC2626;
+}
+
+.tag-create-button-inline {
+    width: 32px;
+    height: 32px;
+    border: 2px dashed #D1D5DB;
+    border-radius: 50%;
+    background: transparent;
+    color: #6B7280;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+
+.tag-create-button-inline:hover {
+    border-color: #3B82F6;
+    color: #3B82F6;
+    background: #EFF6FF;
+}
