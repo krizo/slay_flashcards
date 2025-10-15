@@ -160,13 +160,32 @@
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
-.tag-color-input-inline {
-    width: 32px;
-    height: 32px;
-    border: 2px solid #D1D5DB;
-    border-radius: 16px;
+.tag-color-picker {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+
+.tag-color-button {
+    width: 28px;
+    height: 28px;
+    border: 2px solid transparent;
+    border-radius: 50%;
     cursor: pointer;
-    padding: 2px;
+    transition: all 0.2s ease;
+    padding: 0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.tag-color-button:hover {
+    transform: scale(1.15);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.tag-color-button.selected {
+    border-color: #1F2937;
+    box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px #1F2937;
+    transform: scale(1.1);
 }
 
 .tag-action-button {

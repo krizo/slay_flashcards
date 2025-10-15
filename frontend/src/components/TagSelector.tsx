@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useTags } from '../hooks/useTags';
-import { Tag } from '../types';
 import { useTranslation } from 'react-i18next';
 import './TagSelector.css';
 
@@ -11,12 +10,24 @@ interface TagSelectorProps {
     accessToken?: string | null;
 }
 
+// Predefined color palette (8 colors)
+const PRESET_COLORS = [
+    '#3B82F6', // Blue
+    '#10B981', // Green
+    '#F59E0B', // Amber
+    '#EF4444', // Red
+    '#8B5CF6', // Purple
+    '#EC4899', // Pink
+    '#14B8A6', // Teal
+    '#6B7280', // Gray
+];
+
 export const TagSelector: React.FC<TagSelectorProps> = ({ selectedTagIds, onChange, disabled = false, accessToken }) => {
     const { t } = useTranslation();
     const { tags, loading, createTag } = useTags(accessToken);
     const [isCreating, setIsCreating] = useState(false);
     const [newTagName, setNewTagName] = useState('');
-    const [newTagColor, setNewTagColor] = useState('#3B82F6'); // Default blue
+    const [newTagColor, setNewTagColor] = useState(PRESET_COLORS[0]); // Default blue
 
     const handleTagToggle = (tagId: number) => {
         if (disabled) return;
@@ -40,7 +51,7 @@ export const TagSelector: React.FC<TagSelectorProps> = ({ selectedTagIds, onChan
             // Auto-select the newly created tag
             onChange([...selectedTagIds, newTag.id]);
             setNewTagName('');
-            setNewTagColor('#3B82F6');
+            setNewTagColor(PRESET_COLORS[0]);
             setIsCreating(false);
         }
     };
@@ -81,13 +92,18 @@ export const TagSelector: React.FC<TagSelectorProps> = ({ selectedTagIds, onChan
                             className="tag-name-input-inline"
                             autoFocus
                         />
-                        <input
-                            type="color"
-                            value={newTagColor}
-                            onChange={(e) => setNewTagColor(e.target.value)}
-                            className="tag-color-input-inline"
-                            title={t('quizEditor.tagColor')}
-                        />
+                        <div className="tag-color-picker">
+                            {PRESET_COLORS.map((color) => (
+                                <button
+                                    key={color}
+                                    type="button"
+                                    className={`tag-color-button ${newTagColor === color ? 'selected' : ''}`}
+                                    style={{ backgroundColor: color }}
+                                    onClick={() => setNewTagColor(color)}
+                                    title={color}
+                                />
+                            ))}
+                        </div>
                         <button
                             type="button"
                             className="tag-action-button tag-save-button"
@@ -102,7 +118,7 @@ export const TagSelector: React.FC<TagSelectorProps> = ({ selectedTagIds, onChan
                             onClick={() => {
                                 setIsCreating(false);
                                 setNewTagName('');
-                                setNewTagColor('#3B82F6');
+                                setNewTagColor(PRESET_COLORS[0]);
                             }}
                         >
                             {t('common.cancel')}

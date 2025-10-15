@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import EmojiPicker, { EmojiClickData } from 'emoji-picker-react';
 import { QuizStatus } from '../../types';
 import { TagSelector } from '../TagSelector';
 import { ComboBox } from '../ComboBox';
@@ -30,8 +31,6 @@ interface QuizMetadataFormProps {
     isValid?: boolean;
 }
 
-const MAX_IMAGE_SIZE = 102400; // 100KB in bytes
-
 export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
     data,
     onChange,
@@ -43,13 +42,14 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
     isValid = true,
 }) => {
     const { t } = useTranslation();
-    const fileInputRef = useRef<HTMLInputElement>(null);
-    const [imageError, setImageError] = useState<string | null>(null);
     const { subjects, categories, levels } = useQuizFilters();
 
     // Multi-step form state
     const [currentStep, setCurrentStep] = useState(1);
     const totalSteps = 4;
+
+    // Emoji picker state
+    const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
     const handleInputChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -70,55 +70,20 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
         });
     };
 
-    const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
-
-        setImageError(null);
-
-        // Validate file type
-        if (!file.type.startsWith('image/')) {
-            setImageError(t('quizEditor.invalidImageFormat'));
-            return;
-        }
-
-        // Check file size
-        if (file.size > MAX_IMAGE_SIZE) {
-            setImageError(t('quizEditor.imageTooLarge'));
-            return;
-        }
-
-        // Convert to base64
-        const reader = new FileReader();
-        reader.onload = (event) => {
-            const base64String = event.target?.result as string;
-            // Remove the data:image/...;base64, prefix
-            const base64Data = base64String.split(',')[1];
-            onChange({
-                ...data,
-                image: base64Data,
-            });
-        };
-        reader.onerror = () => {
-            setImageError('Failed to read image file');
-        };
-        reader.readAsDataURL(file);
+    const handleEmojiClick = (emojiData: EmojiClickData) => {
+        // Store emoji as plain text (not base64)
+        onChange({
+            ...data,
+            image: emojiData.emoji,
+        });
+        setShowEmojiPicker(false);
     };
 
-    const handleRemoveImage = () => {
+    const handleRemoveEmoji = () => {
         onChange({
             ...data,
             image: '',
         });
-        if (fileInputRef.current) {
-            fileInputRef.current.value = '';
-        }
-        setImageError(null);
-    };
-
-    const getImagePreviewUrl = () => {
-        if (!data.image) return null;
-        return `data:image/png;base64,${data.image}`;
     };
 
     const isNameValid = data.name.trim().length > 0;
@@ -340,46 +305,53 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
                     />
                 </div>
 
-                {/* Icon/Emoji Upload */}
+                {/* Emoji Picker */}
                 <div className="form-group">
-                    <label className="form-label">Ikona quizu</label>
-                    <p className="form-hint">Małe emoji lub ikona (maks. 100KB, ok. 80x80px)</p>
+                    <label className="form-label">Ikona quizu (emoji)</label>
+                    <p className="form-hint">Wybierz emoji które najlepiej opisuje Twój quiz</p>
 
                     {data.image ? (
-                        <div className="image-preview-container">
-                            <img
-                                src={getImagePreviewUrl() || ''}
-                                alt="Quiz icon"
-                                className="image-preview image-preview-small"
-                            />
+                        <div className="emoji-preview-container">
+                            <span className="emoji-preview">{data.image}</span>
                             <button
                                 type="button"
-                                className="image-remove-button"
-                                onClick={handleRemoveImage}
+                                className="nav-button nav-button-secondary emoji-remove-button"
+                                onClick={handleRemoveEmoji}
                                 disabled={disabled}
                             >
                                 Usuń
                             </button>
                         </div>
                     ) : (
-                        <div className="image-upload-area">
-                            <input
-                                ref={fileInputRef}
-                                type="file"
-                                id="image"
-                                accept="image/*"
-                                onChange={handleImageChange}
-                                disabled={disabled}
-                                className="image-input"
-                            />
-                            <label htmlFor="image" className="image-upload-label">
-                                Dodaj ikonę
-                            </label>
+                        <div className="emoji-picker-container">
+                            {!showEmojiPicker ? (
+                                <button
+                                    type="button"
+                                    className="nav-button nav-button-next emoji-picker-button"
+                                    onClick={() => setShowEmojiPicker(true)}
+                                    disabled={disabled}
+                                >
+                                    Wybierz emoji ✨
+                                </button>
+                            ) : (
+                                <div className="emoji-picker-wrapper">
+                                    <EmojiPicker
+                                        onEmojiClick={handleEmojiClick}
+                                        width="100%"
+                                        height={350}
+                                    />
+                                    <button
+                                        type="button"
+                                        className="nav-button nav-button-secondary"
+                                        onClick={() => setShowEmojiPicker(false)}
+                                        disabled={disabled}
+                                        style={{ marginTop: '8px' }}
+                                    >
+                                        Anuluj
+                                    </button>
+                                </div>
+                            )}
                         </div>
-                    )}
-
-                    {imageError && (
-                        <span className="form-error">{imageError}</span>
                     )}
                 </div>
 
@@ -456,36 +428,9 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
                     </div>
                 </div>
 
-                <div className="info-box info-box-warning">
-                    <strong>Szkic</strong> - quiz jest widoczny tylko dla Ciebie<br/>
-                    <strong>Opublikowany</strong> - quiz jest dostępny publicznie<br/>
-                    <strong>Zarchiwizowany</strong> - quiz jest ukryty, ale zachowany
+                <div className="info-box info-box-success">
+                    <strong>✅ Gotowe!</strong> Możesz teraz przejść do tworzenia fiszek i wypełnić quiz pytaniami.
                 </div>
-
-            {/* Status & Flags */}
-            <div className="form-row-status">
-                <div className="form-group">
-                    <label htmlFor="status" className="form-label">
-                        Status publikacji
-                    </label>
-                    <select
-                        id="status"
-                        name="status"
-                        className="form-input form-select"
-                        value={data.status}
-                        onChange={handleInputChange}
-                        disabled={disabled}
-                    >
-                        <option value="draft">Szkic</option>
-                        <option value="published">Opublikowany</option>
-                        <option value="archived">Zarchiwizowany</option>
-                    </select>
-                </div>
-            </div>
-
-            <div className="info-box info-box-success">
-                <strong>💡 Wskazówka:</strong> Wersja robocza pozwala pracować nad quizem bez publikowania go.
-            </div>
             </div>
             )}
 
