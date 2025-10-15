@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import data from '@emoji-mart/data';
+import emojiData from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
 import { QuizStatus } from '../../types';
 import { TagSelector } from '../TagSelector';
@@ -337,7 +337,7 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
                             ) : (
                                 <div className="emoji-picker-wrapper">
                                     <Picker
-                                        data={data}
+                                        data={emojiData}
                                         onEmojiSelect={handleEmojiClick}
                                         theme="light"
                                         previewPosition="none"
