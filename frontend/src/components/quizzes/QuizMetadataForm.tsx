@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { QuizStatus } from '../../types';
 import { TagSelector } from '../TagSelector';
+import { ComboBox } from '../ComboBox';
 import { useQuizFilters } from '../../hooks/useQuizFilters';
 import './QuizMetadataForm.css';
 
@@ -142,24 +143,16 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
                     <label htmlFor="subject" className="form-label required">
                         {t('quizEditor.subject')}
                     </label>
-                    <input
-                        type="text"
-                        id="subject"
-                        name="subject"
-                        list="subjects-list"
-                        className={`form-input ${showValidation && !isSubjectValid ? 'invalid' : ''}`}
+                    <ComboBox
                         value={data.subject}
-                        onChange={handleInputChange}
+                        onChange={(value) => onChange({ ...data, subject: value })}
+                        options={subjects || []}
                         placeholder={t('quizEditor.subjectPlaceholder')}
                         disabled={disabled}
-                        required
-                        autoComplete="off"
+                        required={true}
+                        className={showValidation && !isSubjectValid ? 'invalid' : ''}
+                        addNewLabel="+ Dodaj nowy..."
                     />
-                    <datalist id="subjects-list">
-                        {subjects?.map((subject) => (
-                            <option key={subject} value={subject} />
-                        ))}
-                    </datalist>
                     {showValidation && !isSubjectValid && (
                         <span className="form-error">{t('quizEditor.subjectRequired')}</span>
                     )}
@@ -169,46 +162,28 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
                     <label htmlFor="category" className="form-label">
                         {t('quizEditor.category')}
                     </label>
-                    <input
-                        type="text"
-                        id="category"
-                        name="category"
-                        list="categories-list"
-                        className="form-input"
+                    <ComboBox
                         value={data.category || ''}
-                        onChange={handleInputChange}
+                        onChange={(value) => onChange({ ...data, category: value })}
+                        options={categories || []}
                         placeholder={t('quizEditor.categoryPlaceholder')}
                         disabled={disabled}
-                        autoComplete="off"
+                        addNewLabel="+ Dodaj nowy..."
                     />
-                    <datalist id="categories-list">
-                        {categories?.map((category) => (
-                            <option key={category} value={category} />
-                        ))}
-                    </datalist>
                 </div>
 
                 <div className="form-group">
                     <label htmlFor="level" className="form-label">
                         {t('quizEditor.level')}
                     </label>
-                    <input
-                        type="text"
-                        id="level"
-                        name="level"
-                        list="levels-list"
-                        className="form-input"
+                    <ComboBox
                         value={data.level || ''}
-                        onChange={handleInputChange}
+                        onChange={(value) => onChange({ ...data, level: value })}
+                        options={levels || []}
                         placeholder={t('quizEditor.levelPlaceholder')}
                         disabled={disabled}
-                        autoComplete="off"
+                        addNewLabel="+ Dodaj nowy..."
                     />
-                    <datalist id="levels-list">
-                        {levels?.map((level) => (
-                            <option key={level} value={level} />
-                        ))}
-                    </datalist>
                 </div>
             </div>
 
