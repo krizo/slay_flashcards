@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import emojiData from '@emoji-mart/data';
-import Picker from '@emoji-mart/react';
 import { QuizStatus } from '../../types';
 import { TagSelector } from '../TagSelector';
 import { ComboBox } from '../ComboBox';
+import { IconPicker } from '../IconPicker';
+import { QuizIcon } from '../QuizIcon';
 import { useQuizFilters } from '../../hooks/useQuizFilters';
 import './QuizMetadataForm.css';
 
@@ -71,16 +71,15 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
         });
     };
 
-    const handleEmojiClick = (emoji: any) => {
-        // Store emoji as plain text (not base64)
+    const handleIconSelect = (iconName: string) => {
         onChange({
             ...data,
-            image: emoji.native,
+            image: iconName,
         });
         setShowEmojiPicker(false);
     };
 
-    const handleRemoveEmoji = () => {
+    const handleRemoveIcon = () => {
         onChange({
             ...data,
             image: '',
@@ -306,53 +305,41 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
                     />
                 </div>
 
-                {/* Emoji Picker */}
+                {/* Icon Picker */}
                 <div className="form-group">
-                    <label className="form-label">Ikona quizu (emoji)</label>
-                    <p className="form-hint">Wybierz emoji które najlepiej opisuje Twój quiz</p>
+                    <label className="form-label">Ikona quizu</label>
+                    <p className="form-hint">Wybierz ikonę która najlepiej opisuje Twój quiz</p>
 
                     {data.image ? (
-                        <div className="emoji-preview-container">
-                            <span className="emoji-preview">{data.image}</span>
+                        <div className="icon-preview-container">
+                            <div className="icon-preview">
+                                <QuizIcon iconName={data.image} size={48} />
+                            </div>
                             <button
                                 type="button"
-                                className="nav-button nav-button-secondary emoji-remove-button"
-                                onClick={handleRemoveEmoji}
+                                className="nav-button nav-button-secondary icon-remove-button"
+                                onClick={handleRemoveIcon}
                                 disabled={disabled}
                             >
                                 Usuń
                             </button>
                         </div>
                     ) : (
-                        <div className="emoji-picker-container">
+                        <div className="icon-picker-container">
                             {!showEmojiPicker ? (
                                 <button
                                     type="button"
-                                    className="nav-button nav-button-next emoji-picker-button"
+                                    className="nav-button nav-button-next icon-picker-button"
                                     onClick={() => setShowEmojiPicker(true)}
                                     disabled={disabled}
                                 >
-                                    Wybierz emoji ✨
+                                    Wybierz ikonę ✨
                                 </button>
                             ) : (
-                                <div className="emoji-picker-wrapper">
-                                    <Picker
-                                        data={emojiData}
-                                        onEmojiSelect={handleEmojiClick}
-                                        theme="light"
-                                        previewPosition="none"
-                                        skinTonePosition="none"
-                                    />
-                                    <button
-                                        type="button"
-                                        className="nav-button nav-button-secondary"
-                                        onClick={() => setShowEmojiPicker(false)}
-                                        disabled={disabled}
-                                        style={{ marginTop: '8px' }}
-                                    >
-                                        Anuluj
-                                    </button>
-                                </div>
+                                <IconPicker
+                                    onSelect={handleIconSelect}
+                                    onClose={() => setShowEmojiPicker(false)}
+                                />
                             )}
                         </div>
                     )}

@@ -493,45 +493,36 @@
     opacity: 0.6;
 }
 
-/* Emoji Picker */
-.emoji-preview-container {
+/* Icon Picker */
+.icon-preview-container {
     display: flex;
     align-items: center;
     gap: 16px;
 }
 
-.emoji-preview {
-    font-size: 64px;
-    line-height: 1;
-    padding: 12px;
+.icon-preview {
+    padding: 20px;
     background: white;
     border-radius: 12px;
     border: 2px solid #E5E7EB;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 90px;
-    min-height: 90px;
+    color: #3B82F6;
 }
 
-.emoji-remove-button {
+.icon-remove-button {
     align-self: center;
 }
 
-.emoji-picker-container {
+.icon-picker-container {
     display: flex;
     flex-direction: column;
     gap: 12px;
 }
 
-.emoji-picker-button {
+.icon-picker-button {
     align-self: flex-start;
-}
-
-.emoji-picker-wrapper {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
 }
 
 /* Status Section */

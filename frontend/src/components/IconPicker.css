@@ -1,0 +1,130 @@
+.icon-picker {
+    background: white;
+    border-radius: 12px;
+    border: 2px solid #E5E7EB;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.icon-picker-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 2px solid #E5E7EB;
+    background: #F9FAFB;
+}
+
+.icon-picker-header h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #111827;
+}
+
+.icon-picker-close {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: transparent;
+    color: #6B7280;
+    font-size: 20px;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon-picker-close:hover {
+    background: #E5E7EB;
+    color: #374151;
+}
+
+.icon-picker-categories {
+    display: flex;
+    gap: 8px;
+    padding: 16px;
+    background: white;
+    overflow-x: auto;
+    border-bottom: 1px solid #E5E7EB;
+}
+
+.category-button {
+    padding: 8px 16px;
+    border: 2px solid #E5E7EB;
+    border-radius: 20px;
+    background: white;
+    color: #374151;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.category-button:hover {
+    border-color: #3B82F6;
+    background: #EFF6FF;
+    color: #3B82F6;
+}
+
+.category-button.active {
+    border-color: #3B82F6;
+    background: #3B82F6;
+    color: white;
+}
+
+.icon-picker-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+    gap: 8px;
+    padding: 20px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.icon-button {
+    width: 100%;
+    aspect-ratio: 1;
+    border: 2px solid #E5E7EB;
+    border-radius: 8px;
+    background: white;
+    color: #374151;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon-button:hover {
+    border-color: #3B82F6;
+    background: #EFF6FF;
+    color: #3B82F6;
+    transform: scale(1.05);
+}
+
+/* Scrollbar styling */
+.icon-picker-categories::-webkit-scrollbar,
+.icon-picker-grid::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.icon-picker-categories::-webkit-scrollbar-track,
+.icon-picker-grid::-webkit-scrollbar-track {
+    background: #F9FAFB;
+}
+
+.icon-picker-categories::-webkit-scrollbar-thumb,
+.icon-picker-grid::-webkit-scrollbar-thumb {
+    background: #D1D5DB;
+    border-radius: 4px;
+}
+
+.icon-picker-categories::-webkit-scrollbar-thumb:hover,
+.icon-picker-grid::-webkit-scrollbar-thumb:hover {
+    background: #9CA3AF;
+}
