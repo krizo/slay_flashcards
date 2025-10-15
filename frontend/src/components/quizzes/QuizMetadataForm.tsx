@@ -41,6 +41,10 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
     const [imageError, setImageError] = useState<string | null>(null);
     const { subjects, categories, levels } = useQuizFilters();
 
+    // Multi-step form state
+    const [currentStep, setCurrentStep] = useState(1);
+    const totalSteps = 3;
+
     const handleInputChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
     ) => {
@@ -114,10 +118,79 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
     const isNameValid = data.name.trim().length > 0;
     const isSubjectValid = data.subject.trim().length > 0;
 
+    // Step navigation
+    const handleNext = () => {
+        if (currentStep < totalSteps) {
+            setCurrentStep(currentStep + 1);
+        }
+    };
+
+    const handleBack = () => {
+        if (currentStep > 1) {
+            setCurrentStep(currentStep - 1);
+        }
+    };
+
+    // Validation for each step
+    const isStepValid = (step: number): boolean => {
+        switch (step) {
+            case 1:
+                return isNameValid;
+            case 2:
+                return isSubjectValid;
+            case 3:
+                return true;
+            default:
+                return false;
+        }
+    };
+
+    const getStepTitle = (step: number): string => {
+        switch (step) {
+            case 1:
+                return 'Podstawy';
+            case 2:
+                return 'Szczegóły';
+            case 3:
+                return 'Finalizacja';
+            default:
+                return '';
+        }
+    };
+
     return (
         <div className="quiz-metadata-form">
-            {/* ========== PODSTAWOWE INFORMACJE ========== */}
+            {/* Progress Indicator */}
+            <div className="form-progress">
+                {[1, 2, 3].map((step, index) => (
+                    <React.Fragment key={step}>
+                        <div className="progress-step">
+                            <div className={`progress-circle ${currentStep === step ? 'active' : ''} ${currentStep > step ? 'completed' : ''}`}>
+                                {currentStep > step ? '✓' : step}
+                            </div>
+                            <span className={`progress-label ${currentStep === step ? 'active' : ''} ${currentStep > step ? 'completed' : ''}`}>
+                                {getStepTitle(step)}
+                            </span>
+                        </div>
+                        {index < 2 && (
+                            <div className={`progress-divider ${currentStep > step ? 'completed' : ''}`} />
+                        )}
+                    </React.Fragment>
+                ))}
+            </div>
+
+            {/* Step Content */}
+            <div className="form-step">
+
+            {/* ========== STEP 1: PODSTAWOWE INFORMACJE ========== */}
+            {currentStep === 1 && (
             <div className="form-section-container">
+                {/* Hero Section */}
+                <div className="form-hero">
+                    <div className="form-hero-icon">✨</div>
+                    <h2 className="form-hero-title">Stwórz nowy quiz!</h2>
+                    <p className="form-hero-subtitle">Zacznijmy od podstaw - nadaj nazwę i opisz swój quiz</p>
+                </div>
                 <div className="form-section-header">
                     <span className="form-section-header-icon">📝</span>
                     <h3 className="form-section-header-title">Podstawowe informacje</h3>
@@ -162,7 +235,11 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
                     />
                 </div>
             </div>
+            )}
 
+            {/* ========== STEP 2: KLASYFIKACJA I PERSONALIZACJA ========== */}
+            {currentStep === 2 && (
+            <>
             {/* ========== KLASYFIKACJA ========== */}
             <div className="form-section-container">
                 <div className="form-section-header">
@@ -295,8 +372,11 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
                 </div>
             </div>
             </div>
+            </>
+            )}
 
-            {/* ========== USTAWIENIA PUBLIKACJI ========== */}
+            {/* ========== STEP 3: USTAWIENIA PUBLIKACJI ========== */}
+            {currentStep === 3 && (
             <div className="form-section-container">
                 <div className="form-section-header">
                     <span className="form-section-header-icon">⚙️</span>
@@ -358,6 +438,43 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
             <div className="info-box info-box-success">
                 <strong>💡 Wskazówka:</strong> Wersja robocza pozwala pracować nad quizem bez publikowania go. Ulubione quizy są łatwiej dostępne na liście.
             </div>
+            </div>
+            )}
+
+            </div>
+
+            {/* Navigation */}
+            <div className="form-navigation">
+                {currentStep > 1 && (
+                    <button
+                        type="button"
+                        className="nav-button nav-button-back"
+                        onClick={handleBack}
+                        disabled={disabled}
+                    >
+                        ← Wstecz
+                    </button>
+                )}
+                {currentStep < totalSteps ? (
+                    <button
+                        type="button"
+                        className="nav-button nav-button-next"
+                        onClick={handleNext}
+                        disabled={disabled || !isStepValid(currentStep)}
+                        style={{ marginLeft: currentStep === 1 ? 'auto' : '0' }}
+                    >
+                        Dalej →
+                    </button>
+                ) : (
+                    <button
+                        type="button"
+                        className="nav-button nav-button-submit"
+                        disabled={disabled}
+                        style={{ marginLeft: 'auto' }}
+                    >
+                        Gotowe ✓
+                    </button>
+                )}
             </div>
         </div>
     );
