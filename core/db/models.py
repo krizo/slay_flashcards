@@ -1,10 +1,18 @@
 import datetime
 
-from sqlalchemy import JSON, Boolean, Column, DateTime, Float, ForeignKey, Integer, LargeBinary, String, Text, UniqueConstraint, \
+from sqlalchemy import JSON, Boolean, Column, DateTime, Float, ForeignKey, Integer, LargeBinary, String, Table, Text, UniqueConstraint, \
     func  # pylint: disable=import-error
 from sqlalchemy.orm import relationship  # pylint: disable=import-error
 
 from core.db.database import Base
+
+# Association table for Quiz-Tag many-to-many relationship
+quiz_tags = Table(
+    'quiz_tags',
+    Base.metadata,
+    Column('quiz_id', Integer, ForeignKey('quizzes.id', ondelete='CASCADE'), primary_key=True),
+    Column('tag_id', Integer, ForeignKey('tags.id', ondelete='CASCADE'), primary_key=True)
+)
 
 
 class User(Base):
@@ -41,10 +49,13 @@ class Quiz(Base):
     description = Column(Text)
     favourite = Column(Boolean, default=False, nullable=False)  # User's favourite quiz marker
     image = Column(LargeBinary, nullable=True)  # Small image/emoji as binary data
+    is_draft = Column(Boolean, default=True, nullable=False)  # Draft status for quiz creation workflow
+    status = Column(String(20), default='draft', nullable=False)  # Status: draft, published, archived
 
     user = relationship("User", back_populates="quizzes")
     flashcards = relationship("Flashcard", back_populates="quiz", cascade="all, delete-orphan")
     sessions = relationship("Session", back_populates="quiz", cascade="all, delete-orphan")
+    tags = relationship("Tag", secondary=quiz_tags, back_populates="quizzes")
 
 
 class Flashcard(Base):
@@ -87,3 +98,18 @@ class Session(Base):
     # Relationships
     user = relationship("User", back_populates="sessions")
     quiz = relationship("Quiz", back_populates="sessions")
+
+
+class Tag(Base):
+    __tablename__ = "tags"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(50), unique=True, nullable=False, index=True)
+    color = Column(String(7), nullable=True)  # Hex color code (e.g., #FF5733)
+
+    # Relationships
+    quizzes = relationship("Quiz", secondary=quiz_tags, back_populates="tags")
+
+    __table_args__ = (
+        UniqueConstraint("name", name="uq_tag_name"),
+    )

@@ -12,7 +12,7 @@ from fastapi.responses import JSONResponse  # pylint: disable=import-error
 from api.dependencies import auth
 from api.middleware.error_handler import ErrorHandlerMiddleware
 from api.middleware.request_logging import RequestLoggingMiddleware
-from api.routes import flashcards_route, quizzes_route, sessions_route, users_route
+from api.routes import flashcards_route, quizzes_route, sessions_route, tags_route, users_route
 from core.db.database import Base, SessionLocal, engine
 
 # Configure logging
@@ -84,6 +84,7 @@ app.include_router(users_route.router, prefix="/api/v1/users", tags=["users"])
 app.include_router(quizzes_route.router, prefix="/api/v1/quizzes", tags=["quizzes"])
 app.include_router(flashcards_route.router, prefix="/api/v1/flashcards", tags=["flashcards"])
 app.include_router(sessions_route.router, prefix="/api/v1/sessions", tags=["sessions"])
+app.include_router(tags_route.router, prefix="/api/v1", tags=["tags"])
 
 
 # Global exception handler

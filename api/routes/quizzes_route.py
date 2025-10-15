@@ -12,7 +12,7 @@ from sqlalchemy.orm import Session  # pylint: disable=import-error
 from api.api_schemas import (
     Quiz, QuizCreate, QuizUpdate, QuizResponse, QuizzesResponse,
     QuizStats, QuizStatsResponse, QuizImportData, QuizFilters,
-    PaginationParams
+    PaginationParams, Tag
 )
 from api.dependencies.auth import get_current_user
 from api.utils.responses import create_response
@@ -21,6 +21,39 @@ from core.db.database import get_db
 from core.services.quiz_service import QuizService
 
 router = APIRouter()
+
+# Maximum image size in bytes (100KB)
+MAX_IMAGE_SIZE = 102400
+
+
+def validate_image_size(base64_image: Optional[str]) -> None:
+    """
+    Validate that a Base64 encoded image doesn't exceed the maximum size.
+
+    Args:
+        base64_image: Base64 encoded image string
+
+    Raises:
+        HTTPException: If image exceeds maximum size
+    """
+    if not base64_image:
+        return
+
+    try:
+        # Decode Base64 to get actual binary size
+        image_data = base64.b64decode(base64_image)
+        image_size = len(image_data)
+
+        if image_size > MAX_IMAGE_SIZE:
+            raise HTTPException(
+                status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+                detail=f"Image size ({image_size} bytes) exceeds maximum allowed size ({MAX_IMAGE_SIZE} bytes / 100KB)"
+            )
+    except base64.binascii.Error as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid Base64 encoded image data"
+        ) from e
 
 
 def quiz_to_dict(quiz, flashcard_count=None, last_session_at=None):
@@ -35,6 +68,9 @@ def quiz_to_dict(quiz, flashcard_count=None, last_session_at=None):
         "created_at": quiz.created_at,
         "favourite": quiz.favourite if hasattr(quiz, 'favourite') else False,
         "image": base64.b64encode(quiz.image).decode('utf-8') if quiz.image else None,
+        "is_draft": quiz.is_draft if hasattr(quiz, 'is_draft') else True,
+        "status": quiz.status if hasattr(quiz, 'status') else 'draft',
+        "tag_ids": [tag.id for tag in quiz.tags] if hasattr(quiz, 'tags') else [],
         "flashcard_count": flashcard_count,
         "last_session_at": last_session_at
     }
@@ -334,6 +370,9 @@ async def create_quiz(
 ):
     """Create a new quiz."""
     try:
+        # Validate image size if provided
+        validate_image_size(quiz_data.image)
+
         quiz_service = QuizService(db)
         quiz = quiz_service.create_quiz(
             name=quiz_data.name,
@@ -344,6 +383,25 @@ async def create_quiz(
             description=quiz_data.description
         )
 
+        # Handle additional fields not supported by quiz_service.create_quiz
+        if quiz_data.image:
+            quiz.image = base64.b64decode(quiz_data.image)
+
+        if quiz_data.is_draft is not None:
+            quiz.is_draft = quiz_data.is_draft
+
+        if quiz_data.status:
+            quiz.status = quiz_data.status
+
+        # Handle tags
+        if quiz_data.tag_ids:
+            from core.db.models import Tag as TagModel
+            tags = db.query(TagModel).filter(TagModel.id.in_(quiz_data.tag_ids)).all()
+            quiz.tags = tags
+
+        db.commit()
+        db.refresh(quiz)
+
         quiz_dict = quiz_to_dict(quiz, flashcard_count=0)
 
         return create_response(
@@ -352,7 +410,10 @@ async def create_quiz(
             status_code=status.HTTP_201_CREATED
         )
 
+    except HTTPException:
+        raise
     except Exception as e:
+        db.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to create quiz: {str(e)}"
@@ -368,6 +429,9 @@ async def update_quiz(
 ):
     """Update an existing quiz."""
     try:
+        # Validate image size if provided
+        validate_image_size(quiz_data.image)
+
         quiz_service = QuizService(db)
         quiz = quiz_service.get_quiz_by_id(quiz_id)
 
@@ -379,11 +443,30 @@ async def update_quiz(
 
         # Update quiz fields
         update_data = quiz_data.model_dump(exclude_unset=True)
+
+        # Handle special fields
+        tag_ids = update_data.pop('tag_ids', None)
+        image_data = update_data.pop('image', None)
+
+        # Update regular fields
         for field, value in update_data.items():
             setattr(quiz, field, value)
 
-        # Save changes (this would need to be implemented in your service)
-        # For now, we'll assume the quiz service handles this
+        # Handle image field - decode Base64 to binary
+        if image_data is not None:
+            if image_data:
+                quiz.image = base64.b64decode(image_data)
+            else:
+                quiz.image = None
+
+        # Handle tags
+        if tag_ids is not None:
+            from core.db.models import Tag as TagModel
+            tags = db.query(TagModel).filter(TagModel.id.in_(tag_ids)).all()
+            quiz.tags = tags
+
+        db.commit()
+        db.refresh(quiz)
 
         flashcards = quiz_service.get_quiz_flashcards(quiz.id)
         quiz_dict = quiz_to_dict(quiz, flashcard_count=len(flashcards))
@@ -396,6 +479,7 @@ async def update_quiz(
     except HTTPException:
         raise
     except Exception as e:
+        db.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to update quiz: {str(e)}"

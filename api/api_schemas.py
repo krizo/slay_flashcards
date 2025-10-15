@@ -180,7 +180,10 @@ class QuizBase(BaseModel):
     level: Optional[str] = Field(None, max_length=50, description="Level of advancement (e.g., Beginner, Class 5)")
     description: Optional[str] = Field(None, max_length=1000, description="Quiz description")
     favourite: bool = Field(default=False, description="User's favourite quiz marker")
-    image: Optional[str] = Field(None, description="Base64 encoded image data")
+    image: Optional[str] = Field(None, description="Base64 encoded image data (max 100KB)")
+    is_draft: bool = Field(default=True, description="Draft status for quiz creation workflow")
+    status: Optional[str] = Field(default='draft', max_length=20, description="Status: draft, published, archived")
+    tag_ids: Optional[List[int]] = Field(default=None, description="List of tag IDs associated with the quiz")
 
 
 class QuizCreate(QuizBase):
@@ -197,6 +200,9 @@ class QuizUpdate(BaseModel):
     description: Optional[str] = Field(None, max_length=1000)
     favourite: Optional[bool] = None
     image: Optional[str] = None
+    is_draft: Optional[bool] = None
+    status: Optional[str] = Field(None, max_length=20)
+    tag_ids: Optional[List[int]] = None
 
 
 class Quiz(QuizBase):
@@ -208,6 +214,54 @@ class Quiz(QuizBase):
     created_at: datetime
     flashcard_count: Optional[int] = None
     last_session_at: Optional[datetime] = None
+
+
+# =============================================================================
+# TAG SCHEMAS
+# =============================================================================
+
+
+class TagBase(BaseModel):
+    """Base tag schema."""
+
+    name: str = Field(..., min_length=1, max_length=50, description="Tag name")
+    color: Optional[str] = Field(None, max_length=7, description="Hex color code (e.g., #FF5733)")
+
+
+class TagCreate(TagBase):
+    """Tag creation schema."""
+
+
+class TagUpdate(BaseModel):
+    """Tag update schema."""
+
+    name: Optional[str] = Field(None, min_length=1, max_length=50)
+    color: Optional[str] = Field(None, max_length=7)
+
+
+class Tag(TagBase):
+    """Tag response schema."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+
+
+class TagResponse(BaseResponse):
+    """Tag response with data."""
+
+    data: Tag
+
+
+class TagsResponse(BaseResponse):
+    """Multiple tags response."""
+
+    data: List[Tag]
+
+
+# =============================================================================
+# QUIZ STATS SCHEMAS
+# =============================================================================
 
 
 class QuizStats(BaseModel):
