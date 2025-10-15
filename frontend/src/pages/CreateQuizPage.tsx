@@ -270,12 +270,15 @@ function CreateQuizPage() {
     if (step === 'metadata') {
         return (
             <div className="create-quiz-page">
-                <div className="create-quiz-container">
-                    <div className="create-quiz-header">
-                        <h1>{t('createQuiz.title')}</h1>
-                        <p className="subtitle">{t('createQuiz.metadataSubtitle')}</p>
+                {/* Top bar with title */}
+                <div className="create-quiz-topbar">
+                    <div className="create-quiz-topbar-content">
+                        <h1 className="topbar-title">{t('createQuiz.title')}</h1>
+                        <p className="topbar-subtitle">{t('createQuiz.metadataSubtitle')}</p>
                     </div>
+                </div>
 
+                <div className="create-quiz-container">
                     <QuizMetadataForm
                         data={metadataForm}
                         onChange={setMetadataForm}
@@ -301,9 +304,9 @@ function CreateQuizPage() {
                             type="button"
                             className="action-button action-button--primary"
                             onClick={handleMetadataSubmit}
-                            disabled={isSaving}
+                            disabled={isSaving || !isMetadataValid()}
                         >
-                            {isSaving ? t('createQuiz.creating') : t('createQuiz.continue')}
+                            {isSaving ? t('createQuiz.creating') : 'Przejdź do fiszek →'}
                         </button>
                     </div>
                 </div>
