@@ -1,6 +1,7 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import EmojiPicker, { EmojiClickData } from 'emoji-picker-react';
+import data from '@emoji-mart/data';
+import Picker from '@emoji-mart/react';
 import { QuizStatus } from '../../types';
 import { TagSelector } from '../TagSelector';
 import { ComboBox } from '../ComboBox';
@@ -70,11 +71,11 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
         });
     };
 
-    const handleEmojiClick = (emojiData: EmojiClickData) => {
+    const handleEmojiClick = (emoji: any) => {
         // Store emoji as plain text (not base64)
         onChange({
             ...data,
-            image: emojiData.emoji,
+            image: emoji.native,
         });
         setShowEmojiPicker(false);
     };
@@ -335,10 +336,12 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
                                 </button>
                             ) : (
                                 <div className="emoji-picker-wrapper">
-                                    <EmojiPicker
-                                        onEmojiClick={handleEmojiClick}
-                                        width="100%"
-                                        height={350}
+                                    <Picker
+                                        data={data}
+                                        onEmojiSelect={handleEmojiClick}
+                                        theme="light"
+                                        previewPosition="none"
+                                        skinTonePosition="none"
                                     />
                                     <button
                                         type="button"
