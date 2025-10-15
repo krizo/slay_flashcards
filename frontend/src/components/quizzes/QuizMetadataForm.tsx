@@ -244,11 +244,12 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
             {/* ========== STEP 2: KLASYFIKACJA ========== */}
             {currentStep === 2 && (
             <div className="form-section-container">
-                <div className="form-section-header">
-                    <span className="form-section-header-icon">🏷️</span>
-                    <h3 className="form-section-header-title">Klasyfikacja</h3>
+                {/* Hero Section */}
+                <div className="form-hero">
+                    <div className="form-hero-icon">🏷️</div>
+                    <h2 className="form-hero-title">Klasyfikacja</h2>
+                    <p className="form-hero-subtitle">Uporządkuj swój quiz - wybierz przedmiot, kategorię i poziom</p>
                 </div>
-                <div className="form-section-divider" />
 
                 <div className="info-box">
                     Pomaga uporządkować quizy i ułatwia ich wyszukiwanie. Możesz wybrać istniejące wartości lub dodać nowe.
@@ -312,14 +313,15 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
             {/* ========== STEP 3: PERSONALIZACJA ========== */}
             {currentStep === 3 && (
             <div className="form-section-container">
-                <div className="form-section-header">
-                    <span className="form-section-header-icon">🎨</span>
-                    <h3 className="form-section-header-title">Personalizacja</h3>
+                {/* Hero Section */}
+                <div className="form-hero">
+                    <div className="form-hero-icon">🎨</div>
+                    <h2 className="form-hero-title">Personalizacja</h2>
+                    <p className="form-hero-subtitle">Nadaj swojemu quizowi indywidualny charakter!</p>
                 </div>
-                <div className="form-section-divider" />
 
                 <div className="info-box">
-                    Nadaj swojemu quizowi indywidualny charakter - dodaj tagi i ikonę!
+                    Dodaj tagi aby łatwiej organizować quizy i małą ikonę, która będzie wyświetlana na liście.
                 </div>
 
             {/* Tags and Icon - side by side */}
@@ -385,11 +387,12 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
             {/* ========== STEP 4: USTAWIENIA PUBLIKACJI ========== */}
             {currentStep === 4 && (
             <div className="form-section-container">
-                <div className="form-section-header">
-                    <span className="form-section-header-icon">⚙️</span>
-                    <h3 className="form-section-header-title">Ustawienia publikacji</h3>
+                {/* Hero Section */}
+                <div className="form-hero">
+                    <div className="form-hero-icon">⚙️</div>
+                    <h2 className="form-hero-title">Finalizacja</h2>
+                    <p className="form-hero-subtitle">Zdecyduj, kiedy i jak quiz będzie dostępny</p>
                 </div>
-                <div className="form-section-divider" />
 
                 <div className="info-box info-box-warning">
                     <strong>Szkic</strong> - quiz jest widoczny tylko dla Ciebie<br/>

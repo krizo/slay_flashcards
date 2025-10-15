@@ -74,15 +74,15 @@
     background: #10B981;
 }
 
-/* Step animations */
+/* Step animations - swipe effect */
 .form-step {
-    animation: slideIn 0.4s ease-out;
+    animation: slideInRight 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-@keyframes slideIn {
+@keyframes slideInRight {
     from {
         opacity: 0;
-        transform: translateX(20px);
+        transform: translateX(60px);
     }
     to {
         opacity: 1;
@@ -91,24 +91,24 @@
 }
 
 .form-step.slide-out {
-    animation: slideOut 0.3s ease-in;
+    animation: slideOutLeft 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-@keyframes slideOut {
+@keyframes slideOutLeft {
     from {
         opacity: 1;
         transform: translateX(0);
     }
     to {
         opacity: 0;
-        transform: translateX(-20px);
+        transform: translateX(-60px);
     }
 }
 
-/* Hero section for step 1 */
+/* Hero section for all steps */
 .form-hero {
     text-align: center;
-    padding: 40px 20px;
+    padding: 28px 20px;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     border-radius: 12px;
     color: white;
@@ -116,8 +116,8 @@
 }
 
 .form-hero-icon {
-    font-size: 64px;
-    margin-bottom: 16px;
+    font-size: 48px;
+    margin-bottom: 12px;
     animation: float 3s ease-in-out infinite;
 }
 
@@ -131,13 +131,13 @@
 }
 
 .form-hero-title {
-    font-size: 28px;
+    font-size: 24px;
     font-weight: 700;
-    margin: 0 0 12px 0;
+    margin: 0 0 8px 0;
 }
 
 .form-hero-subtitle {
-    font-size: 16px;
+    font-size: 15px;
     opacity: 0.9;
     margin: 0;
 }
@@ -243,7 +243,7 @@
 }
 
 .form-label {
-    font-size: 14px;
+    font-size: 15px;
     font-weight: 600;
     color: #374151;
 }
@@ -254,16 +254,16 @@
 }
 
 .form-hint {
-    font-size: 13px;
+    font-size: 14px;
     color: #6B7280;
     margin: -4px 0 0 0;
 }
 
 .form-input {
-    padding: 10px 14px;
+    padding: 12px 16px;
     border: 1px solid #D1D5DB;
     border-radius: 8px;
-    font-size: 14px;
+    font-size: 15px;
     font-family: inherit;
     transition: all 0.2s ease;
     background: white;
@@ -461,14 +461,14 @@
 }
 
 .form-section-header-title {
-    font-size: 15px;
+    font-size: 17px;
     font-weight: 600;
     color: #111827;
     margin: 0;
 }
 
 .form-section-header-icon {
-    font-size: 16px;
+    font-size: 18px;
 }
 
 .form-section-divider {
@@ -479,13 +479,13 @@
 
 /* Info boxes */
 .info-box {
-    padding: 12px;
+    padding: 14px 16px;
     background: #EFF6FF;
     border-left: 3px solid #3B82F6;
     border-radius: 6px;
-    font-size: 13px;
+    font-size: 14px;
     color: #1E40AF;
-    line-height: 1.5;
+    line-height: 1.6;
 }
 
 .info-box-warning {
