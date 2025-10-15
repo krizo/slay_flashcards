@@ -14,9 +14,9 @@ import {
     FaLightbulb, FaQuestionCircle, FaCheckCircle, FaExclamationCircle,
 } from 'react-icons/fa';
 import {
-    GiAncientColumns, GiAncientRuins, GiVase, GiAncientSword,
-    GiEgyptianBird, GiPyramids, GiGreekTemple, GiRomanToga,
-    GiSpellBook, GiCrystalBall, GiScrollUnfurled, GiQuillInk,
+    GiAncientColumns, GiAncientRuins, GiAncientSword,
+    GiEgyptianBird, GiGreekTemple, GiRomanToga,
+    GiSpellBook, GiQuillInk,
     GiChemicalDrop, GiMaterialsScience, GiAtom, GiDna1,
     GiWorld, GiEarthAmerica, GiMountainRoad, GiVolcano,
 } from 'react-icons/gi';
@@ -43,10 +43,8 @@ const ICON_CATEGORIES: IconCategory[] = [
         icons: [
             { icon: GiAncientColumns, name: 'ancient-columns' },
             { icon: GiAncientRuins, name: 'ancient-ruins' },
-            { icon: GiVase, name: 'vase' },
             { icon: GiAncientSword, name: 'sword' },
             { icon: GiEgyptianBird, name: 'egyptian' },
-            { icon: GiPyramids, name: 'pyramids' },
             { icon: GiGreekTemple, name: 'temple' },
             { icon: GiRomanToga, name: 'roman' },
             { icon: FaLandmark, name: 'landmark' },

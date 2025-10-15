@@ -14,9 +14,9 @@ import {
     FaLightbulb, FaQuestionCircle, FaCheckCircle, FaExclamationCircle,
 } from 'react-icons/fa';
 import {
-    GiAncientColumns, GiAncientRuins, GiVase, GiAncientSword,
-    GiEgyptianBird, GiPyramids, GiGreekTemple, GiRomanToga,
-    GiSpellBook, GiCrystalBall, GiScrollUnfurled, GiQuillInk,
+    GiAncientColumns, GiAncientRuins, GiAncientSword,
+    GiEgyptianBird, GiGreekTemple, GiRomanToga,
+    GiSpellBook, GiQuillInk,
     GiChemicalDrop, GiMaterialsScience, GiAtom, GiDna1,
     GiWorld, GiEarthAmerica, GiMountainRoad, GiVolcano,
 } from 'react-icons/gi';
@@ -29,10 +29,8 @@ import { IconType } from 'react-icons';
 const ICON_MAP: Record<string, IconType> = {
     'ancient-columns': GiAncientColumns,
     'ancient-ruins': GiAncientRuins,
-    'vase': GiVase,
     'sword': GiAncientSword,
     'egyptian': GiEgyptianBird,
-    'pyramids': GiPyramids,
     'temple': GiGreekTemple,
     'roman': GiRomanToga,
     'landmark': FaLandmark,
