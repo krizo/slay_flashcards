@@ -2,6 +2,7 @@
 Tag management routes for the SlayFlashcards API.
 """
 
+import logging
 from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, status  # pylint: disable=import-error
@@ -13,6 +14,8 @@ from api.dependencies.auth import get_current_user
 from core.db.database import get_db
 from core.db.models import Tag as TagModel
 
+logger = logging.getLogger(__name__)
+
 router = APIRouter(prefix="/tags", tags=["tags"])
 
 
@@ -22,9 +25,9 @@ async def get_tags(
     current_user = Depends(get_current_user)
 ):
     """
-    Get all available tags.
+    Get all tags for the current user.
     """
-    tags = db.query(TagModel).order_by(TagModel.name).all()
+    tags = db.query(TagModel).filter(TagModel.user_id == current_user.id).order_by(TagModel.name).all()
 
     return TagsResponse(
         success=True,
@@ -40,9 +43,12 @@ async def get_tag(
     current_user = Depends(get_current_user)
 ):
     """
-    Get a specific tag by ID.
+    Get a specific tag by ID (only if it belongs to the current user).
     """
-    tag = db.query(TagModel).filter(TagModel.id == tag_id).first()
+    tag = db.query(TagModel).filter(
+        TagModel.id == tag_id,
+        TagModel.user_id == current_user.id
+    ).first()
 
     if not tag:
         raise HTTPException(
@@ -64,17 +70,27 @@ async def create_tag(
     current_user = Depends(get_current_user)
 ):
     """
-    Create a new tag.
+    Create a new tag for the current user.
     """
-    # Check if tag with this name already exists
-    existing_tag = db.query(TagModel).filter(TagModel.name == tag_data.name).first()
+    logger.info(f"Creating tag '{tag_data.name}' for user {current_user.id}")
+
+    # Check if tag with this name already exists for this user
+    existing_tag = db.query(TagModel).filter(
+        TagModel.user_id == current_user.id,
+        TagModel.name == tag_data.name
+    ).first()
+
     if existing_tag:
+        logger.warning(f"Tag '{tag_data.name}' already exists for user {current_user.id} (tag_id: {existing_tag.id})")
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail=f"Tag with name '{tag_data.name}' already exists"
         )
 
+    logger.info(f"No existing tag found, creating new tag '{tag_data.name}'")
+
     new_tag = TagModel(
+        user_id=current_user.id,
         name=tag_data.name,
         color=tag_data.color
     )
@@ -84,13 +100,16 @@ async def create_tag(
         db.commit()
         db.refresh(new_tag)
 
+        logger.info(f"Tag '{new_tag.name}' created successfully with ID {new_tag.id} for user {current_user.id}")
+
         return TagResponse(
             success=True,
             message="Tag created successfully",
             data=Tag.model_validate(new_tag)
         )
-    except IntegrityError:
+    except IntegrityError as e:
         db.rollback()
+        logger.error(f"IntegrityError creating tag '{tag_data.name}' for user {current_user.id}: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="Tag with this name already exists"
@@ -105,9 +124,12 @@ async def update_tag(
     current_user = Depends(get_current_user)
 ):
     """
-    Update an existing tag.
+    Update an existing tag (only if it belongs to the current user).
     """
-    tag = db.query(TagModel).filter(TagModel.id == tag_id).first()
+    tag = db.query(TagModel).filter(
+        TagModel.id == tag_id,
+        TagModel.user_id == current_user.id
+    ).first()
 
     if not tag:
         raise HTTPException(
@@ -115,9 +137,12 @@ async def update_tag(
             detail=f"Tag with ID {tag_id} not found"
         )
 
-    # Check if new name conflicts with existing tag
+    # Check if new name conflicts with existing tag for this user
     if tag_data.name and tag_data.name != tag.name:
-        existing_tag = db.query(TagModel).filter(TagModel.name == tag_data.name).first()
+        existing_tag = db.query(TagModel).filter(
+            TagModel.user_id == current_user.id,
+            TagModel.name == tag_data.name
+        ).first()
         if existing_tag:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
@@ -154,10 +179,13 @@ async def delete_tag(
     current_user = Depends(get_current_user)
 ):
     """
-    Delete a tag.
+    Delete a tag (only if it belongs to the current user).
     Note: This will remove the tag from all quizzes that use it.
     """
-    tag = db.query(TagModel).filter(TagModel.id == tag_id).first()
+    tag = db.query(TagModel).filter(
+        TagModel.id == tag_id,
+        TagModel.user_id == current_user.id
+    ).first()
 
     if not tag:
         raise HTTPException(

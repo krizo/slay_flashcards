@@ -5,23 +5,27 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../context/AuthContext';
 import { useSessionContext } from '../../contexts/SessionContext';
 import { usePageHeader } from '../../contexts/PageHeaderContext';
+import { useUnsavedChanges } from '../../contexts/UnsavedChangesContext';
 
 function Header() {
     const { t } = useTranslation();
     const { user, isLoading, logout } = useAuth();
     const { sessionInfo } = useSessionContext();
     const { pageTitle, pageSubtitle } = usePageHeader();
+    const { requestConfirmation } = useUnsavedChanges();
     const navigate = useNavigate();
 
     const handleLogout = async () => {
-        try {
-            logout();
-            navigate('/login');
-        } catch (error) {
-            console.error('Logout failed:', error);
-            // Still navigate to login even if server logout fails
-            navigate('/login');
-        }
+        requestConfirmation(() => {
+            try {
+                logout();
+                navigate('/login');
+            } catch (error) {
+                console.error('Logout failed:', error);
+                // Still navigate to login even if server logout fails
+                navigate('/login');
+            }
+        });
     };
 
     // Format date helper (same as SessionHeader)
@@ -80,7 +84,7 @@ function Header() {
             {/* Session info (left side) or Page Title */}
             {pageTitle ? (
                 <div className="header-page-title">
-                    <span className="page-title-icon">✨</span>
+                    <span className="page-title-icon">🪄</span>
                     <div className="page-title-content">
                         <h1 className="page-title">{pageTitle}</h1>
                         {pageSubtitle && <p className="page-subtitle">{pageSubtitle}</p>}

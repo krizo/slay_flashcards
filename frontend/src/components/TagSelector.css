@@ -154,8 +154,9 @@
     border-radius: 16px;
     font-size: 14px;
     outline: none;
-    min-width: 120px;
-    max-width: 200px;
+    min-width: 180px;
+    max-width: 280px;
+    flex: 1;
 }
 
 .tag-name-input-inline:focus {

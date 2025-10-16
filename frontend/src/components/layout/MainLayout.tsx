@@ -2,6 +2,7 @@ import { Outlet, NavLink } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import Header from './Header';
 import Footer from './Footer';
+import ConfirmModal from '../ConfirmModal';
 
 function MainLayout() {
     const { t } = useTranslation();
@@ -51,6 +52,9 @@ function MainLayout() {
                     <Outlet />
                 </main>
             </div>
+
+            {/* Global confirmation modal */}
+            <ConfirmModal />
         </div>
     );
 }

@@ -24,14 +24,14 @@
 }
 
 .progress-circle {
-    width: 40px;
-    height: 40px;
+    width: 48px;
+    height: 48px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 600;
-    font-size: 16px;
+    font-size: 20px;
     transition: all 0.3s ease;
     background: #E5E7EB;
     color: #9CA3AF;
@@ -108,16 +108,20 @@
 /* Hero section for all steps */
 .form-hero {
     text-align: center;
-    padding: 28px 20px;
+    padding: 32px 20px;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     border-radius: 12px;
     color: white;
     margin-bottom: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
 .form-hero-icon {
-    font-size: 48px;
-    margin-bottom: 12px;
+    font-size: 56px;
+    margin-bottom: 14px;
     animation: float 3s ease-in-out infinite;
 }
 
@@ -131,16 +135,16 @@
 }
 
 .form-hero-title {
-    font-size: 24px;
+    font-size: 28px;
     font-weight: 700;
-    margin: 0 0 8px 0;
+    margin: 0 0 10px 0;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
 .form-hero-subtitle {
-    font-size: 16px;
+    font-size: 18px;
     opacity: 0.9;
     margin: 0;
 }
@@ -687,6 +691,8 @@
 .checkbox-label-large {
     font-size: 16px;
     font-weight: 500;
+    display: flex;
+    align-items: center;
 }
 
 .checkbox-label-large input[type="checkbox"] {
@@ -711,58 +717,146 @@
     }
 }
 
-/* Quiz Summary */
+/* Step 3 specific - Tags section needs more spacing */
+.form-row-three .form-group {
+    gap: 12px;
+}
+
+/* Favourite checkbox styling with hint to the right */
+.form-group .checkbox-label-large + .form-hint {
+    margin-left: 28px;
+    margin-top: -4px;
+}
+
+/* Quiz Summary - styled like quiz-list-item */
 .quiz-summary {
-    background: #F9FAFB;
-    border: 1px solid #E5E7EB;
+    background: linear-gradient(to bottom, #ffffff, #f9fafb);
+    border: 2px solid #E5E7EB;
     border-radius: 12px;
-    padding: 20px;
+    padding: 0;
     margin-bottom: 24px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s ease-in-out;
+}
+
+.quiz-summary:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border-color: #D1D5DB;
 }
 
 .summary-title {
-    margin: 0 0 16px 0;
-    font-size: 16px;
-    font-weight: 600;
+    margin: 0;
+    padding: 16px 20px;
+    font-size: 18px;
+    font-weight: 700;
     color: #111827;
+    background: linear-gradient(135deg, rgba(106, 63, 251, 0.08) 0%, rgba(139, 92, 246, 0.08) 100%);
+    border-bottom: 2px solid #E5E7EB;
+    border-radius: 12px 12px 0 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
-.summary-grid {
+.summary-content {
+    padding: 20px;
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+}
+
+/* Summary sections */
+.summary-section {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.summary-section:not(:last-child) {
+    padding-right: 20px;
+    border-right: 2px solid #E5E7EB;
+}
+
+.summary-section-title {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 700;
+    color: #6366F1;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.summary-section-items {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
 }
 
 .summary-item {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 8px;
+    padding-bottom: 14px;
+    padding-top: 14px;
+}
+
+.summary-item:not(:last-child) {
+    border-bottom: 1px solid #E5E7EB;
 }
 
 .summary-item-full {
-    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-bottom: 14px;
+    padding-top: 14px;
+}
+
+.summary-item-full:not(:last-child) {
+    border-bottom: 1px solid #E5E7EB;
 }
 
 .summary-label {
-    font-size: 13px;
-    font-weight: 600;
+    font-size: 15px;
+    font-weight: 700;
     color: #6B7280;
+    white-space: nowrap;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.6px;
 }
 
 .summary-value {
-    font-size: 15px;
+    font-size: 17px;
     color: #111827;
-    font-weight: 500;
+    font-weight: 400;
+    padding-left: 24px;
+}
+
+.summary-value.summary-description {
+    font-size: 16px;
+    line-height: 1.6;
+    color: #111827;
+    font-weight: 400;
 }
 
 @media (max-width: 768px) {
-    .summary-grid {
+    .summary-content {
         grid-template-columns: 1fr;
+        gap: 20px;
     }
 
-    .summary-item-full {
-        grid-column: 1;
+    .summary-section:not(:last-child) {
+        padding-right: 0;
+        padding-bottom: 16px;
+        border-right: none;
+        border-bottom: 1px solid #E5E7EB;
+    }
+
+    .summary-label {
+        font-size: 12px;
+    }
+
+    .summary-value {
+        font-size: 15px;
     }
 }

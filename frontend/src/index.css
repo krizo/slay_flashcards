@@ -190,14 +190,16 @@ body {
 .page-title-content {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 0;
     min-width: 0;
     justify-content: center;
+    padding-top: 12px;
 }
 
-.page-title {
+.header-page-title .page-title {
     margin: 0;
-    font-size: 0.85em;
+    margin-bottom: -2px;
+    font-size: 18px !important;
     font-weight: 700;
     color: var(--color-text-dark);
     white-space: nowrap;
@@ -205,9 +207,10 @@ body {
     text-overflow: ellipsis;
 }
 
-.page-subtitle {
+.header-page-title .page-subtitle {
     margin: 0;
-    font-size: 0.95em;
+    margin-top: -6px;
+    font-size: 14px !important;
     color: var(--color-text-light);
     font-weight: 500;
 }

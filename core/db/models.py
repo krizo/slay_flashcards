@@ -104,12 +104,14 @@ class Tag(Base):
     __tablename__ = "tags"
 
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String(50), unique=True, nullable=False, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    name = Column(String(50), nullable=False, index=True)
     color = Column(String(7), nullable=True)  # Hex color code (e.g., #FF5733)
 
     # Relationships
+    user = relationship("User", backref="tags")
     quizzes = relationship("Quiz", secondary=quiz_tags, back_populates="tags")
 
     __table_args__ = (
-        UniqueConstraint("name", name="uq_tag_name"),
+        UniqueConstraint("user_id", "name", name="uq_tag_user_name"),
     )

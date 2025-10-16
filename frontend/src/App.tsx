@@ -2,6 +2,7 @@ import { Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { SessionProvider } from './contexts/SessionContext';
 import { PageHeaderProvider } from './contexts/PageHeaderContext';
+import { UnsavedChangesProvider } from './contexts/UnsavedChangesContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import MainLayout from './components/layout/MainLayout';
 import LoginPage from './pages/LoginPage';
@@ -19,29 +20,31 @@ function App() {
         <AuthProvider>
             <SessionProvider>
                 <PageHeaderProvider>
-                <Routes>
-                {/* Public routes */}
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/register" element={<RegisterPage />} />
+                    <UnsavedChangesProvider>
+                        <Routes>
+                            {/* Public routes */}
+                            <Route path="/login" element={<LoginPage />} />
+                            <Route path="/register" element={<RegisterPage />} />
 
-                {/* Protected routes with MainLayout */}
-                <Route
-                    path="/*"
-                    element={
-                        <ProtectedRoute>
-                            <MainLayout />
-                        </ProtectedRoute>
-                    }
-                >
-                    <Route path="" element={<DashboardPage />} />
-                    <Route path="quizzes" element={<QuizzesPage />} />
-                    <Route path="quizzes/create" element={<CreateQuizPage />} />
-                    <Route path="quizzes/:quizId/edit" element={<EditQuizPage />} />
-                    <Route path="quizzes/:quizId/summary" element={<QuizSummaryPage />} />
-                    <Route path="learning-session" element={<LearningSessionPage />} />
-                    <Route path="settings" element={<SettingsPage />} />
-                </Route>
-            </Routes>
+                            {/* Protected routes with MainLayout */}
+                            <Route
+                                path="/*"
+                                element={
+                                    <ProtectedRoute>
+                                        <MainLayout />
+                                    </ProtectedRoute>
+                                }
+                            >
+                                <Route path="" element={<DashboardPage />} />
+                                <Route path="quizzes" element={<QuizzesPage />} />
+                                <Route path="quizzes/create" element={<CreateQuizPage />} />
+                                <Route path="quizzes/:quizId/edit" element={<EditQuizPage />} />
+                                <Route path="quizzes/:quizId/summary" element={<QuizSummaryPage />} />
+                                <Route path="learning-session" element={<LearningSessionPage />} />
+                                <Route path="settings" element={<SettingsPage />} />
+                            </Route>
+                        </Routes>
+                    </UnsavedChangesProvider>
                 </PageHeaderProvider>
             </SessionProvider>
         </AuthProvider>

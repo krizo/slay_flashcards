@@ -6,6 +6,7 @@ import { ComboBox } from '../ComboBox';
 import { IconPicker } from '../IconPicker';
 import { QuizIcon } from '../QuizIcon';
 import { useQuizFilters } from '../../hooks/useQuizFilters';
+import { useTags } from '../../hooks/useTags';
 import './QuizMetadataForm.css';
 
 export interface QuizMetadataFormData {
@@ -44,6 +45,7 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
 }) => {
     const { t } = useTranslation();
     const { subjects, categories, levels } = useQuizFilters();
+    const { tags } = useTags(accessToken);
 
     // Multi-step form state
     const [currentStep, setCurrentStep] = useState(1);
@@ -51,6 +53,9 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
 
     // Emoji picker state
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+
+    // Get selected tags for display
+    const selectedTags = tags.filter(tag => data.tag_ids.includes(tag.id));
 
     const handleInputChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -198,7 +203,7 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
                             <span className="label-icon-large">📋</span>
                             <span>Opis</span>
                         </label>
-                        <p className="form-hint-caring">Pomoże Ci zrozumieć, czego dotyczy i jaką wiedzę zawiera</p>
+                        <p className="form-hint-caring">Pomoże Ci zrozumieć jaką wiedzę zawiera</p>
                         <textarea
                             id="description"
                             name="description"
@@ -214,7 +219,6 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
             </div>
             )}
 
-            {/* ========== STEP 2: KLASYFIKACJA ========== */}
             {currentStep === 2 && (
             <div className="form-section-container">
                 {/* Hero Section */}
@@ -281,7 +285,6 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
             </div>
             )}
 
-            {/* ========== STEP 3: PERSONALIZACJA ========== */}
             {currentStep === 3 && (
             <div className="form-section-container">
                 {/* Hero Section */}
@@ -363,7 +366,6 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
             </div>
             )}
 
-            {/* ========== STEP 4: FINALIZACJA ========== */}
             {currentStep === 4 && (
             <div className="form-section-container">
                 {/* Hero Section */}
@@ -375,44 +377,77 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
 
                 {/* Quiz Summary */}
                 <div className="quiz-summary">
-                    <h3 className="summary-title">Podsumowanie quizu</h3>
-                    <div className="summary-grid">
-                        <div className="summary-item">
-                            <span className="summary-label">Nazwa:</span>
-                            <span className="summary-value">{data.name || '(brak)'}</span>
+                    <h3 className="summary-title">
+                        <span style={{ fontSize: '28px', lineHeight: 1 }}>
+                            {data.image || '📋'}
+                        </span>
+                        <span>Podsumowanie quizu</span>
+                    </h3>
+                    <div className="summary-content">
+                        {/* Section 1: Nazwa i Opis */}
+                        <div className="summary-section">
+                            <h4 className="summary-section-title">📝 Podstawowe informacje</h4>
+                            <div className="summary-section-items">
+                                <div className="summary-item">
+                                    <span className="summary-label">📌 Nazwa:</span>
+                                    <span className="summary-value">{data.name || '(brak)'}</span>
+                                </div>
+                                {data.description && (
+                                    <div className="summary-item summary-item-full">
+                                        <span className="summary-label">📋 Opis:</span>
+                                        <span className="summary-value summary-description">{data.description}</span>
+                                    </div>
+                                )}
+                            </div>
                         </div>
-                        <div className="summary-item">
-                            <span className="summary-label">Przedmiot:</span>
-                            <span className="summary-value">{data.subject || '(brak)'}</span>
+
+                        {/* Section 2: Kategoryzacja */}
+                        <div className="summary-section">
+                            <h4 className="summary-section-title">🏷️ Kategoryzacja</h4>
+                            <div className="summary-section-items">
+                                <div className="summary-item">
+                                    <span className="summary-label">📚 Przedmiot:</span>
+                                    <span className="summary-value">{data.subject || '(brak)'}</span>
+                                </div>
+                                {data.category && (
+                                    <div className="summary-item">
+                                        <span className="summary-label">📂 Kategoria:</span>
+                                        <span className="summary-value">{data.category}</span>
+                                    </div>
+                                )}
+                                {data.level && (
+                                    <div className="summary-item">
+                                        <span className="summary-label">📊 Poziom:</span>
+                                        <span className="summary-value">{data.level}</span>
+                                    </div>
+                                )}
+                            </div>
                         </div>
-                        {data.category && (
-                            <div className="summary-item">
-                                <span className="summary-label">Kategoria:</span>
-                                <span className="summary-value">{data.category}</span>
-                            </div>
-                        )}
-                        {data.level && (
-                            <div className="summary-item">
-                                <span className="summary-label">Poziom:</span>
-                                <span className="summary-value">{data.level}</span>
-                            </div>
-                        )}
-                        {data.description && (
-                            <div className="summary-item summary-item-full">
-                                <span className="summary-label">Opis:</span>
-                                <span className="summary-value">{data.description}</span>
-                            </div>
-                        )}
-                        {data.tag_ids.length > 0 && (
-                            <div className="summary-item">
-                                <span className="summary-label">Tagi:</span>
-                                <span className="summary-value">{data.tag_ids.length} tagów</span>
-                            </div>
-                        )}
-                        {data.favourite && (
-                            <div className="summary-item">
-                                <span className="summary-label">Ulubiony:</span>
-                                <span className="summary-value">⭐ Tak</span>
+
+                        {/* Section 3: Inne */}
+                        {(data.image || data.tag_ids.length > 0 || data.favourite) && (
+                            <div className="summary-section">
+                                <h4 className="summary-section-title">✨ Personalizacja</h4>
+                                <div className="summary-section-items">
+                                    {data.image && (
+                                        <div className="summary-item">
+                                            <span className="summary-label">🎨 Ikona:</span>
+                                            <span className="summary-value" style={{ fontSize: '24px' }}>{data.image}</span>
+                                        </div>
+                                    )}
+                                    {selectedTags.length > 0 && (
+                                        <div className="summary-item">
+                                            <span className="summary-label">🏷️ Tagi:</span>
+                                            <span className="summary-value">{selectedTags.map(tag => tag.name).join(', ')}</span>
+                                        </div>
+                                    )}
+                                    {data.favourite && (
+                                        <div className="summary-item">
+                                            <span className="summary-label">⭐ Ulubiony:</span>
+                                            <span className="summary-value">Tak</span>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         )}
                     </div>
