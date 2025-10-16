@@ -376,11 +376,8 @@ function CreateQuizPage() {
                         onSubmit={handleMetadataSubmit}
                         onCancel={handleCancel}
                         isValid={isMetadataValid()}
+                        error={error}
                     />
-
-                    {error && (
-                        <div className="error-message">{error}</div>
-                    )}
                 </div>
             </div>
         );

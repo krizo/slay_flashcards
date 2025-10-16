@@ -31,6 +31,7 @@ interface QuizMetadataFormProps {
     onSubmit?: () => void;
     onCancel?: () => void;
     isValid?: boolean;
+    error?: string | null;
 }
 
 export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
@@ -42,6 +43,7 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
     onSubmit,
     onCancel,
     isValid = true,
+    error = null,
 }) => {
     const { t } = useTranslation();
     const { subjects, categories, levels } = useQuizFilters();
@@ -447,9 +449,15 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
                     </div>
                 </div>
 
-                <div className="info-box info-box-success">
-                    <strong>{t('quizMetadata.infoReady')}</strong> {t('quizMetadata.infoReadyMessage')}
-                </div>
+                {error ? (
+                    <div className="info-box info-box-error">
+                        <strong>Error:</strong> {error}
+                    </div>
+                ) : (
+                    <div className="info-box info-box-success">
+                        <strong>{t('quizMetadata.infoReady')}</strong> {t('quizMetadata.infoReadyMessage')}
+                    </div>
+                )}
             </div>
             )}
 

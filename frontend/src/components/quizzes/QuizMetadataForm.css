@@ -642,6 +642,12 @@
     color: #065F46;
 }
 
+.info-box-error {
+    background: #FEE2E2;
+    border-left-color: #EF4444;
+    color: #991B1B;
+}
+
 .info-box strong {
     font-weight: 600;
 }
