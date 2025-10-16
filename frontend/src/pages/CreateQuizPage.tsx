@@ -46,6 +46,7 @@ function CreateQuizPage() {
         level: '',
         description: '',
         tag_ids: [],
+        icon: null,
         image: null,
         status: 'draft',
         is_draft: true,
@@ -187,20 +188,21 @@ function CreateQuizPage() {
 
         try {
             // Create quiz with metadata
-            const response = await apiClient.post<{ data: Quiz }>('/quizzes/', {
+            const response = await apiClient.post<Quiz>('/quizzes/', {
                 name: metadataForm.name,
                 subject: metadataForm.subject,
                 category: metadataForm.category || null,
                 level: metadataForm.level || null,
                 description: metadataForm.description || null,
                 tag_ids: metadataForm.tag_ids,
+                icon: metadataForm.icon || null,
                 image: metadataForm.image || null,
                 status: metadataForm.status,
                 is_draft: metadataForm.is_draft,
                 favourite: metadataForm.favourite,
             }, accessToken);
 
-            setQuiz(response.data.data);
+            setQuiz(response);
             isNavigatingRef.current = true;
             setHasUnsavedWork(false);
             setStep('flashcards');
@@ -225,6 +227,7 @@ function CreateQuizPage() {
                 level: metadataForm.level || null,
                 description: metadataForm.description || null,
                 tag_ids: metadataForm.tag_ids,
+                icon: metadataForm.icon || null,
                 image: metadataForm.image || null,
                 status: metadataForm.status,
                 is_draft: metadataForm.is_draft,
@@ -248,7 +251,7 @@ function CreateQuizPage() {
                 }, accessToken);
             } else {
                 // Create new flashcard
-                const response = await apiClient.post<{ data: FlashcardData }>('/flashcards/', {
+                const response = await apiClient.post<FlashcardData>('/flashcards/', {
                     quiz_id: quiz.id,
                     question: flashcard.question,
                     answer: flashcard.answer,
@@ -259,7 +262,7 @@ function CreateQuizPage() {
                     const updated = [...prev];
                     updated[index] = {
                         ...updated[index],
-                        id: response.data.data.id,
+                        id: response.id,
                         isDirty: false,
                     };
                     return updated;

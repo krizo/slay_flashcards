@@ -180,6 +180,7 @@ class QuizBase(BaseModel):
     level: Optional[str] = Field(None, max_length=50, description="Level of advancement (e.g., Beginner, Class 5)")
     description: Optional[str] = Field(None, max_length=1000, description="Quiz description")
     favourite: bool = Field(default=False, description="User's favourite quiz marker")
+    icon: Optional[str] = Field(None, max_length=50, description="Emoji/icon string (e.g., 👑, 📚)")
     image: Optional[str] = Field(None, description="Base64 encoded image data (max 100KB)")
     is_draft: bool = Field(default=True, description="Draft status for quiz creation workflow")
     status: Optional[str] = Field(default='draft', max_length=20, description="Status: draft, published, archived")
@@ -199,6 +200,7 @@ class QuizUpdate(BaseModel):
     level: Optional[str] = Field(None, max_length=50)
     description: Optional[str] = Field(None, max_length=1000)
     favourite: Optional[bool] = None
+    icon: Optional[str] = Field(None, max_length=50)
     image: Optional[str] = None
     is_draft: Optional[bool] = None
     status: Optional[str] = Field(None, max_length=20)

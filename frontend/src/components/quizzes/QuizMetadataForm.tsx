@@ -16,6 +16,7 @@ export interface QuizMetadataFormData {
     level?: string;
     description?: string;
     tag_ids: number[];
+    icon?: string | null;
     image?: string | null;
     status: QuizStatus;
     is_draft: boolean;
@@ -56,6 +57,9 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
     // Emoji picker state
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
+    // Track if form has been submitted
+    const [isSubmitted, setIsSubmitted] = useState(false);
+
     // Get selected tags for display
     const selectedTags = tags.filter(tag => data.tag_ids.includes(tag.id));
 
@@ -81,7 +85,7 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
     const handleIconSelect = (iconName: string) => {
         onChange({
             ...data,
-            image: iconName,
+            icon: iconName,
         });
         setShowEmojiPicker(false);
     };
@@ -89,7 +93,7 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
     const handleRemoveIcon = () => {
         onChange({
             ...data,
-            image: '',
+            icon: '',
         });
     };
 
@@ -315,10 +319,10 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
                     <label className="form-label">{t('quizMetadata.iconLabel')}</label>
                     <p className="form-hint">{t('quizMetadata.iconHint')}</p>
 
-                    {data.image ? (
+                    {data.icon ? (
                         <div className="icon-preview-container">
                             <div className="icon-preview">
-                                <QuizIcon iconName={data.image} size={48} />
+                                <QuizIcon iconName={data.icon} size={48} />
                             </div>
                             <button
                                 type="button"
@@ -381,7 +385,7 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
                 <div className="quiz-summary">
                     <h3 className="summary-title">
                         <span style={{ fontSize: '28px', lineHeight: 1 }}>
-                            {data.image || '📋'}
+                            {data.icon || '📋'}
                         </span>
                         <span>{t('quizMetadata.summaryTitle')}</span>
                     </h3>
@@ -453,11 +457,11 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
                     <div className="info-box info-box-error">
                         <strong>Error:</strong> {error}
                     </div>
-                ) : (
+                ) : isSubmitted ? (
                     <div className="info-box info-box-success">
                         <strong>{t('quizMetadata.infoReady')}</strong> {t('quizMetadata.infoReadyMessage')}
                     </div>
-                )}
+                ) : null}
             </div>
             )}
 
@@ -499,7 +503,10 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
                         <button
                             type="button"
                             className="nav-button nav-button-submit"
-                            onClick={onSubmit}
+                            onClick={() => {
+                                setIsSubmitted(true);
+                                onSubmit?.();
+                            }}
                             disabled={disabled || !isValid}
                         >
                             {t('quizMetadata.navDone')}

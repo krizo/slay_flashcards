@@ -30,14 +30,22 @@ def validate_image_size(base64_image: Optional[str]) -> None:
     """
     Validate that a Base64 encoded image doesn't exceed the maximum size.
 
+    Note: This function also accepts emoji/icon strings (short strings without Base64 encoding).
+    If the string is short (< 50 chars) and not valid Base64, it's treated as an emoji/icon.
+
     Args:
-        base64_image: Base64 encoded image string
+        base64_image: Base64 encoded image string or emoji/icon string
 
     Raises:
-        HTTPException: If image exceeds maximum size
+        HTTPException: If image exceeds maximum size or is invalid Base64 (when not emoji)
     """
     if not base64_image:
         return
+
+    # If the string is very short, treat it as an emoji/icon (not Base64)
+    # Emojis are typically 1-10 characters, even complex ones
+    if len(base64_image) < 50:
+        return  # Skip validation for emoji/icon strings
 
     try:
         # Decode Base64 to get actual binary size
@@ -57,7 +65,16 @@ def validate_image_size(base64_image: Optional[str]) -> None:
 
 
 def quiz_to_dict(quiz, flashcard_count=None, last_session_at=None):
-    """Convert quiz model to dictionary with base64 encoded image."""
+    """Convert quiz model to dictionary with icon and base64 encoded image."""
+    # Handle icon field (emoji string)
+    icon_value = quiz.icon if hasattr(quiz, 'icon') and quiz.icon else None
+
+    # Handle image field (binary Base64 image)
+    image_value = None
+    if hasattr(quiz, 'image') and quiz.image:
+        # Always treat image as binary and encode to Base64
+        image_value = base64.b64encode(quiz.image).decode('utf-8')
+
     return {
         "id": quiz.id,
         "name": quiz.name,
@@ -67,7 +84,8 @@ def quiz_to_dict(quiz, flashcard_count=None, last_session_at=None):
         "description": quiz.description,
         "created_at": quiz.created_at,
         "favourite": quiz.favourite if hasattr(quiz, 'favourite') else False,
-        "image": base64.b64encode(quiz.image).decode('utf-8') if quiz.image else None,
+        "icon": icon_value,
+        "image": image_value,
         "is_draft": quiz.is_draft if hasattr(quiz, 'is_draft') else True,
         "status": quiz.status if hasattr(quiz, 'status') else 'draft',
         "tag_ids": [tag.id for tag in quiz.tags] if hasattr(quiz, 'tags') else [],
@@ -384,7 +402,11 @@ async def create_quiz(
         )
 
         # Handle additional fields not supported by quiz_service.create_quiz
+        if quiz_data.icon:
+            quiz.icon = quiz_data.icon
+
         if quiz_data.image:
+            # Image is always Base64 encoded binary data
             quiz.image = base64.b64decode(quiz_data.image)
 
         if quiz_data.is_draft is not None:
@@ -446,13 +468,18 @@ async def update_quiz(
 
         # Handle special fields
         tag_ids = update_data.pop('tag_ids', None)
+        icon_data = update_data.pop('icon', None)
         image_data = update_data.pop('image', None)
 
         # Update regular fields
         for field, value in update_data.items():
             setattr(quiz, field, value)
 
-        # Handle image field - decode Base64 to binary
+        # Handle icon field (emoji string)
+        if icon_data is not None:
+            quiz.icon = icon_data if icon_data else None
+
+        # Handle image field (Base64 encoded binary data)
         if image_data is not None:
             if image_data:
                 quiz.image = base64.b64decode(image_data)

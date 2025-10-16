@@ -106,6 +106,7 @@ export interface Quiz {
     created_at?: string;
     updated_at?: string;
     favourite: boolean;
+    icon?: string | null;  // Emoji/icon string (e.g., 👑, 📚)
     image?: string | null;  // Base64 encoded image data (max 100KB)
     last_session_at?: string | null;  // Last session datetime for this quiz
     // v0.2.0 fields

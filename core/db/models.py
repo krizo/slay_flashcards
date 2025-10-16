@@ -48,7 +48,8 @@ class Quiz(Base):
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
     description = Column(Text)
     favourite = Column(Boolean, default=False, nullable=False)  # User's favourite quiz marker
-    image = Column(LargeBinary, nullable=True)  # Small image/emoji as binary data
+    icon = Column(String(50), nullable=True)  # Emoji/icon string (e.g., 👑, 📚)
+    image = Column(LargeBinary, nullable=True)  # Binary image data (Base64 encoded in API)
     is_draft = Column(Boolean, default=True, nullable=False)  # Draft status for quiz creation workflow
     status = Column(String(20), default='draft', nullable=False)  # Status: draft, published, archived
 
