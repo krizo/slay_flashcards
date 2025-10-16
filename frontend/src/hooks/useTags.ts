@@ -18,6 +18,11 @@ export const useTags = (accessToken?: string | null): UseTagsReturn => {
     const [error, setError] = useState<string | null>(null);
 
     const fetchTags = async () => {
+        if (!accessToken) {
+            setLoading(false);
+            return;
+        }
+
         try {
             setLoading(true);
             setError(null);
