@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import './ComboBox.css';
 
 interface ComboBoxProps {
@@ -24,6 +25,7 @@ export const ComboBox: React.FC<ComboBoxProps> = ({
     addNewLabel = '+ Add new...',
     fieldLabel = 'wartość',
 }) => {
+    const { t } = useTranslation();
     const [isOpen, setIsOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [showModal, setShowModal] = useState(false);
@@ -170,7 +172,7 @@ export const ComboBox: React.FC<ComboBoxProps> = ({
                     ))}
                     {filteredOptions.length === 0 && searchTerm && (
                         <div className="combobox-no-results">
-                            No matching options
+                            {t('comboBox.noMatchingOptions')}
                         </div>
                     )}
                 </div>
@@ -181,7 +183,8 @@ export const ComboBox: React.FC<ComboBoxProps> = ({
                 <div className="combobox-modal-overlay" onClick={handleModalCancel}>
                     <div className="combobox-modal" onClick={(e) => e.stopPropagation()}>
                         <h3 className="combobox-modal-title">
-                            Nowy{fieldLabel.toLowerCase().endsWith('a') ? 'a' : ''} {fieldLabel.toLowerCase()}
+                            {fieldLabel.toLowerCase().endsWith('a') ? t('comboBox.modalTitleNewFeminine') : t('comboBox.modalTitleNew')}{' '}
+                            {fieldLabel.toLowerCase()}
                         </h3>
                         <input
                             ref={modalInputRef}
@@ -190,7 +193,7 @@ export const ComboBox: React.FC<ComboBoxProps> = ({
                             value={modalValue}
                             onChange={(e) => setModalValue(e.target.value)}
                             onKeyDown={handleModalKeyDown}
-                            placeholder={`Wpisz ${fieldLabel.toLowerCase()}...`}
+                            placeholder={`${t('comboBox.modalPlaceholder')} ${fieldLabel.toLowerCase()}...`}
                         />
                         <div className="combobox-modal-actions">
                             <button
@@ -198,7 +201,7 @@ export const ComboBox: React.FC<ComboBoxProps> = ({
                                 className="combobox-modal-button combobox-modal-cancel"
                                 onClick={handleModalCancel}
                             >
-                                Anuluj
+                                {t('comboBox.modalCancel')}
                             </button>
                             <button
                                 type="button"
@@ -206,7 +209,7 @@ export const ComboBox: React.FC<ComboBoxProps> = ({
                                 onClick={handleModalSubmit}
                                 disabled={!modalValue.trim()}
                             >
-                                Dodaj
+                                {t('comboBox.modalAdd')}
                             </button>
                         </div>
                     </div>

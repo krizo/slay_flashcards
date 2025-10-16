@@ -126,13 +126,13 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
     const getStepTitle = (step: number): string => {
         switch (step) {
             case 1:
-                return 'Podstawy';
+                return t('quizMetadata.stepBasics');
             case 2:
-                return 'Klasyfikacja';
+                return t('quizMetadata.stepClassification');
             case 3:
-                return 'Personalizacja';
+                return t('quizMetadata.stepPersonalization');
             case 4:
-                return 'Finalizacja';
+                return t('quizMetadata.stepFinalization');
             default:
                 return '';
         }
@@ -168,8 +168,8 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
                 {/* Hero Section */}
                 <div className="form-hero">
                     <div className="form-hero-icon">✨</div>
-                    <h2 className="form-hero-title">Stwórz nowy quiz!</h2>
-                    <p className="form-hero-subtitle">Zacznijmy od podstaw - nadaj nazwę i opisz swój quiz</p>
+                    <h2 className="form-hero-title">{t('quizMetadata.heroTitleCreate')}</h2>
+                    <p className="form-hero-subtitle">{t('quizMetadata.heroSubtitleBasics')}</p>
                 </div>
 
                 {/* Name and Description side by side */}
@@ -178,9 +178,9 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
                     <div className="form-group">
                         <label htmlFor="name" className="form-label-with-icon-large required">
                             <span className="label-icon-large">📌</span>
-                            <span>Nazwa quizu</span>
+                            <span>{t('quizMetadata.nameLabel')}</span>
                         </label>
-                        <p className="form-hint-caring">Podaj nazwę quizu, żebyś mógł łatwo go odszukać</p>
+                        <p className="form-hint-caring">{t('quizMetadata.nameHint')}</p>
                         <input
                             type="text"
                             id="name"
@@ -188,12 +188,12 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
                             className={`form-input form-input-large ${showValidation && !isNameValid ? 'invalid' : ''}`}
                             value={data.name}
                             onChange={handleInputChange}
-                            placeholder="Równania kwadratowe"
+                            placeholder={t('quizMetadata.namePlaceholder')}
                             disabled={disabled}
                             required
                         />
                         {showValidation && !isNameValid && (
-                            <span className="form-error">Nazwa jest wymagana</span>
+                            <span className="form-error">{t('quizMetadata.nameRequired')}</span>
                         )}
                     </div>
 
@@ -201,16 +201,16 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
                     <div className="form-group">
                         <label htmlFor="description" className="form-label-with-icon-large">
                             <span className="label-icon-large">📋</span>
-                            <span>Opis</span>
+                            <span>{t('quizMetadata.descriptionLabel')}</span>
                         </label>
-                        <p className="form-hint-caring">Pomoże Ci zrozumieć jaką wiedzę zawiera</p>
+                        <p className="form-hint-caring">{t('quizMetadata.descriptionHint')}</p>
                         <textarea
                             id="description"
                             name="description"
                             className="form-input form-textarea form-input-large"
                             value={data.description || ''}
                             onChange={handleInputChange}
-                            placeholder="Opisz czego dotyczy ten quiz i co będzie testowane..."
+                            placeholder={t('quizMetadata.descriptionPlaceholder')}
                             rows={4}
                             disabled={disabled}
                         />
@@ -224,8 +224,8 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
                 {/* Hero Section */}
                 <div className="form-hero">
                     <div className="form-hero-icon">🏷️</div>
-                    <h2 className="form-hero-title">Klasyfikacja</h2>
-                    <p className="form-hero-subtitle">Uporządkuj swój quiz - wybierz przedmiot, kategorię i poziom</p>
+                    <h2 className="form-hero-title">{t('quizMetadata.stepClassification')}</h2>
+                    <p className="form-hero-subtitle">{t('quizMetadata.heroSubtitleClassification')}</p>
                 </div>
 
             {/* Subject, Category & Level - Three in a row */}
@@ -242,8 +242,8 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
                         disabled={disabled}
                         required={true}
                         className={`combobox-classification ${showValidation && !isSubjectValid ? 'invalid' : ''}`}
-                        addNewLabel="+ Dodaj nowy..."
-                        fieldLabel="Przedmiot"
+                        addNewLabel={t('quizMetadata.addNewLabel')}
+                        fieldLabel={t('quizMetadata.fieldLabelSubject')}
                     />
                     {showValidation && !isSubjectValid && (
                         <span className="form-error">{t('quizEditor.subjectRequired')}</span>
@@ -261,8 +261,8 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
                         placeholder={t('quizEditor.categoryPlaceholder')}
                         disabled={disabled}
                         className="combobox-classification"
-                        addNewLabel="+ Dodaj nowy..."
-                        fieldLabel="Kategoria"
+                        addNewLabel={t('quizMetadata.addNewLabel')}
+                        fieldLabel={t('quizMetadata.fieldLabelCategory')}
                     />
                 </div>
 
@@ -277,8 +277,8 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
                         placeholder={t('quizEditor.levelPlaceholder')}
                         disabled={disabled}
                         className="combobox-classification"
-                        addNewLabel="+ Dodaj nowy..."
-                        fieldLabel="Poziom"
+                        addNewLabel={t('quizMetadata.addNewLabel')}
+                        fieldLabel={t('quizMetadata.fieldLabelLevel')}
                     />
                 </div>
             </div>
@@ -290,16 +290,16 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
                 {/* Hero Section */}
                 <div className="form-hero">
                     <div className="form-hero-icon">🎨</div>
-                    <h2 className="form-hero-title">Personalizacja</h2>
-                    <p className="form-hero-subtitle">Nadaj swojemu quizowi indywidualny charakter!</p>
+                    <h2 className="form-hero-title">{t('quizMetadata.stepPersonalization')}</h2>
+                    <p className="form-hero-subtitle">{t('quizMetadata.heroSubtitlePersonalization')}</p>
                 </div>
 
             {/* Tags and Icon - side by side */}
             <div className="form-row-three">
                 {/* Tags */}
                 <div className="form-group">
-                    <label className="form-label">Tagi</label>
-                    <p className="form-hint">Dodaj tagi aby łatwiej organizować quizy</p>
+                    <label className="form-label">{t('quizMetadata.tagsLabel')}</label>
+                    <p className="form-hint">{t('quizMetadata.tagsHint')}</p>
                     <TagSelector
                         selectedTagIds={data.tag_ids}
                         onChange={handleTagsChange}
@@ -310,8 +310,8 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
 
                 {/* Icon Picker */}
                 <div className="form-group">
-                    <label className="form-label">Ikona quizu</label>
-                    <p className="form-hint">Wybierz ikonę która najlepiej opisuje Twój quiz</p>
+                    <label className="form-label">{t('quizMetadata.iconLabel')}</label>
+                    <p className="form-hint">{t('quizMetadata.iconHint')}</p>
 
                     {data.image ? (
                         <div className="icon-preview-container">
@@ -324,7 +324,7 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
                                 onClick={handleRemoveIcon}
                                 disabled={disabled}
                             >
-                                Usuń
+                                {t('quizMetadata.iconRemove')}
                             </button>
                         </div>
                     ) : (
@@ -336,7 +336,7 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
                                     onClick={() => setShowEmojiPicker(true)}
                                     disabled={disabled}
                                 >
-                                    Wybierz ikonę ✨
+                                    {t('quizMetadata.iconChoose')}
                                 </button>
                             ) : (
                                 <IconPicker
@@ -358,9 +358,9 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
                             onChange={handleInputChange}
                             disabled={disabled}
                         />
-                        <span>⭐ Dodaj do ulubionych</span>
+                        <span>{t('quizMetadata.favouriteLabel')}</span>
                     </label>
-                    <p className="form-hint">Ulubione quizy są łatwiej dostępne na liście</p>
+                    <p className="form-hint">{t('quizMetadata.favouriteHint')}</p>
                 </div>
             </div>
             </div>
@@ -371,8 +371,8 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
                 {/* Hero Section */}
                 <div className="form-hero">
                     <div className="form-hero-icon">✅</div>
-                    <h2 className="form-hero-title">Finalizacja</h2>
-                    <p className="form-hero-subtitle">Sprawdź ustawienia i zdecyduj, kiedy quiz będzie dostępny</p>
+                    <h2 className="form-hero-title">{t('quizMetadata.stepFinalization')}</h2>
+                    <p className="form-hero-subtitle">{t('quizMetadata.heroSubtitleFinalization')}</p>
                 </div>
 
                 {/* Quiz Summary */}
@@ -381,20 +381,20 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
                         <span style={{ fontSize: '28px', lineHeight: 1 }}>
                             {data.image || '📋'}
                         </span>
-                        <span>Podsumowanie quizu</span>
+                        <span>{t('quizMetadata.summaryTitle')}</span>
                     </h3>
                     <div className="summary-content">
                         {/* Section 1: Nazwa i Opis */}
                         <div className="summary-section">
-                            <h4 className="summary-section-title">📝 Podstawowe informacje</h4>
+                            <h4 className="summary-section-title">{t('quizMetadata.summaryBasicInfo')}</h4>
                             <div className="summary-section-items">
                                 <div className="summary-item">
-                                    <span className="summary-label">📌 Nazwa:</span>
-                                    <span className="summary-value">{data.name || '(brak)'}</span>
+                                    <span className="summary-label">{t('quizMetadata.summaryName')}</span>
+                                    <span className="summary-value">{data.name || t('quizMetadata.summaryEmpty')}</span>
                                 </div>
                                 {data.description && (
                                     <div className="summary-item summary-item-full">
-                                        <span className="summary-label">📋 Opis:</span>
+                                        <span className="summary-label">{t('quizMetadata.summaryDescription')}</span>
                                         <span className="summary-value summary-description">{data.description}</span>
                                     </div>
                                 )}
@@ -403,21 +403,21 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
 
                         {/* Section 2: Kategoryzacja */}
                         <div className="summary-section">
-                            <h4 className="summary-section-title">🏷️ Kategoryzacja</h4>
+                            <h4 className="summary-section-title">{t('quizMetadata.summaryCategorization')}</h4>
                             <div className="summary-section-items">
                                 <div className="summary-item">
-                                    <span className="summary-label">📚 Przedmiot:</span>
-                                    <span className="summary-value">{data.subject || '(brak)'}</span>
+                                    <span className="summary-label">{t('quizMetadata.summarySubject')}</span>
+                                    <span className="summary-value">{data.subject || t('quizMetadata.summaryEmpty')}</span>
                                 </div>
                                 {data.category && (
                                     <div className="summary-item">
-                                        <span className="summary-label">📂 Kategoria:</span>
+                                        <span className="summary-label">{t('quizMetadata.summaryCategory')}</span>
                                         <span className="summary-value">{data.category}</span>
                                     </div>
                                 )}
                                 {data.level && (
                                     <div className="summary-item">
-                                        <span className="summary-label">📊 Poziom:</span>
+                                        <span className="summary-label">{t('quizMetadata.summaryLevel')}</span>
                                         <span className="summary-value">{data.level}</span>
                                     </div>
                                 )}
@@ -427,24 +427,24 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
                         {/* Section 3: Inne */}
                         {(data.image || data.tag_ids.length > 0 || data.favourite) && (
                             <div className="summary-section">
-                                <h4 className="summary-section-title">✨ Personalizacja</h4>
+                                <h4 className="summary-section-title">{t('quizMetadata.summaryPersonalization')}</h4>
                                 <div className="summary-section-items">
                                     {data.image && (
                                         <div className="summary-item">
-                                            <span className="summary-label">🎨 Ikona:</span>
+                                            <span className="summary-label">{t('quizMetadata.summaryIcon')}</span>
                                             <span className="summary-value" style={{ fontSize: '24px' }}>{data.image}</span>
                                         </div>
                                     )}
                                     {selectedTags.length > 0 && (
                                         <div className="summary-item">
-                                            <span className="summary-label">🏷️ Tagi:</span>
+                                            <span className="summary-label">{t('quizMetadata.summaryTags')}</span>
                                             <span className="summary-value">{selectedTags.map(tag => tag.name).join(', ')}</span>
                                         </div>
                                     )}
                                     {data.favourite && (
                                         <div className="summary-item">
-                                            <span className="summary-label">⭐ Ulubiony:</span>
-                                            <span className="summary-value">Tak</span>
+                                            <span className="summary-label">{t('quizMetadata.summaryFavourite')}</span>
+                                            <span className="summary-value">{t('quizMetadata.summaryFavouriteYes')}</span>
                                         </div>
                                     )}
                                 </div>
@@ -454,7 +454,7 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
                 </div>
 
                 <div className="info-box info-box-success">
-                    <strong>✅ Gotowe!</strong> Możesz teraz przejść do tworzenia fiszek i wypełnić quiz pytaniami.
+                    <strong>{t('quizMetadata.infoReady')}</strong> {t('quizMetadata.infoReadyMessage')}
                 </div>
             </div>
             )}
@@ -470,7 +470,7 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
                         onClick={handleBack}
                         disabled={disabled}
                     >
-                        ← Wstecz
+                        {t('quizMetadata.navBack')}
                     </button>
                 )}
                 <div style={{ marginLeft: 'auto', display: 'flex', gap: '12px' }}>
@@ -481,7 +481,7 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
                             onClick={onCancel}
                             disabled={disabled}
                         >
-                            Anuluj
+                            {t('quizMetadata.navCancel')}
                         </button>
                     )}
                     {currentStep < totalSteps ? (
@@ -491,7 +491,7 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
                             onClick={handleNext}
                             disabled={disabled || !isStepValid(currentStep)}
                         >
-                            Dalej →
+                            {t('quizMetadata.navNext')}
                         </button>
                     ) : (
                         <button
@@ -500,7 +500,7 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
                             onClick={onSubmit}
                             disabled={disabled || !isValid}
                         >
-                            Gotowe ✓
+                            {t('quizMetadata.navDone')}
                         </button>
                     )}
                 </div>
