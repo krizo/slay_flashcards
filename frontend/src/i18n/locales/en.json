@@ -442,6 +442,24 @@
     "modalCancel": "Cancel",
     "modalAdd": "Add"
   },
+  "iconPicker": {
+    "title": "Choose icon",
+    "categoryHistory": "📜 History",
+    "categoryScience": "🔬 Science",
+    "categoryMath": "📐 Mathematics",
+    "categoryGeography": "🌍 Geography",
+    "categoryLanguages": "🌐 Languages",
+    "categoryArt": "🎨 Art",
+    "categorySports": "⚽ Sports",
+    "categoryNature": "🌱 Nature",
+    "categoryTechnology": "💻 Technology",
+    "categoryGeneral": "🎓 General",
+    "categoryCustom": "✨ Custom",
+    "customEmojiLabel": "Paste any emoji:",
+    "customEmojiPlaceholder": "🎯 Paste emoji here...",
+    "customEmojiSubmit": "Choose",
+    "customEmojiHint": "You can paste any emoji from your keyboard (Ctrl+Cmd+Space on Mac, Win+. on Windows)"
+  },
   "flashcardEditor": {
     "questionSection": "Question",
     "answerSection": "Answer",

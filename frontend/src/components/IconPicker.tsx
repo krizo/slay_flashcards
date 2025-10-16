@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import './IconPicker.css';
 
 interface IconPickerProps {
@@ -7,76 +8,76 @@ interface IconPickerProps {
 }
 
 interface EmojiCategory {
-    name: string;
+    nameKey: string;
     emojis: string[];
 }
 
 const EMOJI_CATEGORIES: EmojiCategory[] = [
     {
-        name: '📜 Historia',
+        nameKey: 'iconPicker.categoryHistory',
         emojis: [
             '🏛️', '📜', '⚔️', '👑', '🗿', '🏺', '⚱️',
             '🏰', '🛡️', '📯', '🏹', '⛪', '🕌', '🗝️'
         ]
     },
     {
-        name: '🔬 Nauki ścisłe',
+        nameKey: 'iconPicker.categoryScience',
         emojis: [
             '🔬', '⚗️', '🧪', '🧬', '💉', '🦠', '⚛️',
             '🔭', '🧲', '💊', '🩺', '🧫', '🌡️', '💡'
         ]
     },
     {
-        name: '📐 Matematyka',
+        nameKey: 'iconPicker.categoryMath',
         emojis: [
             '📐', '📏', '📊', '📈', '📉', '🔢', '➕',
             '➖', '✖️', '➗', '🧮', '💯', '∞', '∑'
         ]
     },
     {
-        name: '🌍 Geografia',
+        nameKey: 'iconPicker.categoryGeography',
         emojis: [
             '🌍', '🌎', '🌏', '🗺️', '⛰️', '🌋', '🏔️',
             '🗻', '🏜️', '🏝️', '🌊', '💧', '🌦️', '🧭'
         ]
     },
     {
-        name: '🌐 Języki',
+        nameKey: 'iconPicker.categoryLanguages',
         emojis: [
             '🇬🇧', '🇵🇱', '🇩🇪', '🇫🇷', '🇪🇸', '🇮🇹',
             '🇷🇺', '🇨🇳', '🇯🇵', '🇺🇦', '🇬🇷', '🇭🇺', '🇳🇱', '🇸🇪'
         ]
     },
     {
-        name: '🎨 Sztuka',
+        nameKey: 'iconPicker.categoryArt',
         emojis: [
             '🎨', '🖼️', '🎭', '🎪', '🎬', '🎤', '🎧',
             '🎵', '🎶', '🎸', '🎹', '🎺', '🎻', '🥁'
         ]
     },
     {
-        name: '⚽ Sport',
+        nameKey: 'iconPicker.categorySports',
         emojis: [
             '⚽', '🏀', '🏈', '⚾', '🎾', '🏐', '🏉',
             '🥇', '🥈', '🥉', '🏆', '🏅', '🎯', '⛳'
         ]
     },
     {
-        name: '🌱 Przyroda',
+        nameKey: 'iconPicker.categoryNature',
         emojis: [
             '🌱', '🌿', '🍀', '🌳', '🌲', '🌴', '🌵',
             '🦋', '🐝', '🐞', '🌺', '🌻', '🌸', '🌷'
         ]
     },
     {
-        name: '💻 Technologia',
+        nameKey: 'iconPicker.categoryTechnology',
         emojis: [
             '💻', '🖥️', '⌨️', '🖱️', '🖨️', '📱', '🔋',
             '💾', '💿', '📡', '🔌', '🤖', '🚀', '🛸'
         ]
     },
     {
-        name: '🎓 Ogólne',
+        nameKey: 'iconPicker.categoryGeneral',
         emojis: [
             '🎓', '📌', '⭐', '✨', '💎', '🔥', '⚡',
             '🌟', '💫', '✅', '❓', '❗', '💭', '🔔'
@@ -85,6 +86,7 @@ const EMOJI_CATEGORIES: EmojiCategory[] = [
 ];
 
 export const IconPicker: React.FC<IconPickerProps> = ({ onSelect, onClose }) => {
+    const { t } = useTranslation();
     const [selectedCategory, setSelectedCategory] = useState(0);
     const [customEmoji, setCustomEmoji] = useState('');
 
@@ -105,7 +107,7 @@ export const IconPicker: React.FC<IconPickerProps> = ({ onSelect, onClose }) => 
     return (
         <div className="icon-picker">
             <div className="icon-picker-header">
-                <h3>Wybierz ikonę</h3>
+                <h3>{t('iconPicker.title')}</h3>
                 <button type="button" className="icon-picker-close" onClick={onClose}>✕</button>
             </div>
 
@@ -117,7 +119,7 @@ export const IconPicker: React.FC<IconPickerProps> = ({ onSelect, onClose }) => 
                         className={`category-button ${selectedCategory === index ? 'active' : ''}`}
                         onClick={() => setSelectedCategory(index)}
                     >
-                        {category.name}
+                        {t(category.nameKey)}
                     </button>
                 ))}
                 <button
@@ -125,7 +127,7 @@ export const IconPicker: React.FC<IconPickerProps> = ({ onSelect, onClose }) => 
                     className={`category-button ${isCustomCategory ? 'active' : ''}`}
                     onClick={() => setSelectedCategory(EMOJI_CATEGORIES.length)}
                 >
-                    ✨ Własne
+                    {t('iconPicker.categoryCustom')}
                 </button>
             </div>
 
@@ -133,7 +135,7 @@ export const IconPicker: React.FC<IconPickerProps> = ({ onSelect, onClose }) => 
                 <div className="custom-emoji-input">
                     <form onSubmit={handleCustomEmojiSubmit}>
                         <label htmlFor="custom-emoji" className="custom-emoji-label">
-                            Wklej dowolne emoji:
+                            {t('iconPicker.customEmojiLabel')}
                         </label>
                         <div className="custom-emoji-controls">
                             <input
@@ -142,7 +144,7 @@ export const IconPicker: React.FC<IconPickerProps> = ({ onSelect, onClose }) => 
                                 className="custom-emoji-field"
                                 value={customEmoji}
                                 onChange={(e) => setCustomEmoji(e.target.value)}
-                                placeholder="🎯 Wklej emoji tutaj..."
+                                placeholder={t('iconPicker.customEmojiPlaceholder')}
                                 autoFocus
                             />
                             <button
@@ -150,11 +152,11 @@ export const IconPicker: React.FC<IconPickerProps> = ({ onSelect, onClose }) => 
                                 className="custom-emoji-submit"
                                 disabled={!customEmoji.trim()}
                             >
-                                Wybierz
+                                {t('iconPicker.customEmojiSubmit')}
                             </button>
                         </div>
                         <p className="custom-emoji-hint">
-                            Możesz wkleić dowolne emoji z klawiatury (Ctrl+Cmd+Space na Mac, Win+. na Windows)
+                            {t('iconPicker.customEmojiHint')}
                         </p>
                     </form>
                 </div>

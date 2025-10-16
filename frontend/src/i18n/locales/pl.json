@@ -446,6 +446,24 @@
     "modalCancel": "Anuluj",
     "modalAdd": "Dodaj"
   },
+  "iconPicker": {
+    "title": "Wybierz ikonę",
+    "categoryHistory": "📜 Historia",
+    "categoryScience": "🔬 Nauki ścisłe",
+    "categoryMath": "📐 Matematyka",
+    "categoryGeography": "🌍 Geografia",
+    "categoryLanguages": "🌐 Języki",
+    "categoryArt": "🎨 Sztuka",
+    "categorySports": "⚽ Sport",
+    "categoryNature": "🌱 Przyroda",
+    "categoryTechnology": "💻 Technologia",
+    "categoryGeneral": "🎓 Ogólne",
+    "categoryCustom": "✨ Własne",
+    "customEmojiLabel": "Wklej dowolne emoji:",
+    "customEmojiPlaceholder": "🎯 Wklej emoji tutaj...",
+    "customEmojiSubmit": "Wybierz",
+    "customEmojiHint": "Możesz wkleić dowolne emoji z klawiatury (Ctrl+Cmd+Space na Mac, Win+. na Windows)"
+  },
   "flashcardEditor": {
     "questionSection": "Pytanie",
     "answerSection": "Odpowiedź",
