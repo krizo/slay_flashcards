@@ -429,7 +429,11 @@
     "goToSummary": "Przejrzyj i Opublikuj",
     "flashcards": "Fiszki",
     "untitled": "Bez tytułu",
-    "unsaved": "Niezapisane"
+    "unsaved": "Niezapisane",
+    "unsavedChangesTitle": "Niezapisane zmiany",
+    "unsavedChangesMessage": "Masz niezapisane zmiany w formularzu. Czy na pewno chcesz opuścić tę stronę?",
+    "cancelLeave": "Anuluj",
+    "confirmLeave": "Opuść stronę"
   },
   "quizSummary": {
     "title": "Przejrzyj Quiz",

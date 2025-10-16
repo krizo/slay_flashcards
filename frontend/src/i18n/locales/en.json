@@ -425,7 +425,11 @@
     "goToSummary": "Review & Publish",
     "flashcards": "Flashcards",
     "untitled": "Untitled",
-    "unsaved": "Unsaved"
+    "unsaved": "Unsaved",
+    "unsavedChangesTitle": "Unsaved Changes",
+    "unsavedChangesMessage": "You have unsaved changes in the form. Are you sure you want to leave this page?",
+    "cancelLeave": "Cancel",
+    "confirmLeave": "Leave Page"
   },
   "quizSummary": {
     "title": "Review Your Quiz",

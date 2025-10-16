@@ -1,7 +1,9 @@
+import { useTranslation } from 'react-i18next';
 import { useUnsavedChanges } from '../contexts/UnsavedChangesContext';
 import './ConfirmModal.css';
 
 function ConfirmModal() {
+    const { t } = useTranslation();
     const { showConfirmModal, handleConfirm, handleCancel } = useUnsavedChanges();
 
     if (!showConfirmModal) return null;
@@ -10,9 +12,9 @@ function ConfirmModal() {
         <div className="confirm-modal-overlay" onClick={handleCancel}>
             <div className="confirm-modal" onClick={(e) => e.stopPropagation()}>
                 <div className="confirm-modal-icon">⚠️</div>
-                <h3 className="confirm-modal-title">Niezapisane zmiany</h3>
+                <h3 className="confirm-modal-title">{t('createQuiz.unsavedChangesTitle')}</h3>
                 <p className="confirm-modal-message">
-                    Masz niezapisane zmiany w formularzu. Czy na pewno chcesz opuścić tę stronę?
+                    {t('createQuiz.unsavedChangesMessage')}
                 </p>
                 <div className="confirm-modal-actions">
                     <button
@@ -20,14 +22,14 @@ function ConfirmModal() {
                         className="confirm-modal-button confirm-modal-cancel"
                         onClick={handleCancel}
                     >
-                        Anuluj
+                        {t('createQuiz.cancelLeave')}
                     </button>
                     <button
                         type="button"
                         className="confirm-modal-button confirm-modal-confirm"
                         onClick={handleConfirm}
                     >
-                        Opuść stronę
+                        {t('createQuiz.confirmLeave')}
                     </button>
                 </div>
             </div>
