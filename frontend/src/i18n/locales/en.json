@@ -421,6 +421,7 @@
     "summaryTags": "🏷️ Tags:",
     "summaryFavourite": "⭐ Favourite:",
     "summaryFavouriteYes": "Yes",
+    "summaryFavouriteNo": "No",
     "summaryEmpty": "(none)",
     "infoReady": "✅ Ready!",
     "infoReadyMessage": "You can now proceed to creating flashcards and fill the quiz with questions.",

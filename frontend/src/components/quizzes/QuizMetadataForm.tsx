@@ -424,29 +424,23 @@ export const QuizMetadataForm: React.FC<QuizMetadataFormProps> = ({
                             </div>
                         </div>
 
-                        {/* Section 3: Inne */}
-                        {(data.image || data.tag_ids.length > 0 || data.favourite) && (
+                        {/* Section 3: Personalizacja */}
+                        {(data.tag_ids.length > 0 || true) && (
                             <div className="summary-section">
                                 <h4 className="summary-section-title">{t('quizMetadata.summaryPersonalization')}</h4>
                                 <div className="summary-section-items">
-                                    {data.image && (
-                                        <div className="summary-item">
-                                            <span className="summary-label">{t('quizMetadata.summaryIcon')}</span>
-                                            <span className="summary-value" style={{ fontSize: '24px' }}>{data.image}</span>
-                                        </div>
-                                    )}
                                     {selectedTags.length > 0 && (
                                         <div className="summary-item">
                                             <span className="summary-label">{t('quizMetadata.summaryTags')}</span>
                                             <span className="summary-value">{selectedTags.map(tag => tag.name).join(', ')}</span>
                                         </div>
                                     )}
-                                    {data.favourite && (
-                                        <div className="summary-item">
-                                            <span className="summary-label">{t('quizMetadata.summaryFavourite')}</span>
-                                            <span className="summary-value">{t('quizMetadata.summaryFavouriteYes')}</span>
-                                        </div>
-                                    )}
+                                    <div className="summary-item">
+                                        <span className="summary-label">{t('quizMetadata.summaryFavourite')}</span>
+                                        <span className="summary-value">
+                                            {data.favourite ? t('quizMetadata.summaryFavouriteYes') : t('quizMetadata.summaryFavouriteNo')}
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                         )}
