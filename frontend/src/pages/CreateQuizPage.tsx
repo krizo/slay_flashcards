@@ -198,7 +198,7 @@ function CreateQuizPage() {
                 status: metadataForm.status,
                 is_draft: metadataForm.is_draft,
                 favourite: metadataForm.favourite,
-            });
+            }, accessToken);
 
             setQuiz(response.data.data);
             isNavigatingRef.current = true;
@@ -229,7 +229,7 @@ function CreateQuizPage() {
                 status: metadataForm.status,
                 is_draft: metadataForm.is_draft,
                 favourite: metadataForm.favourite,
-            });
+            }, accessToken);
         } catch (err) {
             console.error('Failed to save quiz metadata:', err);
         }
@@ -245,14 +245,14 @@ function CreateQuizPage() {
                 await apiClient.put(`/flashcards/${flashcard.id}`, {
                     question: flashcard.question,
                     answer: flashcard.answer,
-                });
+                }, accessToken);
             } else {
                 // Create new flashcard
                 const response = await apiClient.post<{ data: FlashcardData }>('/flashcards/', {
                     quiz_id: quiz.id,
                     question: flashcard.question,
                     answer: flashcard.answer,
-                });
+                }, accessToken);
 
                 // Update flashcard with ID
                 setFlashcards(prev => {
@@ -326,7 +326,7 @@ function CreateQuizPage() {
         // If flashcard has an ID, delete from backend
         if (flashcard.id && quiz) {
             try {
-                await apiClient.delete(`/flashcards/${flashcard.id}`);
+                await apiClient.delete(`/flashcards/${flashcard.id}`, accessToken);
             } catch (err) {
                 console.error('Failed to delete flashcard:', err);
                 return;
